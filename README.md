@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SHYHY Live - Under Construction
 
-## Getting Started
+A stunning, minimal under construction page for SHYHY Live rooftop bar and restaurant.
 
-First, run the development server:
+## 🎨 Features
+
+- **Minimal Design**: Clean, premium aesthetic with no unnecessary containers
+- **Animated Background**: Smooth Framer Motion animations with moving gradient orbs
+- **Twinkling Stars**: 30+ subtle stars that fade in/out independently
+- **Rotating Taglines**: Smooth transitions between brand messages
+- **Responsive Design**: Works perfectly on all devices
+- **Professional Status**: Elegant maintenance message with animated indicator
+
+## 🚀 Tech Stack
+
+- **Next.js 15** with App Router
+- **TypeScript** for type safety
+- **Tailwind CSS** for styling
+- **Framer Motion** for smooth animations
+- **Google Fonts** (Playfair Display, Manrope)
+
+## 🎯 Design Philosophy
+
+- **Minimal**: Only essential elements, no clutter
+- **Premium**: High-quality animations and typography
+- **Centered**: Perfect vertical and horizontal alignment
+- **Alive**: Background animations that never restart
+- **Smooth**: Elegant transitions and movements
+
+## 🛠️ Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Start development server
 pnpm dev
-# or
-bun dev
+
+# Build for production
+pnpm build
+
+# Start production server
+pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📱 Live Demo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Visit [http://localhost:3000](http://localhost:3000) to see the under construction page in action.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎨 Brand Colors
 
-## Learn More
+- **Midnight**: `#0C1222` (Background)
+- **Skyline Purple**: `#6A4CFF` (Accent)
+- **Neon Cyan**: `#3EE0E0` (Accent)
+- **Gold**: `#D4AF37` (Highlights)
+- **Cloud**: `#E7ECF2` (Text)
 
-To learn more about Next.js, take a look at the following resources:
+## 📄 License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project is private and proprietary to SHYHY Live.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**SHYHY Live** - *Feel the Sky, Live the Music*
