@@ -3,6 +3,7 @@ import { playfair, manrope } from '@/styles/fonts';
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://skyhy.vercel.app'),
   title: 'SHYHY Live — Under Maintenance',
   description: 'SHYHY Live — Feel the Sky, Live the Music. Website under maintenance, stay tuned for something amazing.',
   keywords: ['rooftop bar', 'live music', 'cocktails', 'restaurant', 'nightlife', 'under maintenance', 'coming soon'],

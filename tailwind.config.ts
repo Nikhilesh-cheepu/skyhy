@@ -19,10 +19,6 @@ const config: Config = {
         playfair: ["var(--font-playfair)", "serif"],
         manrope: ["var(--font-manrope)", "sans-serif"],
       },
-      animation: {
-        'fade-in-up': 'fadeInUp 1s ease-in-out',
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      },
     },
   },
   plugins: [],
