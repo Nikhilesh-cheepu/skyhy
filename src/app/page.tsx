@@ -6,6 +6,14 @@ import { motion } from 'framer-motion';
 
 export default function HomePage() {
   const [currentTagline, setCurrentTagline] = useState(0);
+  const [stars, setStars] = useState<Array<{
+    id: number;
+    size: number;
+    x: number;
+    y: number;
+    duration: number;
+    delay: number;
+  }>>([]);
   
   const taglines = [
     'Feel the Sky, Live the Music',
@@ -21,6 +29,19 @@ export default function HomePage() {
 
     return () => clearInterval(interval);
   }, [taglines.length]);
+
+  // Generate stars only on client side to avoid hydration mismatch
+  useEffect(() => {
+    const generatedStars = Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      size: Math.random() * 2 + 1,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 5,
+    }));
+    setStars(generatedStars);
+  }, []);
 
   return (
     <main className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#0C1222' }}>
@@ -81,15 +102,15 @@ export default function HomePage() {
 
       {/* Twinkling Stars */}
       <div className="absolute inset-0">
-        {[...Array(30)].map((_, i) => (
+        {stars.map((star) => (
           <motion.div
-            key={i}
+            key={star.id}
             className="absolute rounded-full"
             style={{
-              width: `${Math.random() * 2 + 1}px`,
-              height: `${Math.random() * 2 + 1}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              left: `${star.x}%`,
+              top: `${star.y}%`,
               backgroundColor: 'rgba(255, 255, 255, 0.8)',
               boxShadow: '0 0 6px rgba(255, 255, 255, 0.6), 0 0 12px rgba(106, 76, 255, 0.3)',
             }}
@@ -98,9 +119,9 @@ export default function HomePage() {
               scale: [1, 1.2, 1],
             }}
             transition={{
-              duration: Math.random() * 3 + 2,
+              duration: star.duration,
               repeat: Infinity,
-              delay: Math.random() * 5,
+              delay: star.delay,
               ease: "easeInOut"
             }}
           />
