@@ -37,25 +37,25 @@ export default function HomePage() {
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center gap-6 mx-auto">
                   <button 
-                    onClick={() => document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); } 
+                    onClick={() => document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' })} 
                     className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
                   >
                     Home
                   </button>
                   <button 
-                    onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }); } 
+                    onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} 
                     className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
                   >
                     About
                   </button>
                   <button 
-                    onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' }); } 
+                    onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })} 
                     className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
                   >
                     Menu
                   </button>
                   <button 
-                    onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' }); } 
+                    onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })} 
                     className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
                   >
                     Packages
