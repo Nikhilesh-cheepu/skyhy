@@ -143,13 +143,13 @@ export default function HomePage() {
           )}
           
           {/* Hero content inside blue container */}
-          <div id="home" className="relative z-10 w-full pt-24 px-4">
+          <div id="home" className="relative z-10 w-full pt-20 px-2 md:px-4">
             {/* Video Container with Rounded Corners */}
-            <div className="relative w-full h-[60vh] md:h-[70vh] overflow-hidden rounded-3xl mx-auto shadow-2xl">
-              {/* Mobile Video (Portrait 9:16) */}
+            <div className="relative w-full h-[85vh] md:h-[70vh] overflow-hidden rounded-2xl md:rounded-3xl mx-auto shadow-2xl">
+              {/* Mobile Video (Portrait 9:16) - Full Screen */}
               <video
                 className="block md:hidden w-full h-full object-cover motion-reduce:hidden"
-                style={{ filter: 'brightness(0.8)' }}
+                style={{ filter: 'brightness(0.8)', objectPosition: 'center center' }}
                 autoPlay
                 loop
                 muted
