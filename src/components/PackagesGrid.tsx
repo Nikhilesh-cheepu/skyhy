@@ -77,7 +77,14 @@ export default function PackagesGrid() {
     }
   ];
 
-  const handleBookPackage = (pkg: any) => {
+interface PackageData {
+  id: number;
+  name: string;
+  price: number;
+  features: string[];
+}
+
+  const handleBookPackage = (pkg: PackageData) => {
     console.log('Booking package:', pkg.name);
     const featuresList = pkg.features.map((feature: string) => `• ${feature}`).join('\n');
     const message = `*PARTY PACKAGE BOOKING REQUEST*\n\n*Restaurant:* SKYHY Live\n*Package:* ${pkg.name}\n*Price:* ${pkg.price} per person\n\n*Package Includes:*\n${featuresList}\n\n*Requested Time:* ${new Date().toLocaleString()}\n\nPlease confirm availability and contact me back with booking details. Thank you!`;

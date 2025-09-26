@@ -36,10 +36,10 @@ export default function HomePage() {
                 
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center gap-6 mx-auto">
-                  <a href="#home" onClick={(e) => { e.preventDefault(); document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">Home</a>
-                  <a href="#about" onClick={(e) => { e.preventDefault(); document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">About</a>
-                  <a href="#menu" onClick={(e) => { e.preventDefault(); document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">Menu</a>
-                  <a href="#packages" onClick={(e) => { e.preventDefault(); document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">Packages</a>
+                  <button onClick={() => document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); } className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">Home</button>
+                  <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }); } className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">About</button>
+                  <button onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' }); } className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">Menu</button>
+                  <button onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' }); } className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">Packages</button>
                 </nav>
                 
                 {/* Book Table Button - Rightmost (Desktop Only) */}
@@ -81,50 +81,42 @@ export default function HomePage() {
             >
               <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-4 max-w-6xl mx-auto">
                 <nav className="flex flex-col space-y-4">
-                    <a 
-                      href="#home" 
-                      onClick={(e) => { 
-                        e.preventDefault(); 
+                    <button 
+                      onClick={() => { 
                         document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); 
                         setIsMobileMenuOpen(false);
                       }} 
                       className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
                     >
                       Home
-                    </a>
-                    <a 
-                      href="#about" 
-                      onClick={(e) => { 
-                        e.preventDefault(); 
+                    </button>
+                    <button 
+                      onClick={() => { 
                         document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }); 
                         setIsMobileMenuOpen(false);
                       }} 
                       className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
                     >
                       About
-                    </a>
-                    <a 
-                      href="#menu" 
-                      onClick={(e) => { 
-                        e.preventDefault(); 
+                    </button>
+                    <button 
+                      onClick={() => { 
                         document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' }); 
                         setIsMobileMenuOpen(false);
                       }} 
                       className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
                     >
                       Menu
-                    </a>
-                    <a 
-                      href="#packages" 
-                      onClick={(e) => { 
-                        e.preventDefault(); 
+                    </button>
+                    <button 
+                      onClick={() => { 
                         document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' }); 
                         setIsMobileMenuOpen(false);
                       }} 
                       className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
                     >
                       Packages
-                    </a>
+                    </button>
                 </nav>
               </div>
             </motion.div>
@@ -164,14 +156,18 @@ export default function HomePage() {
 
               {/* Fallback Images for Reduced Motion */}
               <div className="motion-reduce:block hidden w-full h-full">
-                <img 
+                <Image 
                   src="/api/placeholder/400/700" 
                   alt="SKYHY Live Hero" 
+                  width={400}
+                  height={700}
                   className="block md:hidden w-full h-full object-cover"
                 />
-                <img 
+                <Image 
                   src="/api/placeholder/1200/675" 
                   alt="SKYHY Live Hero" 
+                  width={1200}
+                  height={675}
                   className="hidden md:block w-full h-full object-cover"
                 />
               </div>
@@ -369,9 +365,11 @@ export default function HomePage() {
                     }}
                   >
                     <div className="w-16 h-20 md:w-20 md:h-24 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                      <img 
+                      <Image 
                         src={`/api/placeholder/80/100`} 
                         alt={`Food ${item}`} 
+                        width={80}
+                        height={100}
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';

@@ -84,13 +84,21 @@ interface CartItem {
   category: string;
 }
 
+interface MenuItem {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+}
+
 export default function MenuPage() {
   const [activeSection, setActiveSection] = useState('food');
   const [activeCategory, setActiveCategory] = useState('starters');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
 
-  const addToCart = (item: any) => {
+  const addToCart = (item: MenuItem) => {
     const existingItem = cart.find(cartItem => cartItem.id === item.id);
     if (existingItem) {
       setCart(cart.map(cartItem => 
