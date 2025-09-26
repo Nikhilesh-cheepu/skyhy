@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { playfair, manrope } from '@/styles/fonts';
+import { playfair, manrope, inter } from '@/styles/fonts';
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://skyhy.vercel.app'),
-  title: 'SHYHY Live — Under Maintenance',
-  description: 'SHYHY Live — Feel the Sky, Live the Music. Website under maintenance, stay tuned for something amazing.',
-  keywords: ['rooftop bar', 'live music', 'cocktails', 'restaurant', 'nightlife', 'under maintenance', 'coming soon'],
+  title: 'SHYHY Live',
+  description: 'Feel the Sky, Live the Music.',
+  keywords: ['rooftop bar', 'live music', 'cocktails', 'restaurant', 'nightlife'],
   authors: [{ name: 'SHYHY Live' }],
   openGraph: {
-    title: 'SHYHY Live — Under Maintenance',
-    description: 'Feel the Sky, Live the Music • Stay tuned for something amazing',
+    title: 'SHYHY Live',
+    description: 'Feel the Sky, Live the Music',
     type: 'website',
     locale: 'en_IN',
     images: [
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SHYHY Live — Under Maintenance',
-    description: 'Feel the Sky, Live the Music • Stay tuned for something amazing',
+    title: 'SHYHY Live',
+    description: 'Feel the Sky, Live the Music',
     images: ['/logo/shyhy-logo-white.png'],
   },
   robots: {
@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${manrope.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${manrope.variable} ${inter.variable}`}>
       <body className={`${manrope.className} antialiased`}>
         {children}
       </body>
