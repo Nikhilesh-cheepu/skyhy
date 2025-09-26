@@ -5,7 +5,7 @@ export default function PackagesGrid() {
     {
       id: 1,
       name: "Starter Treats",
-      price: "₹999",
+      price: 999,
       icon: "🥗",
       features: [
         "Unlimited Veg Starters (Paneer Tikka, Crispy Corn, Chilli Gobi)",
@@ -17,7 +17,7 @@ export default function PackagesGrid() {
     {
       id: 2,
       name: "Happy Hour Special",
-      price: "₹1499",
+      price: 1499,
       icon: "🍻",
       features: [
         "Unlimited Starters (3 Veg + 3 Non-Veg)",
@@ -29,7 +29,7 @@ export default function PackagesGrid() {
     {
       id: 3,
       name: "Classic Combo",
-      price: "₹1799",
+      price: 1799,
       icon: "🍽️",
       features: [
         "Unlimited Starters (4 Veg + 4 Non-Veg)",
@@ -41,7 +41,7 @@ export default function PackagesGrid() {
     {
       id: 4,
       name: "Premium Mixer",
-      price: "₹2299",
+      price: 2299,
       icon: "🥂",
       features: [
         "Unlimited Starters (5 Veg + 5 Non-Veg)",
@@ -53,7 +53,7 @@ export default function PackagesGrid() {
     {
       id: 5,
       name: "Luxury Lounge",
-      price: "₹2799",
+      price: 2799,
       icon: "👑",
       features: [
         "Unlimited Food (Starters + Main Course + Salads + Desserts)",
@@ -65,7 +65,7 @@ export default function PackagesGrid() {
     {
       id: 6,
       name: "Sky High Royal",
-      price: "₹3499",
+      price: 3499,
       icon: "🌟",
       isPremium: true,
       features: [
@@ -81,13 +81,15 @@ interface PackageData {
   id: number;
   name: string;
   price: number;
+  icon: string;
   features: string[];
+  isPremium?: boolean;
 }
 
   const handleBookPackage = (pkg: PackageData) => {
     console.log('Booking package:', pkg.name);
     const featuresList = pkg.features.map((feature: string) => `• ${feature}`).join('\n');
-    const message = `*PARTY PACKAGE BOOKING REQUEST*\n\n*Restaurant:* SKYHY Live\n*Package:* ${pkg.name}\n*Price:* ${pkg.price} per person\n\n*Package Includes:*\n${featuresList}\n\n*Requested Time:* ${new Date().toLocaleString()}\n\nPlease confirm availability and contact me back with booking details. Thank you!`;
+    const message = `*PARTY PACKAGE BOOKING REQUEST*\n\n*Restaurant:* SKYHY Live\n*Package:* ${pkg.name}\n*Price:* ₹${pkg.price} per person\n\n*Package Includes:*\n${featuresList}\n\n*Requested Time:* ${new Date().toLocaleString()}\n\nPlease confirm availability and contact me back with booking details. Thank you!`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/7013884485?text=${encodedMessage}`;
     console.log('Opening WhatsApp:', whatsappUrl);
@@ -123,7 +125,7 @@ interface PackageData {
             <div className={`text-2xl font-black mb-2 ${
               pkg.isPremium ? 'text-[#B6FF00]' : 'text-[#2563EB]'
             }`}>
-              {pkg.price}
+              ₹{pkg.price}
             </div>
             <p className={`text-xs ${
               pkg.isPremium ? 'text-white/80' : 'text-[#64748B]'
