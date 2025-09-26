@@ -35,7 +35,15 @@ export default function MenuPage() {
     { id: 14, name: "Caprese Salad", description: "Fresh tomatoes and mozzarella", price: 300, image: "🥗" }
   ];
 
-  const addToCart = (item: any) => {
+interface MenuItem {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+}
+
+  const addToCart = (item: MenuItem) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
       if (existingItem) {
@@ -108,9 +116,24 @@ export default function MenuPage() {
                     <Image src="/logo/shyhy-logo-white.png" alt="SKYHY" width={280} height={95} className="h-20 w-auto" />
                   </Link>
                   <nav className="hidden md:flex items-center gap-6 mx-auto">
-                    <a href="/#home" className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">Home</a>
-                    <a href="/#about" className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">About</a>
-                    <a href="/menu" className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300">Menu</a>
+                    <button 
+                      onClick={() => window.location.href = '/#home'} 
+                      className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
+                    >
+                      Home
+                    </button>
+                    <button 
+                      onClick={() => window.location.href = '/#about'} 
+                      className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
+                    >
+                      About
+                    </button>
+                    <button 
+                      onClick={() => window.location.href = '/menu'} 
+                      className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
+                    >
+                      Menu
+                    </button>
                     <button className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-4 py-2 text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:bg-white hover:text-[#1E40AF] transition-all duration-300">
                       Connect wallet
                     </button>
