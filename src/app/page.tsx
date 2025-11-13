@@ -5,12 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import PackagesGrid from "@/components/PackagesGrid";
+import Footer from "@/components/Footer";
 
 export default function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white relative scroll-smooth">
+    <div className="min-h-screen bg-black relative scroll-smooth">
       {/* Section 1: Light Background with subtle pattern */}
       <div className="absolute inset-0 opacity-5" style={{
         backgroundImage: `linear-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.1) 1px, transparent 1px)`,
@@ -18,13 +19,12 @@ export default function HomePage() {
       }} />
       
       {/* Main container */}
-      <div className="min-h-screen">
-        {/* Section 2: White Container - holds navbar and content */}
-        <div className="bg-white min-h-screen relative overflow-hidden">
-          {/* subtle sky gradient overlay */}
-          <div className="absolute inset-0 opacity-5" style={{
-            background: 'linear-gradient(90deg, #2563EB, #3B82F6)'
-          }} />
+      <div className="min-h-screen bg-black">
+        {/* Shiny black background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900"></div>
+        
+        {/* Unified Container */}
+        <div className="relative min-h-screen">
           
           {/* Section 3: Navbar fixed at top */}
           <div className="fixed top-4 left-4 right-4 z-50">
@@ -93,7 +93,7 @@ export default function HomePage() {
 
           {/* Mobile Dropdown Menu */}
           {isMobileMenuOpen && (
-        <motion.div 
+      <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -142,10 +142,10 @@ export default function HomePage() {
             </motion.div>
           )}
           
-          {/* Hero content inside blue container */}
-          <div id="home" className="relative z-10 w-full pt-20 px-2 md:px-4">
-            {/* Video Container with Rounded Corners */}
-            <div className="relative w-full h-[85vh] md:h-[70vh] overflow-hidden rounded-2xl md:rounded-3xl mx-auto shadow-2xl">
+          {/* Hero Section - Full Viewport */}
+          <div id="home" className="relative z-10 w-full h-screen">
+            {/* Video Container - Full Screen */}
+            <div className="relative w-full h-full overflow-hidden">
               {/* Mobile Video (Portrait 9:16) - Full Screen */}
               <video
                 className="block md:hidden w-full h-full object-cover motion-reduce:hidden"
@@ -192,137 +192,113 @@ export default function HomePage() {
                 />
               </div>
 
-              {/* Dark Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/40"></div>
+              {/* Clean Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60"></div>
 
-              {/* Hero Content Overlay - Clean and Cinematic */}
+              {/* Hero Content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center px-8 py-12">
-        <motion.div 
+                <motion.div 
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  className="text-center"
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                  className="text-center max-w-4xl mx-auto"
                 >
-                  <h1 className="text-4xl md:text-6xl lg:text-7xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-8 drop-shadow-lg">
+                  <motion.h1 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
+                    className="text-4xl md:text-6xl lg:text-7xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-6"
+                  >
                     WELCOME TO <span className="text-[#2563EB]">SKYHY</span> LIVE
-                  </h1>
-                  <p className="text-lg md:text-xl lg:text-2xl text-white/90 font-[family-name:var(--font-inter)] font-medium max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+                  </motion.h1>
+                  
+                  <motion.p 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.7 }}
+                    className="text-lg md:text-xl lg:text-2xl text-white/90 font-[family-name:var(--font-inter)] font-medium max-w-3xl mx-auto leading-relaxed"
+                  >
                     Where every night tells a story
-                  </p>
-      </motion.div>
+                  </motion.p>
+
+                  {/* CTA Button */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.9 }}
+                    className="mt-10"
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-[family-name:var(--font-inter)] font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      Explore Packages
+                    </motion.button>
+                  </motion.div>
+                </motion.div>
               </div>
             </div>
       </div>
 
-          {/* Section 2: About Section - Modern Design */}
+          {/* About Section */}
         <motion.div 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
             id="about"
-            className="bg-white py-20 px-4"
+            className="py-20 px-4"
           >
-            <div className="max-w-7xl mx-auto">
-              {/* About Header */}
-              <div className="text-center mb-20">
-                <motion.h2 
+            
+            <div className="relative max-w-7xl mx-auto">
+              {/* Eat and Drink Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="text-center max-w-4xl mx-auto mb-20"
+              >
+                <motion.h3
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.8 }}
-                  className="text-5xl md:text-6xl font-[family-name:var(--font-inter)] font-black text-[#1E293B] leading-tight mb-6"
-                >
-                  About <span className="text-[#2563EB]">SKYHY</span> Live
-                </motion.h2>
-                <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.9 }}
-                  className="text-xl md:text-2xl text-[#64748B] font-[family-name:var(--font-inter)] font-medium"
+                  className="text-2xl md:text-3xl lg:text-4xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-4 whitespace-nowrap"
                 >
-                  Where Every Night Tells a Story
+                  EAT AND DRINK ANYTHING <span className="text-[#2563EB]">@₹127</span>
+                </motion.h3>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 1.15 }}
+                  className="text-xl md:text-2xl lg:text-3xl text-white/90 font-[family-name:var(--font-inter)] font-semibold mb-6"
+                >
+                  FROM 12PM - 7PM
                 </motion.p>
-              </div>
-
-              {/* Information Cards - Responsive Layout */}
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-20">
-                {/* Happy Hours Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 1.0 }}
-                  whileHover={{ scale: 1.05, y: -8 }}
-                  className="group relative bg-gradient-to-br from-[#10B981] to-[#059669] rounded-2xl md:rounded-3xl p-4 md:p-8 text-white overflow-hidden h-full flex flex-col"
-                >
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-300"></div>
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 backdrop-blur-sm mx-auto">
-                      <span className="text-xl md:text-3xl">🍹</span>
-                    </div>
-                    <h3 className="text-lg md:text-2xl font-[family-name:var(--font-inter)] font-bold mb-2 md:mb-3 text-center">Happy Hours</h3>
-                    <p className="text-white/90 font-[family-name:var(--font-inter)] text-sm md:text-lg text-center mt-auto">Everyday 12 PM to 8 PM</p>
-                  </div>
-                </motion.div>
-
-                {/* Timings Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 1.1 }}
-                  whileHover={{ scale: 1.05, y: -8 }}
-                  className="group relative bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-2xl md:rounded-3xl p-4 md:p-8 text-white overflow-hidden h-full flex flex-col"
-                >
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-300"></div>
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 backdrop-blur-sm mx-auto">
-                      <span className="text-xl md:text-3xl">⏰</span>
-                    </div>
-                    <h3 className="text-lg md:text-2xl font-[family-name:var(--font-inter)] font-bold mb-2 md:mb-3 text-center">Timings</h3>
-                    <p className="text-white/90 font-[family-name:var(--font-inter)] text-sm md:text-lg text-center mt-auto">12 PM to 1 AM</p>
-                  </div>
-                </motion.div>
-
-                {/* Locate Us Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 1.2 }}
-                  whileHover={{ scale: 1.05, y: -8 }}
-                  className="group relative bg-gradient-to-br from-[#F59E0B] to-[#D97706] rounded-2xl md:rounded-3xl p-4 md:p-8 text-white overflow-hidden h-full flex flex-col"
+                  className="text-lg md:text-xl lg:text-2xl text-white/80 font-[family-name:var(--font-inter)] font-medium mb-8 leading-relaxed max-w-2xl mx-auto"
                 >
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-300"></div>
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 backdrop-blur-sm mx-auto">
-                      <span className="text-xl md:text-3xl">📍</span>
-                    </div>
-                    <h3 className="text-lg md:text-2xl font-[family-name:var(--font-inter)] font-bold mb-2 md:mb-3 text-center">Locate Us</h3>
-                    <p className="text-white/90 font-[family-name:var(--font-inter)] text-sm md:text-lg text-center mt-auto">Find us on the map</p>
-                  </div>
-        </motion.div>
-        
-                {/* Connect With Us Card */}
+                  Choose anything from this menu and eat @₹127 each item
+                </motion.p>
                 <motion.div
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 1.3 }}
-                  whileHover={{ scale: 1.05, y: -8 }}
-                  className="group relative bg-gradient-to-br from-[#EC4899] to-[#DB2777] rounded-2xl md:rounded-3xl p-4 md:p-8 text-white overflow-hidden h-full flex flex-col"
                 >
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-300"></div>
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 backdrop-blur-sm mx-auto">
-                      <div className="flex gap-1 md:gap-2">
-                        <span className="text-lg md:text-2xl">📸</span>
-                        <span className="text-lg md:text-2xl">💬</span>
-                      </div>
-                    </div>
-                    <h3 className="text-lg md:text-2xl font-[family-name:var(--font-inter)] font-bold mb-2 md:mb-3 text-center">Connect</h3>
-                    <div className="flex flex-col gap-1 md:gap-2 mt-auto">
-                      <a href="#" className="text-white/90 text-sm md:text-lg hover:text-white transition-colors text-center">Instagram</a>
-                      <a href="#" className="text-white/90 text-sm md:text-lg hover:text-white transition-colors text-center">WhatsApp</a>
-                    </div>
-                  </div>
+                  <Link href="/menu">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-[family-name:var(--font-inter)] font-bold px-8 py-4 md:px-10 md:py-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg md:text-xl"
+                    >
+                      View Now
+                    </motion.button>
+                  </Link>
                 </motion.div>
-              </div>
+              </motion.div>
 
               {/* Our Story Section */}
         <motion.div 
@@ -333,52 +309,53 @@ export default function HomePage() {
               >
                 <h3 className="text-2xl md:text-4xl font-[family-name:var(--font-inter)] font-bold text-[#1E293B] mb-6 md:mb-8">Our Story</h3>
                 <p className="text-sm md:text-xl text-[#64748B] font-[family-name:var(--font-inter)] max-w-4xl mx-auto leading-relaxed text-left">
-                  SKYHY Live is more than just a venue—it&apos;s a destination where nightlife meets luxury, 
+                  <span className="text-[#2563EB] font-bold">SKYHY Live</span> is more than just a venue—it&apos;s a destination where nightlife meets luxury, 
                   where every moment is crafted to perfection. We believe in creating experiences that 
                   transcend the ordinary, bringing together the best of entertainment, cuisine, and ambiance 
                   under one roof.
                 </p>
               </motion.div>
             </div>
-          </motion.div>
+      </motion.div>
 
 
-          {/* Section 3: Menu Section */}
-        <motion.div 
+          {/* Menu Section */}
+          <motion.div 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
             id="menu"
-            className="bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9] py-20 px-4"
+            className="py-20 px-4"
           >
-            <div className="max-w-7xl mx-auto">
+            
+            <div className="relative max-w-7xl mx-auto">
               {/* Menu Header */}
               <div className="text-center mb-16">
                 <motion.h2 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 1.0 }}
-                  className="text-5xl md:text-6xl font-[family-name:var(--font-inter)] font-black text-[#1E293B] leading-tight mb-6"
+                  className="text-5xl md:text-6xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-6"
                 >
                   Our <span className="text-[#2563EB]">Menu</span>
                 </motion.h2>
                 <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 1.1 }}
-                  className="text-xl md:text-2xl text-[#64748B] font-[family-name:var(--font-inter)] font-medium"
+                  className="text-xl md:text-2xl text-white/80 font-[family-name:var(--font-inter)] font-medium"
                 >
                   A Taste of Our Delicious Menu
                 </motion.p>
               </div>
 
-              {/* Food Images Collage - Game Card Style */}
+              {/* Food Images Collage */}
               <div className="flex justify-center mb-12">
                 {[1, 2, 3, 4, 5].map((item, index) => (
                   <div 
                     key={item} 
-                    className="relative w-24 h-32 md:w-28 md:h-40 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-3xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.4)] transition-all duration-300 hover:-translate-y-2 hover:scale-105"
-            style={{
+                    className="relative w-24 h-32 md:w-28 md:h-40 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105"
+                    style={{
                       transform: `rotate(${(index - 2) * 3}deg) translateY(${Math.abs(index - 2) * 2}px)`,
                       zIndex: 5 - Math.abs(index - 2),
                       marginLeft: index > 0 ? '-8px' : '0'
@@ -404,8 +381,8 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+        ))}
+      </div>
 
               {/* View Menu Button */}
               <div className="text-center mt-8 relative z-10">
@@ -419,15 +396,15 @@ export default function HomePage() {
                 </Link>
               </div>
             </div>
-          </motion.div>
-
+        </motion.div>
+        
           {/* Section 4: Party Packages Section */}
-          <motion.div 
+        <motion.div 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
             id="packages"
-            className="bg-white py-20 px-4"
+            className="py-20 px-4"
           >
             <div className="max-w-7xl mx-auto">
               {/* Packages Header */}
@@ -436,7 +413,7 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 1.0 }}
-                  className="text-5xl md:text-6xl font-[family-name:var(--font-inter)] font-black text-[#1E293B] leading-tight mb-6"
+                  className="text-5xl md:text-6xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-6"
                 >
                   Party <span className="text-[#2563EB]">Packages</span>
                 </motion.h2>
@@ -444,19 +421,19 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 1.1 }}
-                  className="text-xl md:text-2xl text-[#64748B] font-[family-name:var(--font-inter)] font-medium"
+                  className="text-xl md:text-2xl text-white/80 font-[family-name:var(--font-inter)] font-medium"
                 >
                   Choose your perfect celebration package
-                </motion.p>
+          </motion.p>
               </div>
 
               {/* Packages Grid */}
               <PackagesGrid />
             </div>
-          </motion.div>
-          
+        </motion.div>
+
           {/* Section 5: Book Table Section */}
-          <motion.div 
+        <motion.div 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
@@ -467,8 +444,8 @@ export default function HomePage() {
               {/* Booking Header */}
               <div className="text-center mb-16">
                 <motion.h2 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 1.0 }}
                   className="text-5xl md:text-6xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-6"
                 >
@@ -572,6 +549,9 @@ export default function HomePage() {
         </motion.div>
         </div>
       </div>
+
+      {/* Footer Section */}
+      <Footer />
 
     </div>
   );

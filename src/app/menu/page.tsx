@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 // Menu data structure
 const menuData = {
@@ -154,7 +155,7 @@ export default function MenuPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9]">
+    <div className="min-h-screen bg-black">
       {/* Navigation Header */}
       <div className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-4 px-4 shadow-xl">
         <div className="max-w-7xl mx-auto">
@@ -225,7 +226,7 @@ export default function MenuPage() {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold text-[#1E293B] mb-4"
+            className="text-4xl md:text-5xl font-bold text-white mb-4"
           >
             Our <span className="text-[#2563EB]">Menu</span>
           </motion.h1>
@@ -233,10 +234,43 @@ export default function MenuPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-[#64748B] max-w-2xl mx-auto"
+            className="text-lg text-white/80 max-w-2xl mx-auto mb-6"
           >
             Discover our carefully curated selection of delicious food, premium drinks, and special offers
           </motion.p>
+          
+          {/* Happy Hours & Timings */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-col items-center gap-4 mb-6"
+          >
+            <div className="bg-gradient-to-r from-[#2563EB]/20 to-[#3B82F6]/20 backdrop-blur-sm rounded-2xl p-4 border border-[#2563EB]/30 max-w-2xl">
+              <p className="text-white font-semibold text-lg mb-2">
+                🎉 Eat and Drink Anything @ ₹127 from 12PM - 7PM
+              </p>
+              <p className="text-white/90 text-base">
+                ⏰ Normal Timings: 12PM to 12AM
+              </p>
+            </div>
+            
+            {/* Locate Us Button */}
+            <motion.a
+              href="https://maps.app.goo.gl/8izvX92jtyZyJnUV9?g_st=ic"
+              target="_blank"
+              rel="noopener noreferrer"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 cursor-pointer"
+            >
+              <span>📍</span>
+              Locate Us
+            </motion.a>
+          </motion.div>
         </div>
 
         {/* Main Sections */}
@@ -258,7 +292,7 @@ export default function MenuPage() {
               className={`px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 shadow-lg ${
                 activeSection === section
                   ? 'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-[#2563EB]/25'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 hover:shadow-xl'
+                  : 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white border border-white/20'
               }`}
             >
               {section === 'food' ? '🍽️ Food Menu' : 
@@ -280,7 +314,7 @@ export default function MenuPage() {
               className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 ${
                 activeCategory === category
                   ? 'bg-[#2563EB] text-white shadow-lg'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 hover:shadow-md'
+                  : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white border border-white/20'
               }`}
             >
               {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -297,32 +331,32 @@ export default function MenuPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5, scale: 1.02 }}
-              className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 group"
+              className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/10 group"
             >
               {/* Item Header */}
               <div className="flex justify-between items-start mb-3">
-                <h3 className="font-bold text-gray-900 text-base group-hover:text-[#2563EB] transition-colors duration-300">
+                <h3 className="font-bold text-white text-base group-hover:text-[#2563EB] transition-colors duration-300">
                   {item.name}
                 </h3>
                 <span className="text-[#2563EB] font-bold text-lg">₹{item.price}</span>
               </div>
               
               {/* Description */}
-              <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+              <p className="text-white/80 text-sm mb-4 leading-relaxed">
                 {item.description}
               </p>
               
               {/* Category Badge */}
               <div className="mb-4">
                 <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                  item.category === 'veg' ? 'bg-green-100 text-green-700' :
-                  item.category === 'non-veg' ? 'bg-red-100 text-red-700' :
-                  item.category === 'premium' ? 'bg-purple-100 text-purple-700' :
-                  item.category === 'regular' ? 'bg-blue-100 text-blue-700' :
-                  item.category === 'cocktail' ? 'bg-pink-100 text-pink-700' :
-                  item.category === 'mocktail' ? 'bg-cyan-100 text-cyan-700' :
-                  item.category === 'shot' ? 'bg-orange-100 text-orange-700' :
-                  'bg-gray-100 text-gray-700'
+                  item.category === 'veg' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                  item.category === 'non-veg' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                  item.category === 'premium' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
+                  item.category === 'regular' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                  item.category === 'cocktail' ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' :
+                  item.category === 'mocktail' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' :
+                  item.category === 'shot' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
+                  'bg-white/10 text-white/70 border border-white/20'
                 }`}>
                   {item.category === 'veg' ? '🌱 Veg' :
                    item.category === 'non-veg' ? '🍖 Non-Veg' :
@@ -356,17 +390,17 @@ export default function MenuPage() {
           <motion.div
             initial={{ x: 400 }}
             animate={{ x: 0 }}
-            className="bg-white w-96 h-full p-6 overflow-y-auto shadow-2xl"
+            className="bg-black/90 backdrop-blur-xl border-l border-white/20 w-96 h-full p-6 overflow-y-auto shadow-2xl"
           >
             {/* Cart Header */}
-            <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/20">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Your Cart</h2>
-                <p className="text-sm text-gray-500">{getCartCount()} items</p>
+                <h2 className="text-2xl font-bold text-white">Your Cart</h2>
+                <p className="text-sm text-white/70">{getCartCount()} items</p>
               </div>
               <button
                 onClick={() => setShowCart(false)}
-                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors duration-200"
+                className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors duration-200"
               >
                 ✕
               </button>
@@ -374,11 +408,11 @@ export default function MenuPage() {
 
             {cart.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   🛒
                 </div>
-                <p className="text-gray-500 text-lg">Your cart is empty</p>
-                <p className="text-gray-400 text-sm mt-2">Add some delicious items to get started!</p>
+                <p className="text-white/80 text-lg">Your cart is empty</p>
+                <p className="text-white/60 text-sm mt-2">Add some delicious items to get started!</p>
               </div>
             ) : (
               <>
@@ -389,23 +423,23 @@ export default function MenuPage() {
                       key={item.id}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+                      className="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors duration-200"
                     >
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 text-sm">{item.name}</h4>
-                        <p className="text-gray-600 text-xs">₹{item.price} each</p>
+                        <h4 className="font-semibold text-white text-sm">{item.name}</h4>
+                        <p className="text-white/70 text-xs">₹{item.price} each</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-300 transition-colors duration-200"
+                          className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors duration-200"
                         >
                           -
                         </button>
-                        <span className="w-8 text-center text-sm font-semibold">{item.quantity}</span>
+                        <span className="w-8 text-center text-sm font-semibold text-white">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-300 transition-colors duration-200"
+                          className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors duration-200"
                         >
                           +
                         </button>
@@ -415,9 +449,9 @@ export default function MenuPage() {
                 </div>
 
                 {/* Cart Footer */}
-                <div className="border-t border-gray-200 pt-6">
+                <div className="border-t border-white/20 pt-6">
                   <div className="flex justify-between items-center mb-6">
-                    <span className="text-lg font-semibold text-gray-900">Total:</span>
+                    <span className="text-lg font-semibold text-white">Total:</span>
                     <span className="text-2xl font-bold text-[#2563EB]">₹{getTotal()}</span>
                   </div>
                   <motion.button
@@ -428,7 +462,7 @@ export default function MenuPage() {
                     <span>💳</span>
                     Proceed to Checkout
                   </motion.button>
-                  <p className="text-center text-xs text-gray-500 mt-3">
+                  <p className="text-center text-xs text-white/60 mt-3">
                     Secure payment • Free delivery
                   </p>
                 </div>
@@ -437,6 +471,9 @@ export default function MenuPage() {
           </motion.div>
         </div>
       )}
+
+      {/* Footer Section */}
+      <Footer />
     </div>
   );
 }
