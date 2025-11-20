@@ -209,7 +209,7 @@ export default function HomePage() {
                     transition={{ duration: 0.6, delay: 0.5 }}
                     className="text-4xl md:text-6xl lg:text-7xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-6"
                   >
-                    WELCOME TO <span className="text-[#2563EB]">SKYHY</span> LIVE
+                    WELCOME TO <span className="text-[#2563EB] whitespace-nowrap">SKYHY LIVE</span>
                   </motion.h1>
                   
                   <motion.p 
@@ -265,7 +265,7 @@ export default function HomePage() {
                   transition={{ duration: 0.6, delay: 0.9 }}
                   className="text-2xl md:text-3xl lg:text-4xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-4 whitespace-nowrap"
                 >
-                  EAT AND DRINK ANYTHING <span className="text-[#2563EB]">@₹127</span>
+                  EAT AND DRINK ANYTHING <span className="text-[#2563EB]">@₹128</span>
                 </motion.h3>
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
@@ -273,7 +273,7 @@ export default function HomePage() {
                   transition={{ duration: 0.6, delay: 1.15 }}
                   className="text-xl md:text-2xl lg:text-3xl text-white/90 font-[family-name:var(--font-inter)] font-semibold mb-6"
                 >
-                  FROM 12PM - 7PM
+                  FROM 12PM - 8PM
                 </motion.p>
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
@@ -281,7 +281,7 @@ export default function HomePage() {
                   transition={{ duration: 0.6, delay: 1.2 }}
                   className="text-lg md:text-xl lg:text-2xl text-white/80 font-[family-name:var(--font-inter)] font-medium mb-8 leading-relaxed max-w-2xl mx-auto"
                 >
-                  Choose anything from this menu and eat @₹127 each item
+                  Choose anything from this menu and eat @₹128 each item
                 </motion.p>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -300,21 +300,6 @@ export default function HomePage() {
                 </motion.div>
               </motion.div>
 
-              {/* Our Story Section */}
-        <motion.div 
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.4 }}
-                className="text-center bg-gradient-to-r from-[#F8FAFC] to-[#F1F5F9] rounded-3xl p-12"
-              >
-                <h3 className="text-2xl md:text-4xl font-[family-name:var(--font-inter)] font-bold text-[#1E293B] mb-6 md:mb-8">Our Story</h3>
-                <p className="text-sm md:text-xl text-[#64748B] font-[family-name:var(--font-inter)] max-w-4xl mx-auto leading-relaxed text-left">
-                  <span className="text-[#2563EB] font-bold">SKYHY Live</span> is more than just a venue—it&apos;s a destination where nightlife meets luxury, 
-                  where every moment is crafted to perfection. We believe in creating experiences that 
-                  transcend the ordinary, bringing together the best of entertainment, cuisine, and ambiance 
-                  under one roof.
-                </p>
-              </motion.div>
             </div>
       </motion.div>
 
@@ -325,7 +310,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
             id="menu"
-            className="py-20 px-4"
+            className="py-12 px-4"
           >
             
             <div className="relative max-w-7xl mx-auto">
@@ -337,7 +322,7 @@ export default function HomePage() {
                   transition={{ duration: 0.6, delay: 1.0 }}
                   className="text-5xl md:text-6xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-6"
                 >
-                  Our <span className="text-[#2563EB]">Menu</span>
+                  OUR <span className="text-[#2563EB]">MENU</span>
                 </motion.h2>
                 <motion.p 
                   initial={{ opacity: 0, y: 20 }}
@@ -474,8 +459,28 @@ export default function HomePage() {
                   const name = formData.get('name') as string;
                   const people = formData.get('people') as string;
                   const mobile = formData.get('mobile') as string;
+                  const date = formData.get('date') as string;
+                  const time = formData.get('time') as string;
                   
-                  const message = `Hi! I want to book a table at SKYHY Live%0A%0AName: ${name}%0APeople: ${people}%0AMobile: ${mobile}%0A%0APlease confirm availability. Thanks!`;
+                  // Format date nicely
+                  const dateObj = new Date(date);
+                  const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  });
+                  
+                  // Format time nicely if provided
+                  let timeText = 'Not specified';
+                  if (time) {
+                    const [hours, minutes] = time.split(':');
+                    const hour12 = parseInt(hours) % 12 || 12;
+                    const ampm = parseInt(hours) >= 12 ? 'PM' : 'AM';
+                    timeText = `${hour12}:${minutes} ${ampm}`;
+                  }
+                  
+                  const message = `Hi! I want to book a table at SKYHY Live%0A%0AName: ${name}%0APeople: ${people}%0AMobile: ${mobile}%0ADate: ${formattedDate}%0ATime: ${timeText}%0A%0APlease confirm availability. Thanks!`;
                   
                   window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
                 }} className="space-y-8">
@@ -524,6 +529,53 @@ export default function HomePage() {
                       className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white placeholder-white/70 font-[family-name:var(--font-inter)] text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300"
                       placeholder="Enter your mobile number"
                     />
+                  </div>
+
+                  {/* Date and Time Fields - Side by Side on Desktop */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Preferred Date Field */}
+                    <div>
+                      <label htmlFor="date" className="block text-white font-[family-name:var(--font-inter)] font-semibold text-lg mb-3">
+                        Preferred Date * <span className="text-sm font-normal text-white/70">(Required)</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          id="date"
+                          name="date"
+                          required
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white font-[family-name:var(--font-inter)] text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark]"
+                          style={{
+                            colorScheme: 'dark'
+                          }}
+                        />
+                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none">
+                          📅
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Preferred Time Field */}
+                    <div>
+                      <label htmlFor="time" className="block text-white font-[family-name:var(--font-inter)] font-semibold text-lg mb-3">
+                        Preferred Time <span className="text-sm font-normal text-white/70">(Optional)</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="time"
+                          id="time"
+                          name="time"
+                          className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white font-[family-name:var(--font-inter)] text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark]"
+                          style={{
+                            colorScheme: 'dark'
+                          }}
+                        />
+                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none">
+                          🕐
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Submit Button */}

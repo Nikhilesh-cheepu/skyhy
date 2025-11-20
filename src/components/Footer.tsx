@@ -70,7 +70,7 @@ export default function Footer() {
         {/* Footer Bottom */}
         <div className="mt-8 pt-8 border-t border-white/20 text-center">
           <p className="text-white/80 font-[family-name:var(--font-inter)] text-sm">
-            © 2024 SKYHY Live. All rights reserved. | Where every night tells a story.
+            © 2024 <span className="whitespace-nowrap">SKYHY Live</span>. All rights reserved. | Where every night tells a story.
           </p>
         </div>
       </div>

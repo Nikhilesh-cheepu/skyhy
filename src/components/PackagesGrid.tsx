@@ -4,73 +4,87 @@ export default function PackagesGrid() {
   const packages = [
     {
       id: 1,
-      name: "Starter Treats",
-      price: 999,
+      name: "Package 1 — Starter Treats",
+      price: 1600,
       icon: "🥗",
       features: [
-        "Unlimited Veg Starters (Paneer Tikka, Crispy Corn, Chilli Gobi)",
-        "Unlimited Non-Veg Starters (Chicken Wings, Fish Fry)",
-        "2 Mocktails / Soft Drinks",
-        "1 Dessert"
+        "Mocktails",
+        "Soft Drinks",
+        "Sodas",
+        "Food (Veg + Non-Veg Starters & Mains as per package rules)"
       ]
     },
     {
       id: 2,
-      name: "Happy Hour Special",
-      price: 1499,
+      name: "Package 2 — Happy Hour Special",
+      price: 2400,
       icon: "🍻",
       features: [
-        "Unlimited Starters (3 Veg + 3 Non-Veg)",
-        "Unlimited Main Course (Veg Biryani, Chicken Curry, Dal, Roti)",
-        "3 Cocktails or Beers",
-        "1 Dessert"
+        "Blenders Pride",
+        "Smirnoff Vodka",
+        "Bacardi Rum / Dark Rum",
+        "Mocktails, Soft Drinks & Sodas",
+        "Food Included (Starters + Mains + Bread, Salads, Desserts)"
       ]
     },
     {
       id: 3,
-      name: "Classic Combo",
-      price: 1799,
+      name: "Package 3 — Classic Combo",
+      price: 2700,
       icon: "🍽️",
       features: [
-        "Unlimited Starters (4 Veg + 4 Non-Veg)",
-        "Unlimited Main Course (Veg + Non-Veg + Rice + Roti)",
-        "Unlimited Indian Liquor (Whisky, Rum, Vodka)",
-        "Ice Cream & Gulab Jamun"
+        "100 Pipers / Teachers Highland",
+        "Smirnoff Vodka",
+        "Bacardi Rum / Dark Rum",
+        "Kyron Brandy",
+        "Beers – KF Premium / Tuborg",
+        "Mocktails, Soft Drinks & Sodas",
+        "Full Food Menu Included"
       ]
     },
     {
       id: 4,
-      name: "Premium Mixer",
-      price: 2299,
+      name: "Package 4 — Premium Mixer",
+      price: 3300,
       icon: "🥂",
       features: [
-        "Unlimited Starters (5 Veg + 5 Non-Veg)",
-        "Unlimited Main Course Buffet",
-        "Unlimited Imported Drinks (Ballantine's, Absolut, Bacardi)",
-        "Desserts + Mocktails"
+        "Ballantine's / Teachers 50",
+        "Absolut Vodka",
+        "Bacardi Rum / Dark Rum",
+        "Kyron Brandy",
+        "Tickle Gin",
+        "Beers – KF Ultra / Budweiser",
+        "Breezers, Cocktails & Mocktails",
+        "Soft Drinks & Sodas",
+        "Full Food Menu Included"
       ]
     },
     {
       id: 5,
-      name: "Luxury Lounge",
-      price: 2799,
+      name: "Package 5 — Luxury Lounge",
+      price: 3700,
       icon: "👑",
       features: [
-        "Unlimited Food (Starters + Main Course + Salads + Desserts)",
-        "Unlimited Premium Imported Drinks (Jack Daniels, Jameson, Grey Goose)",
-        "1 Signature Cocktail Special",
-        "Ice Cream Sundae"
+        "Chivas Regal 12 yrs / Jameson",
+        "Absolut Vodka",
+        "Bacardi Rum / Dark Rum",
+        "Kyron Brandy",
+        "Tickle Gin",
+        "Beers – KF Ultra / Budweiser",
+        "Breezers, Cocktails & Mocktails",
+        "Soft Drinks & Sodas",
+        "Full Food Menu Included"
       ]
     },
     {
       id: 6,
-      name: "Sky High Royal",
-      price: 3499,
+      name: "Package 6 — Sky High Royal",
+      price: 4000,
       icon: "🌟",
       isPremium: true,
       features: [
-        "Unlimited Food Feast (Starters, Main Course, Live Counters, Desserts)",
-        "Unlimited Top-Shelf Liquor (Black Label, Dewars 15, Tanqueray, Wine)",
+        "Top-Shelf Premium Liquor – Black Label, Dewars 15, Jack Daniels, Tanqueray, Premium Wine",
+        "Full Unlimited Food Feast – Starters (Veg + Non-Veg), Main Course (Veg + Non-Veg), Rice, Breads, Live Counters, Desserts",
         "2 Premium Cocktails of Choice",
         "Chef's Special Dessert Platter"
       ]
@@ -109,7 +123,7 @@ interface PackageData {
         >
           {pkg.isPremium && (
             <div className="absolute -top-3 right-4 bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] px-3 py-1 rounded-full text-xs font-bold z-10 shadow-lg">
-              ✨ PREMIUM
+              ⭐ PREMIUM PICK
             </div>
           )}
           
@@ -121,11 +135,6 @@ interface PackageData {
             }`}>
               <span className="text-2xl">{pkg.icon}</span>
             </div>
-            <h3 className={`text-xl font-bold mb-3 ${
-              pkg.isPremium ? 'text-white' : 'text-white'
-            }`}>
-              {pkg.name}
-            </h3>
             <div className={`text-3xl font-black mb-2 ${
               pkg.isPremium ? 'text-[#B6FF00]' : 'text-[#2563EB]'
             }`}>
@@ -143,7 +152,7 @@ interface PackageData {
               <div key={index} className={`flex items-start text-sm ${
                 pkg.isPremium ? 'text-white/90' : 'text-white/80'
               }`}>
-                <span className="mr-3 text-[#B6FF00] text-lg flex-shrink-0">✓</span>
+                <span className="mr-3 text-[#B6FF00] text-lg flex-shrink-0">✅</span>
                 <span className="leading-relaxed">{feature}</span>
               </div>
             ))}
