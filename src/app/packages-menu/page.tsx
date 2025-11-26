@@ -708,12 +708,12 @@ function PackagesMenuPageContent() {
       {/* Navigation Header - Same as Home Page */}
       <div className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">
         <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg p-2 max-w-6xl mx-auto md:mx-auto">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
+          <div className="flex items-center justify-center relative">
+            <Link href="/" className="absolute left-0 flex items-center gap-2">
               <Image src="/logo/shyhy-logo-white.png" alt="SKYHY" width={200} height={68} className="h-14 w-auto" />
             </Link>
             
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Centered */}
             <nav className="hidden md:flex items-center gap-6 mx-auto">
               <Link 
                 href="/"
@@ -734,32 +734,16 @@ function PackagesMenuPageContent() {
                 Packages & Menu
               </Link>
             </nav>
-            
-            {/* Reservation Button - Rightmost (Desktop Only) */}
-            <Link 
-              href="/reservation"
-              className="hidden md:block bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-[family-name:var(--font-inter)] font-bold px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300"
-            >
-              Reservation
-            </Link>
 
-            {/* Mobile Reservation Button & Hamburger Menu */}
-            <div className="md:hidden flex items-center gap-2">
-              <Link 
-                href="/reservation"
-                className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-bold px-3 py-1.5 rounded-full text-xs hover:shadow-lg transition-all duration-300"
-              >
-                Reservation
-              </Link>
-              <button 
-                className="text-white p-2"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            </div>
+            {/* Mobile Hamburger Menu */}
+            <button 
+              className="md:hidden absolute right-0 text-white p-2"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -773,32 +757,32 @@ function PackagesMenuPageContent() {
           className="fixed top-16 left-0 right-0 z-40 md:hidden md:top-20 md:left-4 md:right-4"
         >
           <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-4 max-w-6xl mx-auto">
-            <nav className="flex flex-col space-y-4">
+            <nav className="flex flex-col items-center space-y-4">
               <Link 
                 href="/"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
               >
                 Home
               </Link>
               <Link 
                 href="/#about"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
               >
                 About
               </Link>
               <Link 
                 href="/packages-menu"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
               >
                 Packages & Menu
               </Link>
               <Link 
                 href="/reservation"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
               >
                 Reservation
               </Link>
