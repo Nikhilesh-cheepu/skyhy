@@ -28,7 +28,7 @@ export default function HomePage() {
           
           {/* Section 3: Navbar fixed at top */}
           <div className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">
-            <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg p-2 max-w-6xl mx-auto md:mx-auto">
+            <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg py-3 px-4 md:py-2 md:px-2 max-w-6xl mx-auto md:mx-auto">
               <div className="flex items-center justify-center relative">
                 <Link href="/" className="absolute left-0 flex items-center gap-2">
                   <Image src="/logo/shyhy-logo-white.png" alt="SKYHY" width={200} height={68} className="h-14 w-auto" />
