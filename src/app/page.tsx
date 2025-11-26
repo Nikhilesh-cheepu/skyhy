@@ -291,14 +291,15 @@ export default function HomePage() {
                 ].map((imagePath, index) => (
                   <div 
                     key={imagePath} 
-                    className="relative w-24 h-32 md:w-28 md:h-40 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 overflow-hidden"
+                    className="relative w-24 h-32 md:w-28 md:h-40 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 overflow-hidden border-2 border-white/30"
                     style={{
                       transform: `rotate(${(index - 2) * 3}deg) translateY(${Math.abs(index - 2) * 2}px)`,
                       zIndex: 5 - Math.abs(index - 2),
-                      marginLeft: index > 0 ? '-8px' : '0'
+                      marginLeft: index > 0 ? '-8px' : '0',
+                      boxShadow: '0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(37, 99, 235, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1)'
                     }}
                   >
-                    <div className="w-full h-full rounded-lg overflow-hidden">
+                    <div className="w-full h-full rounded-lg overflow-hidden border border-white/20">
                       <Image 
                         src={imagePath} 
                         alt={`Menu item ${index + 1}`} 
