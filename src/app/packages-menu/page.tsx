@@ -1191,24 +1191,24 @@ function PackagesMenuPageContent() {
         </div>
       </div>
 
-      {/* Floating Cart Button at Bottom (Mobile Only) */}
+      {/* Floating Cart Button at Bottom */}
       {activeTab === 'menu' && getCartCount() > 0 && (
-        <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden">
+        <div className="fixed bottom-4 left-4 right-4 z-40 md:left-auto md:right-8 md:w-auto md:max-w-md">
           <motion.button
             onClick={() => setShowCart(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-bold py-4 px-6 rounded-2xl shadow-2xl flex items-center justify-between"
+            className="w-full md:w-auto bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-bold py-4 px-6 rounded-2xl shadow-2xl flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
               <span className="text-2xl">🛒</span>
               <div className="text-left">
-                <p className="text-sm font-medium">View Cart</p>
-                <p className="text-xs opacity-80">{getCartCount()} items • ₹{getTotal()}</p>
+                <p className="text-sm md:text-base font-medium">View Cart</p>
+                <p className="text-xs md:text-sm opacity-80">{getCartCount()} items • ₹{getTotal()}</p>
               </div>
             </div>
-            <div className="bg-white/20 rounded-full px-4 py-2">
-              <span className="text-lg font-bold">₹{getTotal()}</span>
+            <div className="bg-white/20 rounded-full px-4 py-2 ml-4">
+              <span className="text-lg md:text-xl font-bold">₹{getTotal()}</span>
             </div>
           </motion.button>
         </div>
