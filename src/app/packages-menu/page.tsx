@@ -736,45 +736,15 @@ function PackagesMenuPageContent() {
             </nav>
             
             {/* Reservation Button - Rightmost (Desktop Only) */}
-            <div className="hidden md:flex items-center gap-3">
-              {/* Cart Button - Only show when menu tab is active */}
-              {activeTab === 'menu' && (
-                <button
-                  onClick={() => setShowCart(!showCart)}
-                  className="bg-white/20 backdrop-blur-sm rounded-full p-2 relative hover:bg-white/30 transition-all duration-300"
-                >
-                  <span className="text-lg">🛒</span>
-                  {getCartCount() > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                      {getCartCount()}
-                    </span>
-                  )}
-                </button>
-              )}
-              <Link 
-                href="/reservation"
-                className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-[family-name:var(--font-inter)] font-bold px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300"
-              >
-                Reservation
-              </Link>
-            </div>
+            <Link 
+              href="/reservation"
+              className="hidden md:block bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-[family-name:var(--font-inter)] font-bold px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300"
+            >
+              Reservation
+            </Link>
 
             {/* Mobile Reservation Button & Hamburger Menu */}
             <div className="md:hidden flex items-center gap-2">
-              {/* Cart Button - Only show when menu tab is active */}
-              {activeTab === 'menu' && (
-                <button
-                  onClick={() => setShowCart(!showCart)}
-                  className="bg-white/20 backdrop-blur-sm rounded-full p-2 relative"
-                >
-                  <span className="text-sm">🛒</span>
-                  {getCartCount() > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold text-[10px]">
-                      {getCartCount()}
-                    </span>
-                  )}
-                </button>
-              )}
               <Link 
                 href="/reservation"
                 className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-bold px-3 py-1.5 rounded-full text-xs hover:shadow-lg transition-all duration-300"
