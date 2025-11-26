@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -570,34 +570,37 @@ function PackagesMenuPageContent() {
     }
   }, [tabParam]);
 
-  // Menu functions
-  const addToCart = (item: MenuItem) => {
-    const existingItem = cart.find(cartItem => cartItem.id === item.id);
-    if (existingItem) {
-      setCart(cart.map(cartItem => 
-        cartItem.id === item.id 
-          ? { ...cartItem, quantity: cartItem.quantity + 1 }
-          : cartItem
-      ));
-    } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
-    }
-  };
+  // Menu functions - optimized with useCallback
+  const addToCart = useCallback((item: MenuItem) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+      if (existingItem) {
+        return prevCart.map(cartItem => 
+          cartItem.id === item.id 
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        return [...prevCart, { ...item, quantity: 1 }];
+      }
+    });
+  }, []);
 
-  const getItemQuantity = (itemId: number): number => {
-    const cartItem = cart.find(item => item.id === itemId);
-    return cartItem ? cartItem.quantity : 0;
-  };
+  const getItemQuantity = useCallback((itemId: number): number => {
+    return cart.find(item => item.id === itemId)?.quantity || 0;
+  }, [cart]);
 
-  const updateQuantity = (id: number, quantity: number) => {
-    if (quantity <= 0) {
-      setCart(cart.filter(item => item.id !== id));
-    } else {
-      setCart(cart.map(item => 
-        item.id === id ? { ...item, quantity } : item
-      ));
-    }
-  };
+  const updateQuantity = useCallback((id: number, quantity: number) => {
+    setCart(prevCart => {
+      if (quantity <= 0) {
+        return prevCart.filter(item => item.id !== id);
+      } else {
+        return prevCart.map(item => 
+          item.id === id ? { ...item, quantity } : item
+        );
+      }
+    });
+  }, []);
 
   const getTotal = () => {
     return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -607,7 +610,19 @@ function PackagesMenuPageContent() {
     return cart.reduce((total, item) => total + item.quantity, 0);
   };
 
-  const getAllItemsFromSection = (): MenuItem[] => {
+
+
+
+  const formatCategoryName = (category: string): string => {
+    return category
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  // Memoize expensive operations
+  const currentItems = useMemo(() => {
+    // Get all items from current section
     let allItems: MenuItem[] = [];
     if (activeSection === 'food') {
       Object.values(menuData.food).forEach(category => {
@@ -630,30 +645,26 @@ function PackagesMenuPageContent() {
         allItems = [...allItems, ...category];
       });
     }
-    return allItems;
-  };
-
-  const getSearchSuggestions = (): MenuItem[] => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    const allItems = getAllItemsFromSection();
-    return allItems
-      .filter(item => 
-        item.name.toLowerCase().includes(query) || 
-        item.description.toLowerCase().includes(query)
-      )
-      .slice(0, 5);
-  };
-
-  const getCurrentItems = () => {
-    const allItems = getAllItemsFromSection();
     
     let filteredItems = allItems;
     if (selectedCategories.length > 0) {
       const categoryMap: { [key: string]: MenuItem[] } = {};
-      const categories = getCategories();
       
-      categories.forEach(cat => {
+      // Get categories for current section
+      let cats: string[] = [];
+      if (activeSection === 'food') {
+        cats = Object.keys(menuData.food);
+      } else if (activeSection === 'beverage') {
+        cats = Object.keys(menuData.beverage);
+      } else if (activeSection === 'liquor') {
+        cats = Object.keys(menuData.liquor);
+      } else if (activeSection === 'store') {
+        cats = Object.keys(menuData.store);
+      } else if (activeSection === 'special-128') {
+        cats = Object.keys(menuData['special-128']);
+      }
+      
+      cats.forEach(cat => {
         if (activeSection === 'food') {
           categoryMap[cat] = menuData.food[cat as keyof typeof menuData.food] || [];
         } else if (activeSection === 'beverage') {
@@ -679,9 +690,9 @@ function PackagesMenuPageContent() {
     }
     
     return filteredItems;
-  };
+  }, [activeSection, selectedCategories, searchQuery]);
 
-  const getCategories = () => {
+  const categories = useMemo(() => {
     if (activeSection === 'food') {
       return Object.keys(menuData.food);
     } else if (activeSection === 'beverage') {
@@ -694,14 +705,50 @@ function PackagesMenuPageContent() {
       return Object.keys(menuData['special-128']);
     }
     return [];
-  };
+  }, [activeSection]);
 
-  const formatCategoryName = (category: string): string => {
-    return category
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
+  const searchSuggestions = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    
+    // Get all items from current section
+    let allItems: MenuItem[] = [];
+    if (activeSection === 'food') {
+      Object.values(menuData.food).forEach(category => {
+        allItems = [...allItems, ...category];
+      });
+    } else if (activeSection === 'beverage') {
+      Object.values(menuData.beverage).forEach(category => {
+        allItems = [...allItems, ...category];
+      });
+    } else if (activeSection === 'liquor') {
+      Object.values(menuData.liquor).forEach(category => {
+        allItems = [...allItems, ...category];
+      });
+    } else if (activeSection === 'store') {
+      Object.values(menuData.store).forEach(category => {
+        allItems = [...allItems, ...category];
+      });
+    } else if (activeSection === 'special-128') {
+      Object.values(menuData['special-128']).forEach(category => {
+        allItems = [...allItems, ...category];
+      });
+    }
+    
+    return allItems
+      .filter(item => 
+        item.name.toLowerCase().includes(query) || 
+        item.description.toLowerCase().includes(query)
+      )
+      .slice(0, 5);
+  }, [searchQuery, activeSection]);
+
+  const handleSectionChange = useCallback((section: string) => {
+    setActiveSection(section);
+    setSelectedCategories([]);
+    setSearchQuery('');
+    setIsCategoryDropdownOpen(false);
+  }, []);
 
   return (
     <div className="min-h-screen bg-black">
@@ -815,30 +862,34 @@ function PackagesMenuPageContent() {
 
           {/* Tab Switcher */}
           <div className="flex justify-center gap-4 mb-8">
-            <motion.button
-              onClick={() => setActiveTab('packages')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setActiveTab('packages');
+              }}
+              className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'packages'
                   ? 'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-lg'
-                  : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20'
+                  : 'bg-white/10 text-white/80 hover:bg-white/20 active:bg-white/30 border border-white/20'
               }`}
             >
               📦 Party Packages
-            </motion.button>
-            <motion.button
-              onClick={() => setActiveTab('menu')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setActiveTab('menu');
+              }}
+              className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'menu'
                   ? 'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-lg'
-                  : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20'
+                  : 'bg-white/10 text-white/80 hover:bg-white/20 active:bg-white/30 border border-white/20'
               }`}
             >
               🍽️ View Menu
-            </motion.button>
+            </button>
           </div>
         </div>
 
@@ -912,19 +963,10 @@ function PackagesMenuPageContent() {
             {/* Main Sections */}
             <div className="flex flex-wrap justify-center gap-3 mb-6">
               {Object.keys(menuData).map((section) => (
-                <motion.button
+                <button
                   key={section}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setActiveSection(section);
-                    setSelectedCategories([]);
-                    setSearchQuery('');
-                    setIsCategoryDropdownOpen(false);
-                  }}
-                  className={`px-4 md:px-6 py-2 md:py-3 rounded-2xl text-xs md:text-sm font-semibold transition-all duration-300 shadow-lg ${
+                  onClick={() => handleSectionChange(section)}
+                  className={`px-4 md:px-6 py-2 md:py-3 rounded-2xl text-xs md:text-sm font-semibold transition-all duration-200 shadow-lg cursor-pointer ${
                     activeSection === section
                       ? 'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-[#2563EB]/25'
                       : 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white border border-white/20'
@@ -935,7 +977,7 @@ function PackagesMenuPageContent() {
                    section === 'liquor' ? '🍷 Liquor' : 
                    section === 'store' ? '🏪 Store' :
                    section === 'special-128' ? '🎉 Eat & Drink @ ₹128' : section}
-                </motion.button>
+                </button>
               ))}
             </div>
 
@@ -957,31 +999,26 @@ function PackagesMenuPageContent() {
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 text-lg">🔍</span>
                 
                 {/* Search Suggestions */}
-                {showSearchSuggestions && getSearchSuggestions().length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute z-50 w-full mt-2 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
-                  >
+                {showSearchSuggestions && searchSuggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-2 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
                     <div className="max-h-64 overflow-y-auto">
-                      {getSearchSuggestions().map((item, index) => (
-                        <motion.button
+                      {searchSuggestions.map((item) => (
+                        <button
                           key={item.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             setSearchQuery(item.name);
                             setShowSearchSuggestions(false);
                           }}
-                          className="w-full px-6 py-3 text-left hover:bg-white/10 transition-all duration-200"
+                          className="w-full px-6 py-3 text-left hover:bg-white/10 active:bg-white/20 transition-all duration-150 cursor-pointer"
                         >
                           <p className="text-white font-medium text-sm">{item.name}</p>
                           <p className="text-white/60 text-xs mt-1">{item.description}</p>
-                        </motion.button>
+                        </button>
                       ))}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
               </div>
             </div>
@@ -989,11 +1026,9 @@ function PackagesMenuPageContent() {
             {/* Category Filters */}
             <div className="mb-8 relative">
               <div className="max-w-4xl mx-auto">
-                <motion.button
+                <button
                   onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-4 flex items-center justify-between text-white hover:bg-white/20 transition-all duration-300 shadow-lg"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-4 flex items-center justify-between text-white hover:bg-white/20 active:bg-white/30 transition-all duration-200 shadow-lg cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-lg">🔽</span>
@@ -1003,44 +1038,37 @@ function PackagesMenuPageContent() {
                         : 'All Categories'}
                     </span>
                   </div>
-                  <motion.svg
-                    className="w-5 h-5 text-white/80"
+                  <svg
+                    className={`w-5 h-5 text-white/80 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
-                    animate={{ rotate: isCategoryDropdownOpen ? 180 : 0 }}
-                    transition={{ duration: 0.3 }}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </motion.svg>
-                </motion.button>
+                  </svg>
+                </button>
 
                 {isCategoryDropdownOpen && (
                   <>
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="absolute z-50 w-full mt-2 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
-                    >
+                    <div className="absolute z-50 w-full mt-2 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
                       <div className="max-h-96 overflow-y-auto p-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                          {getCategories().map((category) => {
+                          {categories.map((category) => {
                             const isSelected = selectedCategories.includes(category);
                             return (
-                              <motion.label
+                              <label
                                 key={category}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-150 ${
                                   isSelected
                                     ? 'bg-gradient-to-r from-[#2563EB]/30 to-[#3B82F6]/30 border border-[#2563EB]'
-                                    : 'bg-white/5 hover:bg-white/10 border border-white/10'
+                                    : 'bg-white/5 hover:bg-white/10 active:bg-white/15 border border-white/10'
                                 }`}
                               >
                                 <input
                                   type="checkbox"
                                   checked={isSelected}
                                   onChange={(e) => {
+                                    e.stopPropagation();
                                     if (e.target.checked) {
                                       setSelectedCategories([...selectedCategories, category]);
                                     } else {
@@ -1052,22 +1080,26 @@ function PackagesMenuPageContent() {
                                 <span className="text-white font-medium text-sm flex-1">
                                   {formatCategoryName(category)}
                                 </span>
-                              </motion.label>
+                              </label>
                             );
                           })}
                         </div>
                         {selectedCategories.length > 0 && (
                           <div className="mt-4 pt-4 border-t border-white/20">
                             <button
-                              onClick={() => setSelectedCategories([])}
-                              className="w-full px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-medium transition-all duration-200"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setSelectedCategories([]);
+                              }}
+                              className="w-full px-4 py-2 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer"
                             >
                               Clear All Filters
                             </button>
                           </div>
                         )}
                       </div>
-                    </motion.div>
+                    </div>
                     <div
                       className="fixed inset-0 z-40"
                       onClick={() => setIsCategoryDropdownOpen(false)}
@@ -1079,17 +1111,13 @@ function PackagesMenuPageContent() {
 
             {/* Menu Items */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-              {getCurrentItems().map((item, index) => (
-                <motion.div
+              {currentItems.map((item) => (
+                <div
                   key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/10 group"
+                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-200 border border-white/10 group"
                 >
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="font-bold text-white text-base group-hover:text-[#2563EB] transition-colors duration-300">
+                    <h3 className="font-bold text-white text-base group-hover:text-[#2563EB] transition-colors duration-200">
                       {item.name}
                     </h3>
                     <span className="text-[#2563EB] font-bold text-lg">₹{item.price}</span>
@@ -1113,38 +1141,44 @@ function PackagesMenuPageContent() {
                   
                   {getItemQuantity(item.id) > 0 ? (
                     <div className="flex items-center gap-2">
-                      <motion.button
-                        onClick={() => updateQuantity(item.id, getItemQuantity(item.id) - 1)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex-1 bg-white/10 hover:bg-white/20 text-white py-3 px-4 rounded-xl text-lg font-semibold transition-all duration-300 border border-white/20"
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          updateQuantity(item.id, getItemQuantity(item.id) - 1);
+                        }}
+                        className="flex-1 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white py-3 px-4 rounded-xl text-lg font-semibold transition-all duration-200 border border-white/20 cursor-pointer"
                       >
                         -
-                      </motion.button>
+                      </button>
                       <div className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-3 px-6 rounded-xl text-sm font-bold min-w-[60px] text-center">
                         {getItemQuantity(item.id)}
                       </div>
-                      <motion.button
-                        onClick={() => addToCart(item)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex-1 bg-white/10 hover:bg-white/20 text-white py-3 px-4 rounded-xl text-lg font-semibold transition-all duration-300 border border-white/20"
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addToCart(item);
+                        }}
+                        className="flex-1 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white py-3 px-4 rounded-xl text-lg font-semibold transition-all duration-200 border border-white/20 cursor-pointer"
                       >
                         +
-                      </motion.button>
+                      </button>
                     </div>
                   ) : (
-                    <motion.button
-                      onClick={() => addToCart(item)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-3 px-4 rounded-xl text-sm font-semibold hover:from-[#1D4ED8] hover:to-[#2563EB] transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        addToCart(item);
+                      }}
+                      className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-3 px-4 rounded-xl text-sm font-semibold hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>🛒</span>
                       Add to Cart
-                    </motion.button>
+                    </button>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
           </motion.div>
@@ -1153,24 +1187,20 @@ function PackagesMenuPageContent() {
         {/* Navigation Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mt-12 mb-8">
           <Link href="/reservation">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] px-6 py-3 rounded-xl font-semibold transition-all duration-300 border border-white/20 flex items-center gap-2"
+            <button
+              className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] px-6 py-3 rounded-xl font-semibold transition-all duration-200 border border-white/20 flex items-center gap-2 hover:from-[#A5E600] hover:to-[#8AD9A0] active:from-[#95D600] active:to-[#7ACC8C] cursor-pointer"
             >
               <span>📅</span>
               Book Reservation
-            </motion.button>
+            </button>
           </Link>
           <Link href="/">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 border border-white/20 flex items-center gap-2"
+            <button
+              className="bg-white/10 hover:bg-white/20 active:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 border border-white/20 flex items-center gap-2 cursor-pointer"
             >
               <span>🏠</span>
               Go Home
-            </motion.button>
+            </button>
           </Link>
         </div>
       </div>
@@ -1178,11 +1208,13 @@ function PackagesMenuPageContent() {
       {/* Floating Cart Button at Bottom */}
       {activeTab === 'menu' && getCartCount() > 0 && (
         <div className="fixed bottom-4 left-4 right-4 z-40 md:left-auto md:right-8 md:w-auto md:max-w-md">
-          <motion.button
-            onClick={() => setShowCart(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full md:w-auto bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-bold py-4 px-6 rounded-2xl shadow-2xl flex items-center justify-between"
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowCart(true);
+            }}
+            className="w-full md:w-auto bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-bold py-4 px-6 rounded-2xl shadow-2xl flex items-center justify-between hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-all duration-200 cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <span className="text-2xl">🛒</span>
@@ -1194,7 +1226,7 @@ function PackagesMenuPageContent() {
             <div className="bg-white/20 rounded-full px-4 py-2 ml-4">
               <span className="text-lg md:text-xl font-bold">₹{getTotal()}</span>
             </div>
-          </motion.button>
+          </button>
         </div>
       )}
 
@@ -1212,8 +1244,12 @@ function PackagesMenuPageContent() {
                 <p className="text-sm text-white/70">{getCartCount()} items</p>
               </div>
               <button
-                onClick={() => setShowCart(false)}
-                className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors duration-200"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowCart(false);
+                }}
+                className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 active:bg-white/30 transition-colors duration-150 cursor-pointer"
               >
                 ✕
               </button>
@@ -1231,11 +1267,9 @@ function PackagesMenuPageContent() {
               <>
                 <div className="space-y-4 mb-6">
                   {cart.map((item) => (
-                    <motion.div
+                    <div
                       key={item.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors duration-200"
+                      className="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors duration-150"
                     >
                       <div className="flex-1">
                         <h4 className="font-semibold text-white text-sm">{item.name}</h4>
@@ -1243,20 +1277,28 @@ function PackagesMenuPageContent() {
                       </div>
                       <div className="flex items-center gap-3">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors duration-200"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            updateQuantity(item.id, item.quantity - 1);
+                          }}
+                          className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 active:bg-white/30 transition-colors duration-150 cursor-pointer"
                         >
                           -
                         </button>
                         <span className="w-8 text-center text-sm font-semibold text-white">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors duration-200"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            updateQuantity(item.id, item.quantity + 1);
+                          }}
+                          className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 active:bg-white/30 transition-colors duration-150 cursor-pointer"
                         >
                           +
                         </button>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
 
@@ -1265,21 +1307,21 @@ function PackagesMenuPageContent() {
                     <span className="text-lg font-semibold text-white">Total:</span>
                     <span className="text-2xl font-bold text-[#2563EB]">₹{getTotal()}</span>
                   </div>
-                  <motion.button
-                    onClick={() => {
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       const orderItems = cart.map(item => 
                         `${item.name} x${item.quantity} - ₹${item.price * item.quantity}`
                       ).join('%0A');
                       const message = `*Order from SKYHY Live*%0A%0A${orderItems}%0A%0A*Total: ₹${getTotal()}*%0A%0APlease confirm this order. Thank you!`;
                       window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
                     }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>📱</span>
                     Send Order via WhatsApp
-                  </motion.button>
+                  </button>
                   <p className="text-center text-xs text-white/60 mt-3">
                     Or show this to our waiter
                   </p>
