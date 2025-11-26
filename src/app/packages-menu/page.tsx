@@ -706,8 +706,8 @@ function PackagesMenuPageContent() {
   return (
     <div className="min-h-screen bg-black">
       {/* Navigation Header - Same as Home Page */}
-      <div className="fixed top-4 left-4 right-4 z-50">
-        <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-2 max-w-6xl mx-auto">
+      <div className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">
+        <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg p-2 max-w-6xl mx-auto md:mx-auto">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Image src="/logo/shyhy-logo-white.png" alt="SKYHY" width={200} height={68} className="h-14 w-auto" />
@@ -800,7 +800,7 @@ function PackagesMenuPageContent() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="fixed top-20 left-4 right-4 z-40 md:hidden"
+          className="fixed top-16 left-0 right-0 z-40 md:hidden md:top-20 md:left-4 md:right-4"
         >
           <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-4 max-w-6xl mx-auto">
             <nav className="flex flex-col space-y-4">
@@ -838,7 +838,7 @@ function PackagesMenuPageContent() {
       )}
 
       {/* Add top padding to account for fixed navbar */}
-      <div className="pt-24">
+      <div className="pt-20 md:pt-24">
 
         <div className="max-w-7xl mx-auto p-6">
         {/* Page Header */}
@@ -1221,13 +1221,36 @@ function PackagesMenuPageContent() {
         </div>
       </div>
 
+      {/* Floating Cart Button at Bottom (Mobile Only) */}
+      {activeTab === 'menu' && getCartCount() > 0 && (
+        <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden">
+          <motion.button
+            onClick={() => setShowCart(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-bold py-4 px-6 rounded-2xl shadow-2xl flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🛒</span>
+              <div className="text-left">
+                <p className="text-sm font-medium">View Cart</p>
+                <p className="text-xs opacity-80">{getCartCount()} items • ₹{getTotal()}</p>
+              </div>
+            </div>
+            <div className="bg-white/20 rounded-full px-4 py-2">
+              <span className="text-lg font-bold">₹{getTotal()}</span>
+            </div>
+          </motion.button>
+        </div>
+      )}
+
       {/* Cart Sidebar */}
       {showCart && activeTab === 'menu' && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex justify-end">
+        <div className="fixed inset-0 bg-black/50 z-50 flex justify-end md:justify-end">
           <motion.div
             initial={{ x: 400 }}
             animate={{ x: 0 }}
-            className="bg-black/90 backdrop-blur-xl border-l border-white/20 w-96 h-full p-6 overflow-y-auto shadow-2xl"
+            className="bg-black/90 backdrop-blur-xl border-l border-white/20 w-full md:w-96 h-full p-6 overflow-y-auto shadow-2xl"
           >
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/20">
               <div>

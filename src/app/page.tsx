@@ -27,8 +27,8 @@ export default function HomePage() {
         <div className="relative min-h-screen">
           
           {/* Section 3: Navbar fixed at top */}
-          <div className="fixed top-4 left-4 right-4 z-50">
-            <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-2 max-w-6xl mx-auto">
+          <div className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">
+            <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg p-2 max-w-6xl mx-auto md:mx-auto">
               <div className="flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2">
                   <Image src="/logo/shyhy-logo-white.png" alt="SKYHY" width={200} height={68} className="h-14 w-auto" />
@@ -91,7 +91,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="fixed top-20 left-4 right-4 z-40 md:hidden"
+              className="fixed top-16 left-0 right-0 z-40 md:hidden md:top-20 md:left-4 md:right-4"
             >
               <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-4 max-w-6xl mx-auto">
                 <nav className="flex flex-col space-y-4">
