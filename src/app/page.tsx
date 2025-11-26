@@ -282,23 +282,29 @@ export default function HomePage() {
 
               {/* Food Images Collage */}
               <div className="flex justify-center mb-12">
-                {[1, 2, 3, 4, 5].map((item, index) => (
+                {[
+                  '/menu preview cards/IMG_9053.jpg',
+                  '/menu preview cards/IMG_9055.jpg',
+                  '/menu preview cards/IMG_9056.jpg',
+                  '/menu preview cards/IMG_9058.jpg',
+                  '/menu preview cards/IMG_9059.jpg'
+                ].map((imagePath, index) => (
                   <div 
-                    key={item} 
-                    className="relative w-24 h-32 md:w-28 md:h-40 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105"
+                    key={imagePath} 
+                    className="relative w-24 h-32 md:w-28 md:h-40 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 overflow-hidden"
                     style={{
                       transform: `rotate(${(index - 2) * 3}deg) translateY(${Math.abs(index - 2) * 2}px)`,
                       zIndex: 5 - Math.abs(index - 2),
                       marginLeft: index > 0 ? '-8px' : '0'
                     }}
                   >
-                    <div className="w-16 h-20 md:w-20 md:h-24 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                    <div className="w-full h-full rounded-lg overflow-hidden">
                       <Image 
-                        src={`/api/placeholder/80/100`} 
-                        alt={`Food ${item}`} 
-                        width={80}
-                        height={100}
-                        className="w-full h-full object-cover rounded-lg"
+                        src={imagePath} 
+                        alt={`Menu item ${index + 1}`} 
+                        width={112}
+                        height={160}
+                        className="w-full h-full object-cover"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
