@@ -553,6 +553,7 @@ function PackagesMenuPageContent() {
   const [activeTab, setActiveTab] = useState<'packages' | 'menu'>(
     tabParam === 'menu' ? 'menu' : 'packages'
   );
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Menu-specific state (only used when menu tab is active)
   const [activeSection, setActiveSection] = useState('food');
@@ -704,78 +705,142 @@ function PackagesMenuPageContent() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Navigation Header */}
-      <div className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-4 px-4 shadow-xl">
-        <div className="max-w-7xl mx-auto">
+      {/* Navigation Header - Same as Home Page */}
+      <div className="fixed top-4 left-4 right-4 z-50">
+        <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-2 max-w-6xl mx-auto">
           <div className="flex items-center justify-between">
-            {/* Logo - Left */}
-            <Link href="/" className="flex items-center">
-              <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all duration-300">
-                <Image 
-                  src="/logo/shyhy-logo-white.png" 
-                  alt="SKYHY Live Logo" 
-                  width={60} 
-                  height={60}
-                  className="object-contain"
-                />
-              </div>
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/logo/shyhy-logo-white.png" alt="SKYHY" width={200} height={68} className="h-14 w-auto" />
             </Link>
-
-            {/* Navigation Links - Center */}
-            <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-6 mx-auto">
               <Link 
-                href="/" 
-                className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 hover:scale-105 px-3 py-2 rounded-lg hover:bg-white/10"
+                href="/"
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
               >
                 Home
               </Link>
               <Link 
-                href="/#about" 
-                className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 hover:scale-105 px-3 py-2 rounded-lg hover:bg-white/10"
+                href="/#about"
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
               >
                 About
               </Link>
               <Link 
-                href="/packages-menu" 
-                className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 hover:scale-105 px-3 py-2 rounded-lg hover:bg-white/10 bg-white/20"
+                href="/packages-menu"
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
               >
                 Packages & Menu
               </Link>
             </nav>
-
-            {/* Right side buttons */}
-            <div className="flex items-center gap-3">
+            
+            {/* Reservation Button - Rightmost (Desktop Only) */}
+            <div className="hidden md:flex items-center gap-3">
               {/* Cart Button - Only show when menu tab is active */}
               {activeTab === 'menu' && (
                 <button
                   onClick={() => setShowCart(!showCart)}
-                  className="bg-white/15 backdrop-blur-sm rounded-2xl p-4 relative hover:bg-white/25 transition-all duration-300 border border-white/20 hover:scale-105"
+                  className="bg-white/20 backdrop-blur-sm rounded-full p-2 relative hover:bg-white/30 transition-all duration-300"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">🛒</span>
-                    <span className="text-sm font-medium">Cart</span>
-                    {getCartCount() > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
-                        {getCartCount()}
-                      </span>
-                    )}
-                  </div>
+                  <span className="text-lg">🛒</span>
+                  {getCartCount() > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                      {getCartCount()}
+                    </span>
+                  )}
                 </button>
               )}
-              
-              {/* Book Table Button */}
-              <Link
+              <Link 
                 href="/reservation"
-                className="bg-white/15 backdrop-blur-sm rounded-2xl px-6 py-3 hover:bg-white/25 transition-all duration-300 border border-white/20 hover:scale-105"
+                className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-[family-name:var(--font-inter)] font-bold px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300"
               >
-                <span className="text-sm font-medium">Book Table</span>
+                Reservation
               </Link>
+            </div>
+
+            {/* Mobile Reservation Button & Hamburger Menu */}
+            <div className="md:hidden flex items-center gap-2">
+              {/* Cart Button - Only show when menu tab is active */}
+              {activeTab === 'menu' && (
+                <button
+                  onClick={() => setShowCart(!showCart)}
+                  className="bg-white/20 backdrop-blur-sm rounded-full p-2 relative"
+                >
+                  <span className="text-sm">🛒</span>
+                  {getCartCount() > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold text-[10px]">
+                      {getCartCount()}
+                    </span>
+                  )}
+                </button>
+              )}
+              <Link 
+                href="/reservation"
+                className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-bold px-3 py-1.5 rounded-full text-xs hover:shadow-lg transition-all duration-300"
+              >
+                Reservation
+              </Link>
+              <button 
+                className="text-white p-2"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6">
+      {/* Mobile Dropdown Menu */}
+      {isMobileMenuOpen && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-20 left-4 right-4 z-40 md:hidden"
+        >
+          <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-4 max-w-6xl mx-auto">
+            <nav className="flex flex-col space-y-4">
+              <Link 
+                href="/"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
+              >
+                Home
+              </Link>
+              <Link 
+                href="/#about"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
+              >
+                About
+              </Link>
+              <Link 
+                href="/packages-menu"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
+              >
+                Packages & Menu
+              </Link>
+              <Link 
+                href="/reservation"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
+              >
+                Reservation
+              </Link>
+            </nav>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Add top padding to account for fixed navbar */}
+      <div className="pt-24">
+
+        <div className="max-w-7xl mx-auto p-6">
         {/* Page Header */}
         <div className="text-center mb-12">
           <motion.h1 
@@ -1248,8 +1313,9 @@ function PackagesMenuPageContent() {
         </div>
       )}
 
-      {/* Footer Section */}
-      <Footer />
+        {/* Footer Section */}
+        <Footer />
+      </div>
     </div>
   );
 }
