@@ -48,36 +48,30 @@ export default function HomePage() {
                   >
                     About
                   </button>
-                  <button 
-                    onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })} 
+                  <Link 
+                    href="/packages-menu"
                     className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
                   >
-                    Menu
-                  </button>
-                  <button 
-                    onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })} 
-                    className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
-                  >
-                    Packages
-                  </button>
+                    Packages & Menu
+                  </Link>
                 </nav>
                 
-                {/* Book Table Button - Rightmost (Desktop Only) */}
-                <button 
-                  onClick={(e) => { e.preventDefault(); document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' }); }}
+                {/* Reservation Button - Rightmost (Desktop Only) */}
+                <Link 
+                  href="/reservation"
                   className="hidden md:block bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-[family-name:var(--font-inter)] font-bold px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300"
                 >
-                  Book Table
-                </button>
+                  Reservation
+                </Link>
 
-                {/* Mobile Book Table Button & Hamburger Menu */}
+                {/* Mobile Reservation Button & Hamburger Menu */}
                 <div className="md:hidden flex items-center gap-2">
-                  <button 
-                    onClick={(e) => { e.preventDefault(); document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' }); }}
+                  <Link 
+                    href="/reservation"
                     className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-bold px-3 py-1.5 rounded-full text-xs hover:shadow-lg transition-all duration-300"
                   >
-                    Book Table
-                  </button>
+                    Reservation
+                  </Link>
                   <button 
                     className="text-white p-2"
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -119,24 +113,20 @@ export default function HomePage() {
                     >
                       About
                     </button>
-                    <button 
-                      onClick={() => { 
-                        document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' }); 
-                        setIsMobileMenuOpen(false);
-                      }} 
+                    <Link 
+                      href="/packages-menu"
+                      onClick={() => setIsMobileMenuOpen(false)}
                       className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
                     >
-                      Menu
-                    </button>
-                    <button 
-                      onClick={() => { 
-                        document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' }); 
-                        setIsMobileMenuOpen(false);
-                      }} 
+                      Packages & Menu
+                    </Link>
+                    <Link 
+                      href="/reservation"
+                      onClick={() => setIsMobileMenuOpen(false)}
                       className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2"
                     >
-                      Packages
-                    </button>
+                      Reservation
+                    </Link>
                 </nav>
               </div>
             </motion.div>
@@ -195,50 +185,6 @@ export default function HomePage() {
               {/* Clean Overlay */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60"></div>
 
-              {/* Hero Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center px-8 py-12">
-                <motion.div 
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                  className="text-center max-w-4xl mx-auto"
-                >
-                  <motion.h1 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.5 }}
-                    className="text-4xl md:text-6xl lg:text-7xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-6"
-                  >
-                    WELCOME TO <span className="text-[#2563EB] whitespace-nowrap">SKYHY LIVE</span>
-                  </motion.h1>
-                  
-                  <motion.p 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.7 }}
-                    className="text-lg md:text-xl lg:text-2xl text-white/90 font-[family-name:var(--font-inter)] font-medium max-w-3xl mx-auto leading-relaxed"
-                  >
-                    Where every night tells a story
-                  </motion.p>
-
-                  {/* CTA Button */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.9 }}
-                    className="mt-10"
-                  >
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
-                      className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-[family-name:var(--font-inter)] font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                    >
-                      Explore Packages
-                    </motion.button>
-                  </motion.div>
-                </motion.div>
-              </div>
             </div>
       </div>
 

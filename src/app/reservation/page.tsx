@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 
-export default function BookingPage() {
+export default function ReservationPage() {
   return (
     <div className="min-h-screen bg-black">
       {/* Navigation Header */}
@@ -27,7 +27,7 @@ export default function BookingPage() {
             </Link>
 
             {/* Navigation Links - Center */}
-            <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+            <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
               <Link 
                 href="/" 
                 className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 hover:scale-105 px-3 py-2 rounded-lg hover:bg-white/10"
@@ -41,6 +41,12 @@ export default function BookingPage() {
                 About
               </Link>
               <Link 
+                href="/menu" 
+                className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 hover:scale-105 px-3 py-2 rounded-lg hover:bg-white/10"
+              >
+                Menu
+              </Link>
+              <Link 
                 href="/packages-menu" 
                 className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 hover:scale-105 px-3 py-2 rounded-lg hover:bg-white/10"
               >
@@ -48,10 +54,10 @@ export default function BookingPage() {
               </Link>
             </nav>
 
-            {/* Reservation Button - Right */}
+            {/* Book Table Button - Right */}
             <Link
               href="/reservation"
-              className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-semibold px-6 py-3 rounded-2xl hover:shadow-lg transition-all duration-300 border border-white/20 hover:scale-105"
+              className="bg-white/15 backdrop-blur-sm rounded-2xl px-6 py-3 hover:bg-white/25 transition-all duration-300 border border-white/20 hover:scale-105 bg-white/20"
             >
               <span className="text-sm font-medium">Reservation</span>
             </Link>
@@ -68,7 +74,7 @@ export default function BookingPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl font-bold text-white mb-4"
           >
-            Book Your <span className="text-[#B6FF00]">Table</span>
+            Make a <span className="text-[#B6FF00]">Reservation</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -76,7 +82,7 @@ export default function BookingPage() {
             transition={{ delay: 0.1 }}
             className="text-lg text-white/80 max-w-2xl mx-auto mb-8"
           >
-            Reserve your spot for an unforgettable night
+            Reserve your spot for an unforgettable night at SKYHY Live
           </motion.p>
         </div>
 
@@ -85,7 +91,7 @@ export default function BookingPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/20"
+          className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/20 mb-12"
         >
           <form onSubmit={(e) => {
             e.preventDefault();
@@ -114,7 +120,7 @@ export default function BookingPage() {
               timeText = `${hour12}:${minutes} ${ampm}`;
             }
             
-            const message = `Hi! I want to book a table at SKYHY Live%0A%0AName: ${name}%0APeople: ${people}%0AMobile: ${mobile}%0ADate: ${formattedDate}%0ATime: ${timeText}%0A%0APlease confirm availability. Thanks!`;
+            const message = `Hi! I want to make a reservation at SKYHY Live%0A%0AName: ${name}%0ANumber of People: ${people}%0AMobile: ${mobile}%0ADate: ${formattedDate}%0ATime: ${timeText}%0A%0APlease confirm availability. Thanks!`;
             
             window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
           }} className="space-y-8">
@@ -221,7 +227,7 @@ export default function BookingPage() {
                 className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-bold text-xl px-12 py-4 rounded-2xl shadow-2xl hover:shadow-[#B6FF00]/25 transition-all duration-300 flex items-center gap-3 mx-auto"
               >
                 <span>📱</span>
-                Book Table via WhatsApp
+                Book Reservation via WhatsApp
               </motion.button>
             </div>
 
@@ -232,24 +238,39 @@ export default function BookingPage() {
           </form>
         </motion.div>
 
-        {/* View Menu Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-center mt-12"
-        >
+        {/* Navigation Buttons */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          <Link href="/packages-menu">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 border border-white/20 flex items-center gap-2"
+            >
+              <span>📦</span>
+              View Packages
+            </motion.button>
+          </Link>
           <Link href="/menu">
             <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-semibold text-lg px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 flex items-center gap-3 mx-auto"
+              className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 border border-white/20 flex items-center gap-2"
             >
               <span>🍽️</span>
               View Menu
             </motion.button>
           </Link>
-        </motion.div>
+          <Link href="/">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 border border-white/20 flex items-center gap-2"
+            >
+              <span>🏠</span>
+              Go Home
+            </motion.button>
+          </Link>
+        </div>
       </div>
 
       {/* Footer Section */}
