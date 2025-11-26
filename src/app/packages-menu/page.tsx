@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -547,7 +547,7 @@ const menuData = {
   },
 };
 
-export default function PackagesMenuPage() {
+function PackagesMenuPageContent() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<'packages' | 'menu'>(
@@ -1251,5 +1251,17 @@ export default function PackagesMenuPage() {
       {/* Footer Section */}
       <Footer />
     </div>
+  );
+}
+
+export default function PackagesMenuPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-lg">Loading...</div>
+      </div>
+    }>
+      <PackagesMenuPageContent />
+    </Suspense>
   );
 }
