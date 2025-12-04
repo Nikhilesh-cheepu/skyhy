@@ -10,7 +10,7 @@ export default function BookingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black overflow-x-hidden w-full max-w-full">
       {/* Navigation Header - Same as Home Page */}
       <div className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">
         <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg px-4 md:px-2 max-w-6xl mx-auto md:mx-auto h-16 md:h-20 flex items-center">
@@ -101,7 +101,7 @@ export default function BookingPage() {
       <div className="pt-20 md:pt-24">
 
         {/* Main Content */}
-        <div className="max-w-4xl mx-auto px-6 py-12 md:py-20">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 py-12 md:py-20 w-full">
         {/* Page Header */}
         <div className="text-center mb-12">
           <motion.h1 
@@ -126,7 +126,7 @@ export default function BookingPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/20"
+          className="bg-white/10 backdrop-blur-sm rounded-3xl p-4 md:p-12 border border-white/20 w-full"
         >
           <form onSubmit={(e) => {
             e.preventDefault();
@@ -220,12 +220,12 @@ export default function BookingPage() {
                     name="date"
                     required
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark]"
+                    className="w-full px-3 md:px-6 py-3 md:py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark] pr-10 md:pr-12"
                     style={{
                       colorScheme: 'dark'
                     }}
                   />
-                  <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none">
+                  <span className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none text-sm md:text-base">
                     📅
                   </span>
                 </div>
@@ -241,12 +241,12 @@ export default function BookingPage() {
                     type="time"
                     id="time"
                     name="time"
-                    className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark]"
+                    className="w-full px-3 md:px-6 py-3 md:py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark] pr-10 md:pr-12"
                     style={{
                       colorScheme: 'dark'
                     }}
                   />
-                  <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none">
+                  <span className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none text-sm md:text-base">
                     🕐
                   </span>
                 </div>

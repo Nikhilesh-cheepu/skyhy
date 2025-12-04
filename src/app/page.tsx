@@ -11,7 +11,7 @@ export default function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-black relative scroll-smooth">
+    <div className="min-h-screen bg-black relative scroll-smooth overflow-x-hidden w-full max-w-full">
       {/* Section 1: Light Background with subtle pattern */}
       <div className="absolute inset-0 opacity-5" style={{
         backgroundImage: `linear-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.1) 1px, transparent 1px)`,
@@ -388,7 +388,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 1.2 }}
-                className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/20"
+                className="bg-white/10 backdrop-blur-sm rounded-3xl p-4 md:p-12 border border-white/20 w-full"
               >
                 <form onSubmit={(e) => {
                   e.preventDefault();
@@ -482,12 +482,12 @@ export default function HomePage() {
                           name="date"
                           required
                           min={new Date().toISOString().split('T')[0]}
-                          className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white font-[family-name:var(--font-inter)] text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark]"
+                          className="w-full px-3 md:px-6 py-3 md:py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white font-[family-name:var(--font-inter)] text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark] pr-10 md:pr-12"
                           style={{
                             colorScheme: 'dark'
                           }}
                         />
-                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none">
+                        <span className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none text-sm md:text-base">
                           📅
                         </span>
                       </div>
@@ -503,12 +503,12 @@ export default function HomePage() {
                           type="time"
                           id="time"
                           name="time"
-                          className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white font-[family-name:var(--font-inter)] text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark]"
+                          className="w-full px-3 md:px-6 py-3 md:py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white font-[family-name:var(--font-inter)] text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark] pr-10 md:pr-12"
                           style={{
                             colorScheme: 'dark'
                           }}
                         />
-                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none">
+                        <span className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none text-sm md:text-base">
                           🕐
                         </span>
                       </div>
