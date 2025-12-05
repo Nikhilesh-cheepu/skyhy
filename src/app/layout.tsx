@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { playfair, manrope, inter } from '@/styles/fonts';
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -43,6 +44,7 @@ export default function RootLayout({
     <html lang="en" className={`${playfair.variable} ${manrope.variable} ${inter.variable}`}>
       <body className={`${manrope.className} antialiased`}>
         {children}
+        <Analytics />
       </body>
     </html>
   );
