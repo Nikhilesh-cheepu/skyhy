@@ -13,19 +13,23 @@ export default function StickyActions() {
     >
       {/* Outer pill container — compact, dark glass, SkyHy blue border glow */}
       <div
-        className="flex w-full max-w-[360px] items-center gap-1.5 rounded-full px-2 py-2 shadow-[0_-2px_16px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl"
+        className="flex w-full max-w-[360px] items-center gap-1.5 rounded-full px-2 py-2 backdrop-blur-xl"
         style={{
           background: 'rgba(0,0,0,0.65)',
           border: '1px solid rgba(37,99,235,0.35)',
-          boxShadow: '0 -2px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px rgba(37,99,235,0.2)',
+          boxShadow: '0 -2px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 12px rgba(37,99,235,0.15)',
         }}
       >
-        {/* WhatsApp — small pill, icon + text inline, green icon */}
+        {/* WhatsApp — flex-[1], green theme + subtle green glow */}
         <a
           href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-1 min-w-0 items-center justify-center gap-1.5 rounded-full py-2 px-2.5 transition-all duration-200 hover:bg-white/[0.06] active:scale-[0.98]"
+          className="flex flex-[1] min-w-0 items-center justify-center gap-1.5 rounded-full py-2 px-2.5 transition-all duration-200 active:scale-[0.98]"
+          style={{
+            border: '1px solid rgba(37,211,102,0.25)',
+            boxShadow: 'inset 0 0 8px rgba(37,211,102,0.08)',
+          }}
           aria-label="Chat on WhatsApp"
         >
           <svg className="h-4 w-4 shrink-0 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -37,13 +41,17 @@ export default function StickyActions() {
         {/* Divider */}
         <div className="h-5 w-px shrink-0 bg-white/10" aria-hidden />
 
-        {/* Call — small pill, icon + text inline, gold icon */}
+        {/* Call — flex-[1], blue theme (SkyHy blue) */}
         <a
           href={`tel:${WHATSAPP_NUMBER}`}
-          className="flex flex-1 min-w-0 items-center justify-center gap-1.5 rounded-full py-2 px-2.5 transition-all duration-200 hover:bg-white/[0.06] active:scale-[0.98]"
+          className="flex flex-[1] min-w-0 items-center justify-center gap-1.5 rounded-full py-2 px-2.5 transition-all duration-200 active:scale-[0.98]"
+          style={{
+            border: '1px solid rgba(37,99,235,0.3)',
+            boxShadow: 'inset 0 0 8px rgba(37,99,235,0.1)',
+          }}
           aria-label="Call"
         >
-          <svg className="h-4 w-4 shrink-0 text-[#EAB308]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+          <svg className="h-4 w-4 shrink-0 text-[#3B82F6]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
           </svg>
           <span className="whitespace-nowrap text-[11px] font-medium text-white/95">Call</span>
@@ -52,8 +60,8 @@ export default function StickyActions() {
         {/* Divider */}
         <div className="h-5 w-px shrink-0 bg-white/10" aria-hidden />
 
-        {/* Book Table — wider pill, chip above */}
-        <div className="relative flex-[1.35] min-w-0">
+        {/* Book Table — flex-[1.8], dominant CTA, SkyHy neon accent */}
+        <div className="relative flex-[1.8] min-w-0">
           {/* 25% OFF chip — above the pill, no overlap */}
           <span
             className="absolute -top-2 right-1 z-10 rounded-full bg-[#B6FF00] px-1.5 py-0.5 text-[9px] font-semibold leading-tight text-[#1E40AF]"
@@ -63,10 +71,11 @@ export default function StickyActions() {
           </span>
           <Link
             href="/reserve"
-            className="flex items-center justify-center gap-1.5 rounded-full py-2 px-3 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+            className="flex items-center justify-center gap-1.5 rounded-full py-2 px-3 transition-all duration-200 active:scale-[0.98]"
             style={{
-              background: 'linear-gradient(180deg, rgba(37,99,235,0.25) 0%, rgba(30,64,175,0.2) 100%)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 0 12px rgba(37,99,235,0.15)',
+              background: 'linear-gradient(180deg, rgba(37,99,235,0.35) 0%, rgba(30,64,175,0.25) 100%)',
+              border: '1px solid rgba(37,99,235,0.5)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 0 16px rgba(182,255,0,0.2)',
             }}
             aria-label="Book a table"
           >
