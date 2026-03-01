@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import BottomActionBar from '@/components/BottomActionBar';
 import DateChips from '@/components/reserve/DateChips';
 import MealToggle, { type MealType } from '@/components/reserve/MealToggle';
 import TimeSlotsGrid from '@/components/reserve/TimeSlotsGrid';
@@ -294,6 +295,8 @@ export default function ReservePage() {
       </AnimatePresence>
 
       <Footer />
+
+      <BottomActionBar />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import PackagesGrid from "@/components/PackagesGrid";
 import Footer from "@/components/Footer";
+import BottomActionBar from "@/components/BottomActionBar";
 
 const HERO_VIDEO_URL =
   "https://cdia7zfhwb3nrsg2.public.blob.vercel-storage.com/hero%20videos/hero-portrait%20copy.mp4";
@@ -13,9 +14,10 @@ const HERO_VIDEO_URL =
 export default function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [heroVideoError, setHeroVideoError] = useState(false);
+  const [heroVideoReady, setHeroVideoReady] = useState(false);
 
   return (
-    <div className="min-h-screen bg-black relative scroll-smooth overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen bg-black relative scroll-smooth overflow-x-hidden w-full max-w-full pb-24">
       {/* Section 1: Light Background with subtle pattern */}
       <div className="absolute inset-0 opacity-5" style={{
         backgroundImage: `linear-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.1) 1px, transparent 1px)`,
@@ -126,43 +128,39 @@ export default function HomePage() {
             </motion.div>
           )}
           
-          {/* Hero Section - Below Navbar, Vercel Blob Video */}
-          <div
-            id="home"
-            className="relative z-10 w-full pt-16 md:pt-20 px-2 md:px-4"
-          >
-            <div
-              className={`
-                relative w-full overflow-hidden rounded-2xl md:rounded-3xl
-                h-[70vh] min-h-[520px] md:h-[75vh]
-              `}
-            >
-              {heroVideoError ? (
-                /* Gradient fallback if video fails to load */
-                <div
-                  className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-900"
-                  aria-hidden
-                />
-              ) : (
-                <video
-                  className="block w-full h-full object-cover motion-reduce:hidden"
-                  style={{ filter: "brightness(0.8)", objectPosition: "center center" }}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="metadata"
-                  onError={() => setHeroVideoError(true)}
-                  src={HERO_VIDEO_URL}
-                >
-                  Your browser does not support the video tag.
-                </video>
-              )}
-
-              {/* Subtle dark overlay for readability */}
-              <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+          {/* Hero Section - Edge-to-edge, Below Navbar */}
+          <section id="home" className="relative z-10 w-full pt-16 md:pt-20">
+            <div className="w-screen relative left-1/2 -ml-[50vw] -mr-[50vw] max-w-none overflow-hidden">
+              <div
+                className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl h-[70vh] min-h-[520px] sm:h-[80vh] md:h-[75vh] bg-gradient-to-br from-gray-900 via-black to-gray-900"
+                style={{ minHeight: 520 }}
+              >
+                {heroVideoError ? (
+                  <div
+                    className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-900"
+                    aria-hidden
+                  />
+                ) : (
+                  <video
+                    className={`block w-full h-full object-cover object-center motion-reduce:hidden transition-opacity duration-500 ${heroVideoReady ? "opacity-100" : "opacity-0"}`}
+                    style={{ filter: "brightness(0.8)" }}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    onLoadedData={() => setHeroVideoReady(true)}
+                    onCanPlay={() => setHeroVideoReady(true)}
+                    onError={() => setHeroVideoError(true)}
+                    src={HERO_VIDEO_URL}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+                <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+              </div>
             </div>
-          </div>
+          </section>
 
           {/* Live Band Section */}
           <motion.div 
@@ -470,6 +468,7 @@ export default function HomePage() {
       {/* Footer Section */}
       <Footer />
 
+      <BottomActionBar />
     </div>
   );
 }

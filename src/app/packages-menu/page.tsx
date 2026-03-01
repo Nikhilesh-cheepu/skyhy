@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import Footer from '@/components/Footer';
 import PackagesGrid from '@/components/PackagesGrid';
+import BottomActionBar from '@/components/BottomActionBar';
 
 interface MenuItem {
   id: number;
@@ -751,7 +752,7 @@ function PackagesMenuPageContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black pb-24">
       {/* Navigation Header - Same as Home Page */}
       <div className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">
         <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg px-4 md:px-2 max-w-6xl mx-auto md:mx-auto h-16 md:h-20 flex items-center">
@@ -950,7 +951,7 @@ function PackagesMenuPageContent() {
                   Locate Us
                 </motion.a>
                 
-                <Link href="/reservation">
+                <Link href="/reserve">
                   <motion.button
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1192,7 +1193,7 @@ function PackagesMenuPageContent() {
 
         {/* Navigation Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mt-12 mb-8">
-          <Link href="/reservation">
+          <Link href="/reserve">
             <button
               className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] px-6 py-3 rounded-xl font-semibold transition-all duration-200 border border-white/20 flex items-center gap-2 hover:from-[#A5E600] hover:to-[#8AD9A0] active:from-[#95D600] active:to-[#7ACC8C] cursor-pointer"
             >
@@ -1211,9 +1212,9 @@ function PackagesMenuPageContent() {
         </div>
       </div>
 
-      {/* Floating Cart Button at Bottom */}
+      {/* Floating Cart Button at Bottom - above BottomActionBar */}
       {activeTab === 'menu' && getCartCount() > 0 && (
-        <div className="fixed bottom-4 left-4 right-4 z-40 md:left-auto md:right-8 md:w-auto md:max-w-md">
+        <div className="fixed bottom-24 left-4 right-4 z-40 md:left-auto md:right-8 md:bottom-8 md:w-auto md:max-w-md">
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -1340,6 +1341,8 @@ function PackagesMenuPageContent() {
 
         {/* Footer Section */}
         <Footer />
+
+        <BottomActionBar />
       </div>
     </div>
   );
