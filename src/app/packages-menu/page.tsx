@@ -780,6 +780,12 @@ function PackagesMenuPageContent() {
               >
                 Packages & Menu
               </Link>
+              <Link 
+                href="/reserve"
+                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
+              >
+                Reserve
+              </Link>
             </nav>
 
             {/* Mobile Hamburger Menu */}
@@ -827,11 +833,11 @@ function PackagesMenuPageContent() {
                 Packages & Menu
               </Link>
               <Link 
-                href="/reservation"
+                href="/reserve"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
               >
-                Reservation
+                Reserve
               </Link>
             </nav>
           </div>

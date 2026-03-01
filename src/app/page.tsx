@@ -7,8 +7,12 @@ import { useState } from "react";
 import PackagesGrid from "@/components/PackagesGrid";
 import Footer from "@/components/Footer";
 
+const HERO_VIDEO_URL =
+  "https://cdia7zfhwb3nrsg2.public.blob.vercel-storage.com/hero%20videos/hero-portrait%20copy.mp4";
+
 export default function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [heroVideoError, setHeroVideoError] = useState(false);
 
   return (
     <div className="min-h-screen bg-black relative scroll-smooth overflow-x-hidden w-full max-w-full">
@@ -53,6 +57,12 @@ export default function HomePage() {
                     className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
                   >
                     Packages & Menu
+                  </Link>
+                  <Link 
+                    href="/reserve"
+                    className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
+                  >
+                    Reserve
                   </Link>
                 </nav>
 
@@ -105,72 +115,54 @@ export default function HomePage() {
                       Packages & Menu
                     </Link>
                     <Link 
-                      href="/reservation"
+                      href="/reserve"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
                     >
-                      Reservation
+                      Reserve
                     </Link>
                 </nav>
               </div>
             </motion.div>
           )}
           
-          {/* Hero Section - Full Viewport */}
-          <div id="home" className="relative z-10 w-full h-screen">
-            {/* Video Container - Full Screen */}
-            <div className="relative w-full h-full overflow-hidden">
-              {/* Mobile Video (Portrait 9:16) - Full Screen */}
-              <video
-                className="block md:hidden w-full h-full object-cover motion-reduce:hidden"
-                style={{ filter: 'brightness(0.8)', objectPosition: 'center center' }}
-                autoPlay
-                loop
-                muted
-                playsInline
-                poster="/api/placeholder/400/700"
-              >
-                <source src="/hero videos/hero-portrait.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-
-              {/* Desktop Video (Landscape 16:9) */}
-              <video
-                className="hidden md:block w-full h-full object-cover motion-reduce:hidden"
-                style={{ filter: 'brightness(0.8)' }}
-                autoPlay
-                loop
-                muted
-                playsInline
-                poster="/api/placeholder/1200/675"
-              >
-                <source src="/hero videos/hero-landscape.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-
-              {/* Fallback Images for Reduced Motion */}
-              <div className="motion-reduce:block hidden w-full h-full">
-                <Image 
-                  src="/api/placeholder/400/700" 
-                  alt="SKYHY Live Hero" 
-                  width={400}
-                  height={700}
-                  className="block md:hidden w-full h-full object-cover"
+          {/* Hero Section - Below Navbar, Vercel Blob Video */}
+          <div
+            id="home"
+            className="relative z-10 w-full pt-16 md:pt-20 px-2 md:px-4"
+          >
+            <div
+              className={`
+                relative w-full overflow-hidden rounded-2xl md:rounded-3xl
+                h-[70vh] min-h-[520px] md:h-[75vh]
+              `}
+            >
+              {heroVideoError ? (
+                /* Gradient fallback if video fails to load */
+                <div
+                  className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-900"
+                  aria-hidden
                 />
-                <Image 
-                  src="/api/placeholder/1200/675" 
-                  alt="SKYHY Live Hero" 
-                  width={1200}
-                  height={675}
-                  className="hidden md:block w-full h-full object-cover"
-                />
-              </div>
+              ) : (
+                <video
+                  className="block w-full h-full object-cover motion-reduce:hidden"
+                  style={{ filter: "brightness(0.8)", objectPosition: "center center" }}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  onError={() => setHeroVideoError(true)}
+                  src={HERO_VIDEO_URL}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              )}
 
-              {/* Clean Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60"></div>
-
+              {/* Subtle dark overlay for readability */}
+              <div className="absolute inset-0 bg-black/30 pointer-events-none" />
             </div>
-      </div>
+          </div>
 
           {/* Live Band Section */}
           <motion.div 
@@ -436,188 +428,42 @@ export default function HomePage() {
             </div>
         </motion.div>
 
-          {/* Section 5: Book Table Section */}
-        <motion.div 
+          {/* Section 5: Reserve Table CTA */}
+          <motion.div 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
             id="booking"
             className="bg-gradient-to-br from-[#1E40AF] to-[#3B82F6] py-20 px-4"
           >
-            <div className="max-w-4xl mx-auto">
-              {/* Booking Header */}
-              <div className="text-center mb-16">
-                <motion.h2 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 1.0 }}
-                  className="text-5xl md:text-6xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-6"
-                >
-                  Book Your <span className="text-[#B6FF00]">Table</span>
-                </motion.h2>
-                <motion.p 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 1.1 }}
-                  className="text-xl md:text-2xl text-white/90 font-[family-name:var(--font-inter)] font-medium"
-                >
-                  Reserve your spot for an unforgettable night
-                </motion.p>
-              </div>
-
-              {/* Booking Form */}
-            <motion.div 
-                initial={{ opacity: 0, y: 30 }}
+            <div className="max-w-4xl mx-auto text-center">
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.2 }}
-                className="bg-white/10 backdrop-blur-sm rounded-3xl p-4 md:p-12 border border-white/20 w-full"
+                transition={{ duration: 0.6, delay: 1.0 }}
+                className="text-5xl md:text-6xl font-[family-name:var(--font-inter)] font-black text-white leading-tight mb-6"
               >
-                <form onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.target as HTMLFormElement);
-                  const name = formData.get('name') as string;
-                  const people = formData.get('people') as string;
-                  const mobile = formData.get('mobile') as string;
-                  const date = formData.get('date') as string;
-                  const time = formData.get('time') as string;
-                  
-                  // Format date nicely
-                  const dateObj = new Date(date);
-                  const formattedDate = dateObj.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  });
-                  
-                  // Format time nicely if provided
-                  let timeText = 'Not specified';
-                  if (time) {
-                    const [hours, minutes] = time.split(':');
-                    const hour12 = parseInt(hours) % 12 || 12;
-                    const ampm = parseInt(hours) >= 12 ? 'PM' : 'AM';
-                    timeText = `${hour12}:${minutes} ${ampm}`;
-                  }
-                  
-                  const message = `Hi! I want to book a table at SKYHY Live%0A%0AName: ${name}%0APeople: ${people}%0AMobile: ${mobile}%0ADate: ${formattedDate}%0ATime: ${timeText}%0A%0APlease confirm availability. Thanks!`;
-                  
-                  window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
-                }} className="space-y-8">
-                  {/* Name Field */}
-                  <div>
-                    <label htmlFor="name" className="block text-white font-[family-name:var(--font-inter)] font-semibold text-lg mb-3">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white placeholder-white/70 font-[family-name:var(--font-inter)] text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300"
-                      placeholder="Enter your full name"
-                    />
-                  </div>
-
-                  {/* Number of People Field */}
-                  <div>
-                    <label htmlFor="people" className="block text-white font-[family-name:var(--font-inter)] font-semibold text-lg mb-3">
-                      Number of People *
-                    </label>
-                    <input
-                      type="number"
-                      id="people"
-                      name="people"
-                      required
-                      min="1"
-                      max="50"
-                      className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white placeholder-white/70 font-[family-name:var(--font-inter)] text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300"
-                      placeholder="Enter number of people"
-                    />
-                  </div>
-
-                  {/* Mobile Number Field */}
-                  <div>
-                    <label htmlFor="mobile" className="block text-white font-[family-name:var(--font-inter)] font-semibold text-lg mb-3">
-                      Mobile Number *
-                    </label>
-                    <input
-                      type="tel"
-                      id="mobile"
-                      name="mobile"
-                      required
-                      className="w-full px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white placeholder-white/70 font-[family-name:var(--font-inter)] text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300"
-                      placeholder="Enter your mobile number"
-                    />
-                  </div>
-
-                  {/* Date and Time Fields - Side by Side on Desktop */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Preferred Date Field */}
-                    <div>
-                      <label htmlFor="date" className="block text-white font-[family-name:var(--font-inter)] font-semibold text-lg mb-3">
-                        Preferred Date * <span className="text-sm font-normal text-white/70">(Required)</span>
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="date"
-                          id="date"
-                          name="date"
-                          required
-                          min={new Date().toISOString().split('T')[0]}
-                          className="w-full px-3 md:px-6 py-3 md:py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white font-[family-name:var(--font-inter)] text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark] pr-10 md:pr-12"
-                          style={{
-                            colorScheme: 'dark'
-                          }}
-                        />
-                        <span className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none text-sm md:text-base">
-                          📅
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Preferred Time Field */}
-                    <div>
-                      <label htmlFor="time" className="block text-white font-[family-name:var(--font-inter)] font-semibold text-lg mb-3">
-                        Preferred Time <span className="text-sm font-normal text-white/70">(Optional)</span>
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="time"
-                          id="time"
-                          name="time"
-                          className="w-full px-3 md:px-6 py-3 md:py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white font-[family-name:var(--font-inter)] text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-[#B6FF00] focus:border-transparent transition-all duration-300 [color-scheme:dark] pr-10 md:pr-12"
-                          style={{
-                            colorScheme: 'dark'
-                          }}
-                        />
-                        <span className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none text-sm md:text-base">
-                          🕐
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
-                  <div className="text-center pt-4">
-                    <motion.button
-                      type="submit"
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-[family-name:var(--font-inter)] font-bold text-xl px-12 py-4 rounded-2xl shadow-2xl hover:shadow-[#B6FF00]/25 transition-all duration-300 flex items-center gap-3 mx-auto"
-                    >
-                      <span>📱</span>
-                      Book Table via WhatsApp
-                    </motion.button>
-                  </div>
-
-                  {/* Additional Info */}
-                  <div className="text-center text-white/80 font-[family-name:var(--font-inter)] text-sm">
-                    <p>✨ We&apos;ll contact you within 30 minutes to confirm your reservation</p>
-                  </div>
-                </form>
-              </motion.div>
-          </div>
-        </motion.div>
+                Reserve Your <span className="text-[#B6FF00]">Table</span>
+              </motion.h2>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.1 }}
+                className="text-xl md:text-2xl text-white/90 font-[family-name:var(--font-inter)] font-medium mb-10"
+              >
+                Choose a time, add guests, and confirm your booking
+              </motion.p>
+              <Link href="/reserve">
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] font-[family-name:var(--font-inter)] font-bold text-xl px-12 py-4 rounded-2xl shadow-2xl hover:shadow-[#B6FF00]/25 transition-all duration-300"
+                >
+                  Reserve a Table
+                </motion.button>
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </div>
 

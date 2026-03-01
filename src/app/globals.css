@@ -57,6 +57,14 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(37, 99, 235, 0.7);
   }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
   
   /* Date and Time Picker Styling */
   input[type="date"]::-webkit-calendar-picker-indicator,
