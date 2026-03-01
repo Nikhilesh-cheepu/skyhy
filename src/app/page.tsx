@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import PackagesGrid from "@/components/PackagesGrid";
 import Footer from "@/components/Footer";
-import BottomActionBar from "@/components/BottomActionBar";
+import StickyActions from "@/components/StickyActions";
 
 const HERO_VIDEO_URL =
   "https://cdia7zfhwb3nrsg2.public.blob.vercel-storage.com/hero%20videos/hero-portrait%20copy.mp4";
@@ -468,7 +468,7 @@ export default function HomePage() {
       {/* Footer Section */}
       <Footer />
 
-      <BottomActionBar />
+      <StickyActions />
     </div>
   );
 }

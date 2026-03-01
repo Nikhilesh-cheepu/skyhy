@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import Footer from '@/components/Footer';
 import PackagesGrid from '@/components/PackagesGrid';
-import BottomActionBar from '@/components/BottomActionBar';
+import StickyActions from '@/components/StickyActions';
 
 interface MenuItem {
   id: number;
@@ -1212,7 +1212,7 @@ function PackagesMenuPageContent() {
         </div>
       </div>
 
-      {/* Floating Cart Button at Bottom - above BottomActionBar */}
+      {/* Floating Cart Button at Bottom - above StickyActions */}
       {activeTab === 'menu' && getCartCount() > 0 && (
         <div className="fixed bottom-24 left-4 right-4 z-40 md:left-auto md:right-8 md:bottom-8 md:w-auto md:max-w-md">
           <button
@@ -1342,7 +1342,7 @@ function PackagesMenuPageContent() {
         {/* Footer Section */}
         <Footer />
 
-        <BottomActionBar />
+        <StickyActions />
       </div>
     </div>
   );
