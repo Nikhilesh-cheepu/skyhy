@@ -1,0 +1,14 @@
+packages:
+  - .
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - 'prisma'
+  - 'esbuild'
+  - '@tailwindcss/oxide'
+  - 'sharp'
+  - 'unrs-resolver'
+
+ignoredBuiltDependencies: []
+
