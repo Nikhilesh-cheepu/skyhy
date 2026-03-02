@@ -2,10 +2,11 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
+    const prisma = getPrisma();
     const body = await request.json();
     const fullName = typeof body?.fullName === 'string' ? body.fullName.trim() : '';
     const mobile = typeof body?.mobile === 'string' ? body.mobile.trim() : '';

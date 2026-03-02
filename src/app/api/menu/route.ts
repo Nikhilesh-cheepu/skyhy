@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 
 /**
  * GET /api/menu — Public nested menu: section → categoryKey → items.
@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET() {
   try {
+    const prisma = getPrisma();
     const items = await prisma.menuItem.findMany({
       where: { isActive: true },
       orderBy: [

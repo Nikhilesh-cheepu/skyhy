@@ -2,13 +2,14 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 
 export async function PATCH(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = getPrisma();
     const { id } = await params;
     const body = await _request.json();
     const name = typeof body?.name === 'string' ? body.name.trim() : undefined;
@@ -32,6 +33,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = getPrisma();
     const { id } = await params;
     await prisma.section.delete({ where: { id } });
     return NextResponse.json({ ok: true });

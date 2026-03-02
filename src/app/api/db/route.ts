@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 
 /**
  * GET /api/db — Verify database connection and return schema/migration status.
@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET() {
   try {
+    const prisma = getPrisma();
     await prisma.$queryRaw`SELECT 1`;
     const [sections, categories, menuItems, galleryImages, heroMedia] = await Promise.all([
       prisma.section.count(),

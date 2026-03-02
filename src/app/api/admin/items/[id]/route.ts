@@ -2,13 +2,14 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = getPrisma();
     const { id } = await params;
     const itemId = parseInt(id, 10);
     if (Number.isNaN(itemId)) {
@@ -36,6 +37,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = getPrisma();
     const { id } = await params;
     const itemId = parseInt(id, 10);
     if (Number.isNaN(itemId)) {
@@ -93,6 +95,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const prisma = getPrisma();
     const { id } = await params;
     const itemId = parseInt(id, 10);
     if (Number.isNaN(itemId)) {
