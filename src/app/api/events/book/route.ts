@@ -24,6 +24,10 @@ export async function POST(request: Request) {
         : body?.ticketPrice != null
         ? Number(body.ticketPrice)
         : 0;
+    const paymentStatus =
+      typeof body?.paymentStatus === 'string' && body.paymentStatus
+        ? body.paymentStatus
+        : 'PENDING';
     const eventId = typeof body?.eventId === 'string' ? body.eventId : undefined;
 
     if (!fullName || !mobile || !dateStr || !time || !Number.isFinite(people) || people <= 0) {
@@ -46,6 +50,7 @@ export async function POST(request: Request) {
         time,
         people,
         ticketPrice: ticketPrice || 0,
+        paymentStatus,
         eventId,
       },
     });

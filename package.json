@@ -11,7 +11,8 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -22,6 +23,7 @@
     "@vercel/blob": "^2.3.0",
     "framer-motion": "^12.23.12",
     "next": "15.4.10",
+    "razorpay": "^2.9.6",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

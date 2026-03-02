@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Script from "next/script";
 
 type EventItem = {
   id: string;
@@ -63,37 +64,124 @@ export default function EventsPage() {
     try {
       const currentEvent = events[activeIndex] ?? null;
       const ticketPrice = currentEvent?.ticketPrice ?? 0;
-      const res = await fetch("/api/events/book", {
+      const amountRupees = ticketPrice * peopleNum;
+
+      // If ticket price is zero, keep the old flow (no payment, just save + WhatsApp)
+      if (!amountRupees) {
+        const res = await fetch("/api/events/book", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: fullName.trim(),
+            mobile: mobile.trim(),
+            date,
+            time,
+            people: peopleNum,
+            ticketPrice,
+            paymentStatus: "PENDING",
+            eventId: currentEvent?.id,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data?.error) {
+          throw new Error(data.error || "Failed to submit booking");
+        }
+        const textLines = [
+          "SkyHy Event Ticket Booking:",
+          `Name: ${fullName.trim()}`,
+          `Mobile: ${mobile.trim()}`,
+          `Date: ${date}`,
+          `Time: ${time}`,
+          `People: ${peopleNum}`,
+          `Ticket Cost: ₹${ticketPrice || 0}`,
+        ];
+        const waText = encodeURIComponent(textLines.join("\n"));
+        window.location.href = `https://wa.me/7013884485?text=${waText}`;
+        return;
+      }
+
+      const amountPaise = amountRupees * 100;
+      const orderRes = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: fullName.trim(),
-          mobile: mobile.trim(),
-          date,
-          time,
-          people: peopleNum,
-          ticketPrice,
-          eventId: currentEvent?.id,
-        }),
+        body: JSON.stringify({ amount: amountPaise, currency: "INR" }),
       });
-      const data = await res.json();
-      if (!res.ok || data?.error) {
-        throw new Error(data.error || "Failed to submit booking");
+      const orderData = await orderRes.json();
+      if (!orderRes.ok || orderData?.error || !orderData?.id) {
+        throw new Error(orderData.error || "Failed to create payment order");
       }
-      const textLines = [
-        "SkyHy Event Ticket Booking:",
-        `Name: ${fullName.trim()}`,
-        `Mobile: ${mobile.trim()}`,
-        `Date: ${date}`,
-        `Time: ${time}`,
-        `People: ${peopleNum}`,
-        `Ticket Cost: ₹${ticketPrice || 0}`,
-      ];
-      const waText = encodeURIComponent(textLines.join("\n"));
-      window.location.href = `https://wa.me/7013884485?text=${waText}`;
+
+      // Open Razorpay checkout
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const RazorpayConstructor = (window as any).Razorpay;
+      if (!RazorpayConstructor) {
+        throw new Error("Payment SDK not loaded. Please try again.");
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: amountPaise,
+        currency: "INR",
+        name: "SKYHY Live",
+        description: currentEvent?.title || "Event ticket booking",
+        order_id: orderData.id,
+        prefill: {
+          name: fullName.trim(),
+          contact: mobile.trim(),
+        },
+        theme: {
+          color: "#2563EB",
+        },
+        handler: async () => {
+          try {
+            const res = await fetch("/api/events/book", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                fullName: fullName.trim(),
+                mobile: mobile.trim(),
+                date,
+                time,
+                people: peopleNum,
+                ticketPrice,
+                paymentStatus: "PAID",
+                eventId: currentEvent?.id,
+              }),
+            });
+            const data = await res.json();
+            if (!res.ok || data?.error) {
+              throw new Error(data.error || "Failed to save booking");
+            }
+            const textLines = [
+              "SkyHy Event Ticket Booking:",
+              `Name: ${fullName.trim()}`,
+              `Mobile: ${mobile.trim()}`,
+              `Date: ${date}`,
+              `Time: ${time}`,
+              `People: ${peopleNum}`,
+              `Ticket Cost: ₹${amountRupees}`,
+            ];
+            const waText = encodeURIComponent(textLines.join("\n"));
+            window.location.href = `https://wa.me/7013884485?text=${waText}`;
+          } catch (err) {
+            setSubmitError(
+              err instanceof Error ? err.message : "Payment succeeded but saving booking failed.",
+            );
+          } finally {
+            setSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setSubmitting(false);
+          },
+        },
+      };
+
+      const rzp = new RazorpayConstructor(options);
+      rzp.open();
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Failed to submit booking");
-    } finally {
+      setSubmitError(err instanceof Error ? err.message : "Failed to start payment");
       setSubmitting(false);
     }
   }
@@ -253,6 +341,7 @@ export default function EventsPage() {
           </form>
         </section>
       </div>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
     </div>
   );
 }

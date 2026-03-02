@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import Script from 'next/script';
 import Footer from '@/components/Footer';
 import PackagesGrid from '@/components/PackagesGrid';
 import StickyActions from '@/components/StickyActions';
@@ -737,22 +738,95 @@ function PackagesMenuPageContent() {
                     <span className="text-2xl font-bold text-[#2563EB]">₹{getTotal()}</span>
                   </div>
                   <button
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      const orderItems = cart.map(item => 
-                        `${item.name} x${item.quantity} - ₹${item.price * item.quantity}`
-                      ).join('%0A');
-                      const message = `*Order from SKYHY Live*%0A%0A${orderItems}%0A%0A*Total: ₹${getTotal()}*%0A%0APlease confirm this order. Thank you!`;
-                      window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
+                      const total = getTotal();
+                      if (total <= 0) {
+                        const orderItems = cart
+                          .map(
+                            (item) =>
+                              `${item.name} x${item.quantity} - ₹${item.price * item.quantity}`,
+                          )
+                          .join('%0A');
+                        const message = `*Order from SKYHY Live*%0A%0A${orderItems}%0A%0A*Total: ₹${total}*%0A%0APlease confirm this order. Thank you!`;
+                        window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
+                        return;
+                      }
+
+                      try {
+                        const amountPaise = total * 100;
+                        const orderRes = await fetch('/api/razorpay/create-order', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ amount: amountPaise, currency: 'INR' }),
+                        });
+                        const orderData = await orderRes.json();
+                        if (!orderRes.ok || orderData?.error || !orderData?.id) {
+                          throw new Error(orderData.error || 'Failed to create payment order');
+                        }
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const RazorpayConstructor = (window as any).Razorpay;
+                        if (!RazorpayConstructor) {
+                          throw new Error('Payment SDK not loaded. Please try again.');
+                        }
+
+                        const options = {
+                          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                          amount: amountPaise,
+                          currency: 'INR',
+                          name: 'SKYHY Live',
+                          description: 'Food & beverages order',
+                          order_id: orderData.id,
+                          theme: { color: '#2563EB' },
+                          handler: async () => {
+                            try {
+                              await fetch('/api/orders', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  items: cart.map((item) => ({
+                                    menuItemId: item.id,
+                                    quantity: item.quantity,
+                                    price: item.price,
+                                  })),
+                                }),
+                              });
+                              const orderItems = cart
+                                .map(
+                                  (item) =>
+                                    `${item.name} x${item.quantity} - ₹${
+                                      item.price * item.quantity
+                                    }`,
+                                )
+                                .join('%0A');
+                              const message = `*PAID Order from SKYHY Live*%0A%0A${orderItems}%0A%0A*Total: ₹${total}*%0A%0APayment completed via Razorpay.`;
+                              window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
+                              setCart([]);
+                              setShowCart(false);
+                            } catch {
+                              // If saving order fails, we still don't block user; just keep cart
+                            }
+                          },
+                        };
+
+                        const rzp = new RazorpayConstructor(options);
+                        rzp.open();
+                      } catch (err) {
+                        alert(
+                          err instanceof Error
+                            ? err.message
+                            : 'Failed to start payment. Please try again.',
+                        );
+                      }
                     }}
                     className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span>📱</span>
-                    Send Order via WhatsApp
+                    <span>💳</span>
+                    Pay & Confirm Order
                   </button>
                   <p className="text-center text-xs text-white/60 mt-3">
-                    Or show this to our waiter
+                    Payment via Razorpay. We’ll also receive your order on WhatsApp.
                   </p>
                 </div>
               </>
@@ -766,6 +840,7 @@ function PackagesMenuPageContent() {
 
         <StickyActions />
       </div>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
     </div>
     </div>
   );
@@ -773,11 +848,13 @@ function PackagesMenuPageContent() {
 
 export default function PackagesMenuPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-lg">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black flex items-center justify-center">
+          <div className="text-white text-lg">Loading...</div>
+        </div>
+      }
+    >
       <PackagesMenuPageContent />
     </Suspense>
   );

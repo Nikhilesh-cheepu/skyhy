@@ -61,6 +61,8 @@ model MenuItem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  orderItems  OrderItem[]
+
   @@index([sectionId])
   @@index([categoryId])
   @@index([isActive])
@@ -138,6 +140,7 @@ model EventBooking {
   time        String
   people      Int
   ticketPrice Int      @default(0)
+  paymentStatus String @default("PENDING")
   createdAt   DateTime @default(now())
 }
 
@@ -155,6 +158,24 @@ model MenuGalleryImage {
 }
 
 // ─── Future: orders, payments (placeholders — add when needed) ───────────────
-// model Order { ... }
-// model OrderItem { ... }
-// model Payment { ... }
+model Order {
+  id           String      @id @default(cuid())
+  customerName String?
+  customerPhone String?
+  totalAmount  Int
+  status       String      @default("PAID")
+  items        OrderItem[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId Int
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  quantity   Int
+  price      Int
+}
+
