@@ -45,6 +45,7 @@ function PackagesMenuPageContent() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
+  const [discountApplied, setDiscountApplied] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
@@ -65,6 +66,10 @@ function PackagesMenuPageContent() {
       setActiveTab('menu');
     }
   }, [tabParam]);
+
+  useEffect(() => {
+    if (cart.length === 0) setDiscountApplied(false);
+  }, [cart.length]);
 
   // Menu functions - optimized with useCallback
   const addToCart = useCallback((item: MenuItem) => {
@@ -98,13 +103,22 @@ function PackagesMenuPageContent() {
     });
   }, []);
 
-  const getTotal = () => {
-    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const getSubtotal = () => {
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
   const getCartCount = () => {
     return cart.reduce((total, item) => total + item.quantity, 0);
   };
+
+  // 10% service + 2% platform + 5% GST = 17%
+  const TAXES_RATE = 0.17;
+  const DISCOUNT_RATE = 0.25;
+
+  const subtotal = getSubtotal();
+  const taxesAndCharges = Math.round(subtotal * TAXES_RATE);
+  const discountAmount = discountApplied ? Math.round(subtotal * DISCOUNT_RATE) : 0;
+  const finalTotal = Math.max(0, subtotal + taxesAndCharges - discountAmount);
 
 
 
@@ -650,11 +664,11 @@ function PackagesMenuPageContent() {
               <span className="text-2xl">🛒</span>
               <div className="text-left">
                 <p className="text-sm md:text-base font-medium">View Cart</p>
-                <p className="text-xs md:text-sm opacity-80">{getCartCount()} items • ₹{getTotal()}</p>
+                <p className="text-xs md:text-sm opacity-80">{getCartCount()} items • ₹{finalTotal}</p>
               </div>
             </div>
             <div className="bg-white/20 rounded-full px-4 py-2 ml-4">
-              <span className="text-lg md:text-xl font-bold">₹{getTotal()}</span>
+              <span className="text-lg md:text-xl font-bold">₹{finalTotal}</span>
             </div>
           </button>
         </div>
@@ -732,16 +746,41 @@ function PackagesMenuPageContent() {
                   ))}
                 </div>
 
-                <div className="border-t border-white/20 pt-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <span className="text-lg font-semibold text-white">Total:</span>
-                    <span className="text-2xl font-bold text-[#2563EB]">₹{getTotal()}</span>
+                <div className="border-t border-white/20 pt-6 space-y-3">
+                  <div className="flex justify-between text-sm text-white/80">
+                    <span>Subtotal</span>
+                    <span>₹{subtotal}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-white/80">
+                    <span>Taxes & Charges</span>
+                    <span>₹{taxesAndCharges}</span>
+                  </div>
+                  {discountApplied ? (
+                    <div className="flex justify-between text-sm text-[#22c55e]">
+                      <span>25% off applied</span>
+                      <span>-₹{discountAmount}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-white/80">25% off</span>
+                      <button
+                        type="button"
+                        onClick={() => setDiscountApplied(true)}
+                        className="text-sm font-medium text-[#2563EB] hover:text-[#3B82F6] underline cursor-pointer"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-2">
+                    <span className="text-lg font-semibold text-white">Total</span>
+                    <span className="text-2xl font-bold text-[#2563EB]">₹{finalTotal}</span>
                   </div>
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      const total = getTotal();
+                      const total = finalTotal;
                       if (total <= 0) {
                         const orderItems = cart
                           .map(
@@ -755,11 +794,20 @@ function PackagesMenuPageContent() {
                       }
 
                       try {
-                        const amountPaise = total * 100;
+                        const amountPaise = Math.round(total * 100);
                         const orderRes = await fetch('/api/razorpay/create-order', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ amount: amountPaise, currency: 'INR' }),
+                          body: JSON.stringify({
+                            type: 'cart',
+                            amount: amountPaise,
+                            currency: 'INR',
+                            items: cart.map((item) => ({
+                              menuItemId: item.id,
+                              quantity: item.quantity,
+                              price: item.price,
+                            })),
+                          }),
                         });
                         const orderData = await orderRes.json();
                         if (!orderRes.ok || orderData?.error || !orderData?.id) {
@@ -779,34 +827,19 @@ function PackagesMenuPageContent() {
                           description: 'Food & beverages order',
                           order_id: orderData.id,
                           theme: { color: '#2563EB' },
-                          handler: async () => {
-                            try {
-                              await fetch('/api/orders', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                  items: cart.map((item) => ({
-                                    menuItemId: item.id,
-                                    quantity: item.quantity,
-                                    price: item.price,
-                                  })),
-                                }),
-                              });
-                              const orderItems = cart
-                                .map(
-                                  (item) =>
-                                    `${item.name} x${item.quantity} - ₹${
-                                      item.price * item.quantity
-                                    }`,
-                                )
-                                .join('%0A');
-                              const message = `*PAID Order from SKYHY Live*%0A%0A${orderItems}%0A%0A*Total: ₹${total}*%0A%0APayment completed via Razorpay.`;
-                              window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
-                              setCart([]);
-                              setShowCart(false);
-                            } catch {
-                              // If saving order fails, we still don't block user; just keep cart
-                            }
+                          handler: () => {
+                            const orderItems = cart
+                              .map(
+                                (item) =>
+                                  `${item.name} x${item.quantity} - ₹${
+                                    item.price * item.quantity
+                                  }`,
+                              )
+                              .join('%0A');
+                            const message = `*PAID Order from SKYHY Live*%0A%0A${orderItems}%0A%0A*Total: ₹${total}*%0A%0APayment completed via Razorpay.`;
+                            window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
+                            setCart([]);
+                            setShowCart(false);
                           },
                         };
 

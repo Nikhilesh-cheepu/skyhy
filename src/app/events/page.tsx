@@ -104,14 +104,27 @@ export default function EventsPage() {
       const orderRes = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: amountPaise, currency: "INR" }),
+        body: JSON.stringify({
+          type: "event",
+          amount: amountPaise,
+          currency: "INR",
+          booking: {
+            fullName: fullName.trim(),
+            mobile: mobile.trim(),
+            date,
+            time,
+            people: peopleNum,
+            ticketPrice,
+            eventId: currentEvent?.id ?? undefined,
+          },
+        }),
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok || orderData?.error || !orderData?.id) {
         throw new Error(orderData.error || "Failed to create payment order");
       }
 
-      // Open Razorpay checkout
+      // Open Razorpay checkout; webhook will set booking to PAID on payment.captured
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const RazorpayConstructor = (window as any).Razorpay;
       if (!RazorpayConstructor) {
@@ -132,44 +145,18 @@ export default function EventsPage() {
         theme: {
           color: "#2563EB",
         },
-        handler: async () => {
-          try {
-            const res = await fetch("/api/events/book", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                fullName: fullName.trim(),
-                mobile: mobile.trim(),
-                date,
-                time,
-                people: peopleNum,
-                ticketPrice,
-                paymentStatus: "PAID",
-                eventId: currentEvent?.id,
-              }),
-            });
-            const data = await res.json();
-            if (!res.ok || data?.error) {
-              throw new Error(data.error || "Failed to save booking");
-            }
-            const textLines = [
-              "SkyHy Event Ticket Booking:",
-              `Name: ${fullName.trim()}`,
-              `Mobile: ${mobile.trim()}`,
-              `Date: ${date}`,
-              `Time: ${time}`,
-              `People: ${peopleNum}`,
-              `Ticket Cost: ₹${amountRupees}`,
-            ];
-            const waText = encodeURIComponent(textLines.join("\n"));
-            window.location.href = `https://wa.me/7013884485?text=${waText}`;
-          } catch (err) {
-            setSubmitError(
-              err instanceof Error ? err.message : "Payment succeeded but saving booking failed.",
-            );
-          } finally {
-            setSubmitting(false);
-          }
+        handler: () => {
+          const textLines = [
+            "SkyHy Event Ticket Booking:",
+            `Name: ${fullName.trim()}`,
+            `Mobile: ${mobile.trim()}`,
+            `Date: ${date}`,
+            `Time: ${time}`,
+            `People: ${peopleNum}`,
+            `Ticket Cost: ₹${amountRupees}`,
+          ];
+          const waText = encodeURIComponent(textLines.join("\n"));
+          window.location.href = `https://wa.me/7013884485?text=${waText}`;
         },
         modal: {
           ondismiss: () => {
