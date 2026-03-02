@@ -113,4 +113,21 @@
     background-color: rgba(182, 255, 0, 0.2);
     border-radius: 4px;
   }
+
+  /* Announcement bar marquee */
+  @keyframes announcement-marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .announcement-marquee {
+    animation: announcement-marquee 45s linear infinite;
+  }
+  .group:hover .announcement-marquee {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .announcement-marquee {
+      animation: none;
+    }
+  }
 }

@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import StickyActions from "@/components/StickyActions";
 import OffersCarousel from "@/components/OffersCarousel";
 import MenuGalleryCarousel from "@/components/MenuGalleryCarousel";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 const HERO_VIDEO_URL =
   "https://cdia7zfhwb3nrsg2.public.blob.vercel-storage.com/hero%20videos/hero-portrait%20copy.mp4";
@@ -94,7 +95,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="fixed top-16 left-0 right-0 z-40 md:hidden md:top-20 md:left-4 md:right-4"
+              className="fixed top-16 left-0 right-0 z-50 md:hidden md:top-20 md:left-4 md:right-4"
             >
               <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-4 max-w-6xl mx-auto">
                 <nav className="flex flex-col items-center space-y-4">
@@ -134,9 +135,14 @@ export default function HomePage() {
               </div>
             </motion.div>
           )}
-          
-          {/* Hero Section - Edge-to-edge, Below Navbar */}
-          <section id="home" className="relative z-10 w-full pt-16 md:pt-20">
+
+          {/* Announcement Bar - Below Navbar, Above Hero */}
+          <div className="fixed left-0 right-0 top-16 z-40 md:top-24">
+            <AnnouncementBar />
+          </div>
+
+          {/* Hero Section - Edge-to-edge, Below Navbar + Announcement */}
+          <section id="home" className="relative z-10 w-full pt-[7rem] md:pt-[8.5rem]">
             <div className="w-screen relative left-1/2 -ml-[50vw] -mr-[50vw] max-w-none overflow-hidden">
               <div
                 className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl h-[70vh] min-h-[520px] sm:h-[80vh] md:h-[75vh] bg-gradient-to-br from-gray-900 via-black to-gray-900"
