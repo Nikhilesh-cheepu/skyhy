@@ -1,29 +1,7 @@
 'use client';
 
 import type { MealType } from './MealToggle';
-
-function generateSlots(meal: MealType): string[] {
-  const slots: string[] = [];
-  if (meal === 'lunch') {
-    for (let h = 12; h <= 16; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        if (h === 16 && m > 45) break;
-        const hour12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        slots.push(`${hour12}:${m.toString().padStart(2, '0')} ${ampm}`);
-      }
-    }
-  } else {
-    for (let h = 18; h <= 23; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        const hour12 = h > 12 ? h - 12 : h;
-        const ampm = 'PM';
-        slots.push(`${hour12}:${m.toString().padStart(2, '0')} ${ampm}`);
-      }
-    }
-  }
-  return slots;
-}
+import { getSlotsForMeal } from './timeSlots';
 
 interface TimeSlotsGridProps {
   meal: MealType;
@@ -32,7 +10,7 @@ interface TimeSlotsGridProps {
 }
 
 export default function TimeSlotsGrid({ meal, selectedTime, onSelect }: TimeSlotsGridProps) {
-  const slots = generateSlots(meal);
+  const slots = getSlotsForMeal(meal);
 
   return (
     <div className="grid grid-cols-4 gap-2">

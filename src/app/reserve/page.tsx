@@ -10,6 +10,7 @@ import DateChips from '@/components/reserve/DateChips';
 import MealToggle, { type MealType } from '@/components/reserve/MealToggle';
 import TimeSlotsGrid from '@/components/reserve/TimeSlotsGrid';
 import OfferCards, { OFFERS, is128OfferValid } from '@/components/reserve/OfferCards';
+import { getSlotsForMeal } from '@/components/reserve/timeSlots';
 import GuestCounter from '@/components/reserve/GuestCounter';
 
 const WHATSAPP_NUMBER = '7013884485';
@@ -146,7 +147,17 @@ export default function ReservePage() {
 
           {/* Meal toggle */}
           <section className="mb-6">
-            <MealToggle value={meal} onChange={(m) => { setMeal(m); setSelectedTime(null); }} />
+            <MealToggle
+              value={meal}
+              onChange={(m) => {
+                setMeal(m);
+                const slotsForNewMeal = getSlotsForMeal(m);
+                if (selectedTime && !slotsForNewMeal.includes(selectedTime)) {
+                  setSelectedTime(null);
+                  setSelectedOfferId(null);
+                }
+              }}
+            />
           </section>
 
           {/* Time slots */}
@@ -167,7 +178,7 @@ export default function ReservePage() {
           {/* Offers - only visible after selecting a time slot */}
           {selectedTime && (
             <section className="mb-6">
-              <OfferCards selectedTime={selectedTime} selectedOfferId={selectedOfferId} onSelect={setSelectedOfferId} />
+              <OfferCards meal={meal} selectedTime={selectedTime} selectedOfferId={selectedOfferId} onSelect={setSelectedOfferId} />
             </section>
           )}
 
