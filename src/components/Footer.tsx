@@ -1,82 +1,43 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] text-white py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-          
-          {/* Instagram Link */}
-          <motion.a
+    <footer className="border-t border-white/10 bg-black/90 px-4 py-3">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-4 text-xs text-white/70 md:justify-between">
+        <div className="flex items-center gap-3">
+          <a
             href="https://www.instagram.com/skyhylive?utm_source=ig_web_button_share_sheet&igsh=MW0zZGtreHRnMHh2ag=="
             target="_blank"
             rel="noopener noreferrer"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex flex-col md:flex-row items-center gap-3 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 group"
-            aria-label="Follow us on Instagram"
+            className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1 hover:bg-white/10"
           >
-            <div className="text-3xl group-hover:scale-110 transition-transform duration-300">
-              📸
-            </div>
-            <div>
-              <h3 className="font-[family-name:var(--font-inter)] font-bold text-lg mb-1">Instagram</h3>
-              <p className="text-white/80 font-[family-name:var(--font-inter)] text-sm">@skyhylive</p>
-            </div>
-          </motion.a>
-
-          {/* WhatsApp Link */}
-          <motion.a
+            <span>📸</span>
+            <span>Instagram</span>
+          </a>
+          <a
             href="https://wa.me/7013884485"
             target="_blank"
             rel="noopener noreferrer"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex flex-col md:flex-row items-center gap-3 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 group"
-            aria-label="Chat with us on WhatsApp"
+            className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1 hover:bg-white/10"
           >
-            <div className="text-3xl group-hover:scale-110 transition-transform duration-300">
-              💬
-            </div>
-            <div>
-              <h3 className="font-[family-name:var(--font-inter)] font-bold text-lg mb-1">WhatsApp</h3>
-              <p className="text-white/80 font-[family-name:var(--font-inter)] text-sm">+91 7013884485</p>
-            </div>
-          </motion.a>
-
-          {/* Google Maps Link */}
-          <motion.a
+            <span>💬</span>
+            <span>WhatsApp</span>
+          </a>
+          <a
             href="https://maps.app.goo.gl/8izvX92jtyZyJnUV9?g_st=ic"
             target="_blank"
             rel="noopener noreferrer"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex flex-col md:flex-row items-center gap-3 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 group"
-            aria-label="Find us on Google Maps"
+            className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1 hover:bg-white/10"
           >
-            <div className="text-3xl group-hover:scale-110 transition-transform duration-300">
-              📍
-            </div>
-            <div>
-              <h3 className="font-[family-name:var(--font-inter)] font-bold text-lg mb-1">Location</h3>
-              <p className="text-white/80 font-[family-name:var(--font-inter)] text-sm">Gachibowli, Hyderabad</p>
-            </div>
-          </motion.a>
-
+            <span>📍</span>
+            <span>Location</span>
+          </a>
         </div>
-
-        {/* Footer Bottom */}
-        <div className="mt-8 pt-8 border-t border-white/20 text-center">
-          <p className="text-white/80 font-[family-name:var(--font-inter)] text-sm">
-            © 2024 <span className="whitespace-nowrap">SKYHY Live</span>. All rights reserved. | Where every night tells a story.
-          </p>
-        </div>
+        <p className="text-[10px] text-white/50">
+          © 2024 SKYHY Live · Feel the Sky, Live the Music.
+        </p>
       </div>
     </footer>
   );
 }
-
-
 

@@ -1,0 +1,160 @@
+// Prisma schema for SKYHY Live — production PostgreSQL
+// DATABASE_URL = runtime (pooled); DIRECT_URL = migrations (direct)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Use DIRECT_URL for migrations when using a connection pooler (e.g. PgBouncer).
+  // For local dev or single URL, omit directUrl and Prisma uses DATABASE_URL for both.
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Menu structure (normalized) ─────────────────────────────────────────────
+// Sections: food | beverage | liquor | store | special-128
+model Section {
+  id        String     @id @default(cuid())
+  slug      String     @unique
+  name      String
+  sortOrder Int        @default(0)
+  categories Category[]
+  menuItems MenuItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([slug])
+}
+
+// Categories within a section (e.g. salad, veg-starters, mocktail)
+model Category {
+  id        String    @id @default(cuid())
+  sectionId String
+  section   Section   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  slug      String
+  name      String
+  sortOrder Int       @default(0)
+  menuItems MenuItem[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([sectionId, slug])
+  @@index([sectionId])
+}
+
+// Menu item — price in smallest unit (e.g. rupees as integer). imageUrl = Vercel Blob URL only.
+model MenuItem {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Int      // integer currency (e.g. ₹379 → 379)
+  category    String   // veg | non-veg | beverage | liquor | store
+  imageUrl    String?  // Vercel Blob URL only; no binary in DB
+  sectionId   String
+  section     Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  categoryId  String
+  categoryRef Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sectionId])
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+// ─── Media & content ────────────────────────────────────────────────────────
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+model HeroMedia {
+  id        String   @id @default(cuid())
+  type      String   // video | image
+  url       String
+  posterUrl String?
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+// ─── Homepage offers & events ────────────────────────────────────────────────
+
+enum OfferCtaType {
+  VIEW_MENU
+  BOOK_TICKETS
+  VIEW_PACKAGES
+}
+
+model Offer {
+  id        String       @id @default(cuid())
+  title     String
+  ctaType   OfferCtaType
+  mediaType String       // image | video
+  mediaUrl  String       // Vercel Blob URL only
+  sortOrder Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([sortOrder])
+}
+
+model Event {
+  id          String          @id @default(cuid())
+  title       String?
+  eventDate   DateTime?
+  ticketPrice Int             @default(0)
+  mediaType   String          // image | video
+  mediaUrl    String          // Vercel Blob URL only
+  sortOrder   Int             @default(0)
+  isActive    Boolean         @default(true)
+  bookings    EventBooking[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([sortOrder])
+  @@index([isActive])
+}
+
+model EventBooking {
+  id          String   @id @default(cuid())
+  eventId     String?
+  event       Event?   @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  fullName    String
+  mobile      String
+  date        DateTime
+  time        String
+  people      Int
+  ticketPrice Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+// ─── Menu gallery images ──────────────────────────────────────────────────────
+
+model MenuGalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  title     String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+// ─── Future: orders, payments (placeholders — add when needed) ───────────────
+// model Order { ... }
+// model OrderItem { ... }
+// model Payment { ... }
