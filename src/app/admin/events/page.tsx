@@ -164,10 +164,10 @@ export default function AdminEventsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 text-sm text-white/90">
+      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/80 px-3 py-3 shadow-[0_12px_32px_rgba(15,23,42,0.9)]">
         <div>
-          <h1 className="text-lg font-semibold text-white">Events Carousel</h1>
+          <h1 className="text-sm font-semibold text-white">Events Carousel</h1>
           <p className="text-xs text-white/60">
             Manage flyers/videos for the /events page. Sorted top to bottom.
           </p>
@@ -175,7 +175,7 @@ export default function AdminEventsPage() {
         <button
           type="button"
           onClick={addEvent}
-          className="rounded-lg bg-[#4A90E2] px-3 py-1.5 text-xs font-semibold text-white"
+          className="rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-3 py-1.5 text-xs font-semibold text-white shadow"
         >
           + Add Event
         </button>
@@ -186,7 +186,7 @@ export default function AdminEventsPage() {
         {events.map((ev, index) => (
           <div
             key={ev.id}
-            className="flex flex-col gap-3 rounded-2xl border border-white/15 bg-white/5 p-3 md:flex-row"
+            className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3 shadow-[0_18px_40px_rgba(15,23,42,0.9)] md:flex-row"
           >
             <div className="flex-1 space-y-2">
               <div className="flex items-center justify-between gap-2">

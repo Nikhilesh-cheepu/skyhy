@@ -41,7 +41,7 @@ export default function EventsPage() {
   }, []);
 
   useEffect(() => {
-    if (!events.length || paused) return;
+    if (!events.length || paused || showModal) return;
     const id = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % events.length;
@@ -60,11 +60,13 @@ export default function EventsPage() {
   }, [events.length, paused]);
 
   function handleCarouselInteract() {
+    if (showModal) return;
     setPaused(true);
     setTimeout(() => setPaused(false), 4000);
   }
 
   function openModal(event: EventItem) {
+    setPaused(true);
     setSelectedEvent(event);
     setSubmitError("");
     setPeople("1");
@@ -84,6 +86,11 @@ export default function EventsPage() {
     const peopleNum = parseInt(people, 10);
     if (!fullName.trim() || !mobile.trim() || !date || !time || Number.isNaN(peopleNum) || peopleNum <= 0) {
       setSubmitError("Please fill all fields correctly.");
+      return;
+    }
+    const mobileDigitsOnly = mobile.trim();
+    if (!/^\d{10}$/.test(mobileDigitsOnly)) {
+      setSubmitError("Please enter a valid 10-digit mobile number.");
       return;
     }
     if (!selectedEvent) {
@@ -265,7 +272,6 @@ export default function EventsPage() {
                             className="h-full w-full object-contain"
                           />
                         )}
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                       </div>
                       <div className="mt-3 space-y-2 text-sm">
                         <h2 className="line-clamp-2 font-semibold">
@@ -343,6 +349,10 @@ export default function EventsPage() {
                 <input
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={10}
                   className="w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
                   required
                 />
