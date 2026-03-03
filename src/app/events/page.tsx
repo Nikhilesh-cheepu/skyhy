@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 
 type EventItem = {
@@ -25,6 +25,9 @@ export default function EventsPage() {
   const [submitError, setSubmitError] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     fetch("/api/events")
@@ -36,6 +39,30 @@ export default function EventsPage() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!events.length || paused) return;
+    const id = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % events.length;
+        const el = cardsRef.current[next];
+        if (el) {
+          el.scrollIntoView({
+            behavior: "smooth",
+            inline: "center",
+            block: "nearest",
+          });
+        }
+        return next;
+      });
+    }, 1500);
+    return () => clearInterval(id);
+  }, [events.length, paused]);
+
+  function handleCarouselInteract() {
+    setPaused(true);
+    setTimeout(() => setPaused(false), 4000);
+  }
 
   function openModal(event: EventItem) {
     setSelectedEvent(event);
@@ -186,75 +213,94 @@ export default function EventsPage() {
           <h1 className="mt-1 text-2xl font-bold">Upcoming at SKYHY</h1>
         </header>
 
-        {/* Events list as stacked cards */}
-        <section className="space-y-5">
-          {loading && !events.length && (
-            <div className="h-72 w-full max-w-sm rounded-3xl border border-white/15 bg-white/5" />
-          )}
-          {!loading && events.length === 0 && (
-            <p className="text-sm text-white/60">No events announced yet.</p>
-          )}
-          {events.map((event) => {
-            const isVideo = event.mediaType.toLowerCase().includes("video");
-            return (
-              <article
-                key={event.id}
-                className="overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/5 via-black/60 to-black/90 shadow-[0_0_40px_rgba(15,23,42,0.8)] backdrop-blur-md"
-              >
-                <div
-                  className="relative w-full overflow-hidden bg-black/70"
-                  style={{ aspectRatio: "9 / 16" }}
-                >
-                  {isVideo ? (
-                    <video
-                      src={event.mediaUrl}
-                      className="h-full w-full object-cover"
-                      muted
-                      playsInline
-                      autoPlay
-                      loop
-                    />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={event.mediaUrl}
-                      alt={event.title ?? "SkyHy event"}
-                      className="h-full w-full object-cover"
-                    />
-                  )}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                </div>
-                <div className="space-y-2 px-4 pb-4 pt-3">
-                  <h2 className="text-base font-semibold leading-snug">
-                    {event.title || "SkyHy Live Event"}
-                  </h2>
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/70">
-                    {event.eventDate ? (
-                      <span>
-                        {new Date(event.eventDate).toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
-                    ) : (
-                      <span>Upcoming date</span>
-                    )}
-                    <span className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-[#93C5FD]">
-                      Ticket ₹{event.ticketPrice ?? 0} / person
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => openModal(event)}
-                    className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2 text-sm font-semibold text-white shadow hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-colors"
+        {/* Events carousel - horizontal with peek */}
+        <section className="mb-2">
+          <div
+            className="no-scrollbar -mx-4 overflow-x-auto pb-4 pl-4 pr-6"
+            onMouseDown={handleCarouselInteract}
+            onTouchStart={handleCarouselInteract}
+          >
+            <div className="flex snap-x snap-mandatory gap-4">
+              {loading && !events.length && (
+                <div className="h-72 min-w-[70vw] max-w-[360px] rounded-3xl border border-white/15 bg-white/5" />
+              )}
+              {!loading && events.length === 0 && (
+                <p className="px-2 text-sm text-white/60">No events announced yet.</p>
+              )}
+              {events.map((event, idx) => {
+                const isVideo = event.mediaType.toLowerCase().includes("video");
+                const isActive = idx === activeIndex;
+                return (
+                  <article
+                    key={event.id}
+                    ref={(el: HTMLDivElement | null) => {
+                      cardsRef.current[idx] = el;
+                    }}
+                    className="snap-center"
+                    style={{ scrollSnapAlign: "center" }}
                   >
-                    Book Tickets
-                  </button>
-                </div>
-              </article>
-            );
-          })}
+                    <div
+                      className={`relative mx-auto flex min-w-[70vw] max-w-[360px] flex-col overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-white/10 via-black/70 to-black/95 px-3 pb-4 pt-3 shadow-[0_0_40px_rgba(15,23,42,0.9)] backdrop-blur-md transition-transform ${
+                        isActive ? "scale-100" : "scale-[0.95] opacity-80"
+                      }`}
+                    >
+                      <div
+                        className="relative w-full overflow-hidden rounded-2xl bg-black/70"
+                        style={{ aspectRatio: "9 / 16" }}
+                      >
+                        {isVideo ? (
+                          <video
+                            src={event.mediaUrl}
+                            className="h-full w-full object-contain"
+                            muted
+                            playsInline
+                            autoPlay
+                            loop
+                          />
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={event.mediaUrl}
+                            alt={event.title ?? "SkyHy event"}
+                            className="h-full w-full object-contain"
+                          />
+                        )}
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                      </div>
+                      <div className="mt-3 space-y-2 text-sm">
+                        <h2 className="line-clamp-2 font-semibold">
+                          {event.title || "SkyHy Live Event"}
+                        </h2>
+                        <div className="flex items-center justify-between gap-3 text-xs text-white/70">
+                          {event.eventDate ? (
+                            <span>
+                              {new Date(event.eventDate).toLocaleDateString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </span>
+                          ) : (
+                            <span>Upcoming date</span>
+                          )}
+                          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-[#93C5FD]">
+                            Ticket ₹{event.ticketPrice ?? 0} / person
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openModal(event)}
+                          className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2 text-sm font-semibold text-white shadow hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-colors"
+                        >
+                          Book Tickets
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
         </section>
       </div>
 
