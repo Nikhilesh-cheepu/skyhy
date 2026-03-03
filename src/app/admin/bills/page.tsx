@@ -115,7 +115,7 @@ export default function AdminBillsPage() {
 
   return (
     <div className="space-y-4 text-sm text-white/90">
-      <div className="rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 shadow-[0_12px_32px_rgba(15,23,42,0.9)]">
+      <div className="rounded-2xl border border-white/10 bg-[#050608] px-4 py-3 shadow-[0_18px_40px_rgba(0,0,0,0.9)]">
         <h1 className="text-sm font-semibold text-white">Bills</h1>
         <p className="mt-1 text-xs text-white/60">
           Search by customer phone. You can only create bills for users who
@@ -125,7 +125,7 @@ export default function AdminBillsPage() {
 
       <form
         onSubmit={handleSearch}
-        className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3 shadow-[0_18px_40px_rgba(15,23,42,0.9)] md:flex-row md:items-end"
+        className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/70 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.9)] md:flex-row md:items-end"
       >
         <div className="flex-1 space-y-1">
           <label className="block text-xs text-white/70">Customer phone</label>
@@ -143,7 +143,7 @@ export default function AdminBillsPage() {
         <button
           type="submit"
           disabled={loadingSearch}
-          className="w-full rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white shadow md:w-auto"
+          className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-sm font-semibold text-black shadow hover:from-amber-400 hover:to-orange-400 disabled:opacity-60 md:w-auto"
         >
           {loadingSearch ? "Searching…" : "Search user"}
         </button>

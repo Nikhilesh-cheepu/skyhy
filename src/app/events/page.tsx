@@ -101,7 +101,14 @@ export default function EventsPage() {
     e.preventDefault();
     setSubmitError("");
     const peopleNum = parseInt(people, 10);
-    if (!fullName.trim() || !mobile.trim() || !date || !time || Number.isNaN(peopleNum) || peopleNum <= 0) {
+    if (
+      !fullName.trim() ||
+      !mobile.trim() ||
+      !date ||
+      !time ||
+      Number.isNaN(peopleNum) ||
+      peopleNum <= 0
+    ) {
       setSubmitError("Please fill all fields correctly.");
       return;
     }
@@ -197,9 +204,16 @@ export default function EventsPage() {
           contact: mobile.trim(),
         },
         theme: {
-          color: "#2563EB",
+          // warm accent instead of harsh blue
+          color: "#eab308",
         },
-        handler: (response: { razorpay_payment_id?: string | undefined } | undefined) => {
+        handler: (
+          response:
+            | {
+                razorpay_payment_id?: string | undefined;
+              }
+            | undefined,
+        ) => {
           const params = new URLSearchParams({
             status: "paid",
             eventTitle: currentEvent.title || "SkyHy Live Event",
@@ -229,7 +243,7 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black pb-24 text-white">
+    <div className="min-h-screen bg-[#050608] pb-24 text-white">
       <div className="mx-auto max-w-6xl px-4 pt-20">
         <header className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
@@ -267,8 +281,8 @@ export default function EventsPage() {
                     style={{ scrollSnapAlign: "center" }}
                   >
                     <div
-                      className={`relative mx-auto flex min-w-[70vw] max-w-[360px] flex-col overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-white/10 via-black/70 to-black/95 px-3 pb-4 pt-3 shadow-[0_0_40px_rgba(15,23,42,0.9)] backdrop-blur-md transition-transform ${
-                        isActive ? "scale-100" : "scale-[0.95] opacity-80"
+                      className={`relative mx-auto flex min-w-[70vw] max-w-[360px] flex-col overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/5 via-black/80 to-black px-3 pb-4 pt-3 shadow-[0_24px_50px_rgba(0,0,0,0.8)] backdrop-blur-md transition-transform ${
+                        isActive ? "scale-100" : "scale-[0.96] opacity-85"
                       }`}
                     >
                       <div
@@ -309,14 +323,14 @@ export default function EventsPage() {
                           ) : (
                             <span>Upcoming date</span>
                           )}
-                          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-[#93C5FD]">
+                          <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-300">
                             Ticket ₹{event.ticketPrice ?? 0} / person
                           </span>
                         </div>
                         <button
                           type="button"
                           onClick={() => openModal(event)}
-                          className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2 text-sm font-semibold text-white shadow hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-colors"
+                          className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-black shadow hover:from-amber-400 hover:to-orange-400 active:from-amber-600 active:to-orange-600 transition-colors"
                         >
                           Book Tickets
                         </button>
@@ -332,8 +346,8 @@ export default function EventsPage() {
 
       {/* Booking modal */}
       {showModal && selectedEvent && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 px-4 pb-4 pt-16 md:items-center md:px-0">
-          <div className="w-full max-w-md overflow-hidden rounded-t-3xl bg-[#020617] shadow-2xl md:rounded-3xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
+          <div className="w-full max-w-md max-h-[90vh] overflow-hidden rounded-3xl bg-[#020617] shadow-[0_24px_60px_rgba(0,0,0,0.9)]">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-white/50">
@@ -351,7 +365,10 @@ export default function EventsPage() {
                 ✕
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-3 px-4 pb-4 pt-3">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-3 overflow-y-auto px-4 pb-4 pt-3"
+            >
               {submitError && (
                 <p className="text-xs text-red-400">{submitError}</p>
               )}
@@ -365,10 +382,14 @@ export default function EventsPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="block text-xs text-white/70">Mobile Number</label>
+                <label className="block text-xs text-white/70">
+                  Mobile Number
+                </label>
                 <input
                   value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
+                  onChange={(e) =>
+                    setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))
+                  }
                   type="tel"
                   inputMode="numeric"
                   pattern="[0-9]*"
@@ -400,7 +421,9 @@ export default function EventsPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="block text-xs text-white/70">Number of People</label>
+                <label className="block text-xs text-white/70">
+                  Number of People
+                </label>
                 <div className="flex items-center justify-between rounded-lg border border-white/15 bg-black/40 px-3 py-2">
                   <button
                     type="button"
@@ -435,20 +458,20 @@ export default function EventsPage() {
               </div>
               <div className="flex items-center justify-between pt-1 text-sm">
                 <span className="text-white/70">Estimated total</span>
-                <span className="text-base font-semibold text-[#93C5FD]">
+                <span className="text-base font-semibold text-amber-300">
                   ₹{estimatedTotal}
                 </span>
               </div>
               <button
                 type="submit"
                 disabled={submitting}
-                className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white shadow hover:from-[#1D4ED8] hover:to-[#2563EB] disabled:opacity-60"
+                className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-sm font-semibold text-black shadow hover:from-amber-400 hover:to-orange-400 disabled:opacity-60"
               >
                 {submitting
                   ? "Processing…"
                   : estimatedTotal > 0
-                  ? "Proceed to Pay"
-                  : "Confirm on WhatsApp"}
+                  ? "Pay & Confirm"
+                  : "Confirm Booking"}
               </button>
             </form>
           </div>

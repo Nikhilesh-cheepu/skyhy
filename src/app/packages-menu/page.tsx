@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import Footer from '@/components/Footer';
 import PackagesGrid from '@/components/PackagesGrid';
@@ -30,6 +30,7 @@ interface CartItem {
 type MenuDataFromApi = Record<string, Record<string, MenuItem[]>>;
 
 function PackagesMenuPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<'packages' | 'menu'>(
@@ -178,6 +179,19 @@ function PackagesMenuPageContent() {
     setSearchQuery('');
     setIsCategoryDropdownOpen(false);
   }, []);
+
+  const ensureLoggedIn = async () => {
+    try {
+      const res = await fetch('/api/auth/session');
+      if (res.status === 401) {
+        router.push('/login?returnTo=/packages-menu');
+        return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black pb-24">
@@ -756,7 +770,7 @@ function PackagesMenuPageContent() {
                     <span>₹{taxesAndCharges}</span>
                   </div>
                   {discountApplied ? (
-                    <div className="flex justify-between text-sm text-[#22c55e]">
+                    <div className="flex justify-between text-sm text-emerald-400">
                       <span>25% off applied</span>
                       <span>-₹{discountAmount}</span>
                     </div>
@@ -766,7 +780,7 @@ function PackagesMenuPageContent() {
                       <button
                         type="button"
                         onClick={() => setDiscountApplied(true)}
-                        className="text-sm font-medium text-[#2563EB] hover:text-[#3B82F6] underline cursor-pointer"
+                        className="text-sm font-medium text-amber-300 hover:text-amber-200 underline cursor-pointer"
                       >
                         Apply
                       </button>
@@ -774,12 +788,14 @@ function PackagesMenuPageContent() {
                   )}
                   <div className="flex justify-between items-center pt-2">
                     <span className="text-lg font-semibold text-white">Total</span>
-                    <span className="text-2xl font-bold text-[#2563EB]">₹{finalTotal}</span>
+                    <span className="text-2xl font-bold text-amber-300">₹{finalTotal}</span>
                   </div>
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      const ok = await ensureLoggedIn();
+                      if (!ok) return;
                       const total = finalTotal;
                       if (total <= 0) {
                         const orderItems = cart
@@ -826,20 +842,16 @@ function PackagesMenuPageContent() {
                           name: 'SKYHY Live',
                           description: 'Food & beverages order',
                           order_id: orderData.id,
-                          theme: { color: '#2563EB' },
-                          handler: () => {
-                            const orderItems = cart
-                              .map(
-                                (item) =>
-                                  `${item.name} x${item.quantity} - ₹${
-                                    item.price * item.quantity
-                                  }`,
-                              )
-                              .join('%0A');
-                            const message = `*PAID Order from SKYHY Live*%0A%0A${orderItems}%0A%0A*Total: ₹${total}*%0A%0APayment completed via Razorpay.`;
-                            window.open(`https://wa.me/7013884485?text=${message}`, '_blank');
+                          theme: { color: '#eab308' },
+                          handler: (response: { razorpay_payment_id?: string } | undefined) => {
+                            const params = new URLSearchParams({
+                              status: 'paid',
+                              total: String(total),
+                              paymentId: response?.razorpay_payment_id || '',
+                            });
                             setCart([]);
                             setShowCart(false);
+                            window.location.href = `/orders/success?${params.toString()}`;
                           },
                         };
 
@@ -853,7 +865,7 @@ function PackagesMenuPageContent() {
                         );
                       }
                     }}
-                    className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-black py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl hover:from-amber-400 hover:to-orange-400 active:from-amber-600 active:to-orange-600 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                   >
                     <span>💳</span>
                     Pay & Confirm Order
