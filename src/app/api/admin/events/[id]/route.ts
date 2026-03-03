@@ -14,6 +14,7 @@ export async function PATCH(
     const body = await request.json();
     const title = typeof body?.title === 'string' ? body.title.trim() : undefined;
     const eventDateStr = typeof body?.eventDate === 'string' ? body.eventDate : undefined;
+    const endDateStr = typeof body?.endDate === 'string' ? body.endDate : undefined;
     const ticketPrice =
       typeof body?.ticketPrice === 'number'
         ? body.ticketPrice
@@ -30,6 +31,7 @@ export async function PATCH(
         : undefined;
     const isActive =
       body?.isActive !== undefined ? Boolean(body.isActive) : undefined;
+    const notes = typeof body?.notes === 'string' ? body.notes.trim() : undefined;
 
     let eventDate: Date | undefined | null;
     if (eventDateStr !== undefined) {
@@ -44,16 +46,31 @@ export async function PATCH(
       }
     }
 
+    let endDate: Date | undefined | null;
+    if (endDateStr !== undefined) {
+      if (endDateStr === '') {
+        endDate = null;
+      } else {
+        const d = new Date(endDateStr);
+        if (Number.isNaN(d.getTime())) {
+          return NextResponse.json({ error: 'Invalid endDate' }, { status: 400 });
+        }
+        endDate = d;
+      }
+    }
+
     const event = await prisma.event.update({
       where: { id },
       data: {
         ...(title !== undefined && { title }),
         ...(eventDate !== undefined && { eventDate }),
+        ...(endDate !== undefined && { endDate }),
         ...(ticketPrice !== undefined && { ticketPrice }),
         ...(mediaType !== undefined && { mediaType }),
         ...(mediaUrl !== undefined && { mediaUrl }),
         ...(sortOrder !== undefined && { sortOrder }),
         ...(isActive !== undefined && { isActive }),
+        ...(notes !== undefined && { notes }),
       },
     });
     return NextResponse.json(event);

@@ -117,11 +117,13 @@ model Event {
   id          String          @id @default(cuid())
   title       String?
   eventDate   DateTime?
+  endDate     DateTime?
   ticketPrice Int             @default(0)
   mediaType   String          // image | video
   mediaUrl    String          // Vercel Blob URL only
   sortOrder   Int             @default(0)
   isActive    Boolean         @default(true)
+  notes       String?
   bookings    EventBooking[]
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt

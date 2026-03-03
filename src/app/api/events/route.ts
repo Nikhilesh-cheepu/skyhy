@@ -8,7 +8,13 @@ export async function GET() {
   try {
     const prisma = getPrisma();
     const events = await prisma.event.findMany({
-      where: { isActive: true },
+      where: {
+        isActive: true,
+        OR: [
+          { endDate: null },
+          { endDate: { gte: new Date() } },
+        ],
+      },
       orderBy: [{ sortOrder: 'asc' }, { eventDate: 'asc' }],
     });
     return NextResponse.json(events);

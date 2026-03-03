@@ -23,6 +23,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const title = typeof body?.title === 'string' ? body.title.trim() : '';
     const eventDateStr = typeof body?.eventDate === 'string' ? body.eventDate : '';
+    const endDateStr = typeof body?.endDate === 'string' ? body.endDate : '';
     const ticketPrice =
       typeof body?.ticketPrice === 'number'
         ? body.ticketPrice
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
         : 0;
     const mediaType = typeof body?.mediaType === 'string' ? body.mediaType : 'image';
     const mediaUrl = typeof body?.mediaUrl === 'string' ? body.mediaUrl : '';
+    const notes = typeof body?.notes === 'string' ? body.notes.trim() : '';
 
     if (!mediaUrl) {
       return NextResponse.json({ error: 'mediaUrl is required' }, { status: 400 });
@@ -45,14 +47,25 @@ export async function POST(request: Request) {
       eventDate = d;
     }
 
+    if (!endDateStr) {
+      return NextResponse.json({ error: 'endDate is required' }, { status: 400 });
+    }
+
+    const endDate = new Date(endDateStr);
+    if (Number.isNaN(endDate.getTime())) {
+      return NextResponse.json({ error: 'Invalid endDate' }, { status: 400 });
+    }
+
     const count = await prisma.event.count();
     const event = await prisma.event.create({
       data: {
         title: title || null,
         eventDate,
+        endDate,
         ticketPrice: ticketPrice || 0,
         mediaType,
         mediaUrl,
+        notes: notes || null,
         sortOrder: count,
       },
     });
