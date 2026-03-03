@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
 
 type EventItem = {
@@ -13,6 +14,7 @@ type EventItem = {
 };
 
 export default function EventsPage() {
+  const router = useRouter();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -118,7 +120,7 @@ export default function EventsPage() {
       const ticketPrice = currentEvent.ticketPrice ?? 0;
       const amountRupees = ticketPrice * peopleNum;
 
-      // If ticket price is zero, keep the old flow (no payment, just save + WhatsApp)
+      // Free booking: save and then show on-site confirmation; WhatsApp only on success screen
       if (!amountRupees) {
         const res = await fetch("/api/events/book", {
           method: "POST",
@@ -138,17 +140,17 @@ export default function EventsPage() {
         if (!res.ok || data?.error) {
           throw new Error(data.error || "Failed to submit booking");
         }
-        const textLines = [
-          "SkyHy Event Ticket Booking:",
-          `Name: ${fullName.trim()}`,
-          `Mobile: ${mobile.trim()}`,
-          `Date: ${date}`,
-          `Time: ${time}`,
-          `People: ${peopleNum}`,
-          `Ticket Cost: ₹${ticketPrice || 0}`,
-        ];
-        const waText = encodeURIComponent(textLines.join("\n"));
-        window.location.href = `https://wa.me/7013884485?text=${waText}`;
+        const params = new URLSearchParams({
+          status: "free",
+          eventTitle: currentEvent.title || "SkyHy Live Event",
+          date,
+          time,
+          name: fullName.trim(),
+          mobile: mobile.trim(),
+          people: String(peopleNum),
+          total: String(amountRupees),
+        });
+        router.push(`/events/booking-success?${params.toString()}`);
         return;
       }
 
@@ -197,18 +199,19 @@ export default function EventsPage() {
         theme: {
           color: "#2563EB",
         },
-        handler: () => {
-          const textLines = [
-            "SkyHy Event Ticket Booking:",
-            `Name: ${fullName.trim()}`,
-            `Mobile: ${mobile.trim()}`,
-            `Date: ${date}`,
-            `Time: ${time}`,
-            `People: ${peopleNum}`,
-            `Ticket Cost: ₹${amountRupees}`,
-          ];
-          const waText = encodeURIComponent(textLines.join("\n"));
-          window.location.href = `https://wa.me/7013884485?text=${waText}`;
+        handler: (response: { razorpay_payment_id?: string | undefined } | undefined) => {
+          const params = new URLSearchParams({
+            status: "paid",
+            eventTitle: currentEvent.title || "SkyHy Live Event",
+            date,
+            time,
+            name: fullName.trim(),
+            mobile: mobile.trim(),
+            people: String(peopleNum),
+            total: String(amountRupees),
+            paymentId: response?.razorpay_payment_id || "",
+          });
+          router.push(`/events/booking-success?${params.toString()}`);
         },
         modal: {
           ondismiss: () => {
