@@ -67,7 +67,7 @@ export default function EventsPage() {
   function openModal(event: EventItem) {
     setSelectedEvent(event);
     setSubmitError("");
-    setPeople("");
+    setPeople("1");
     setDate("");
     setTime("");
     setShowModal(true);
@@ -371,14 +371,37 @@ export default function EventsPage() {
               </div>
               <div className="space-y-1">
                 <label className="block text-xs text-white/70">Number of People</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={people}
-                  onChange={(e) => setPeople(e.target.value)}
-                  className="w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
-                  required
-                />
+                <div className="flex items-center justify-between rounded-lg border border-white/15 bg-black/40 px-3 py-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPeople((prev) => {
+                        const current = Number.parseInt(prev || "1", 10);
+                        const next = Math.max(1, current - 1);
+                        return String(next);
+                      })
+                    }
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-sm text-white hover:bg-white/20"
+                  >
+                    -
+                  </button>
+                  <span className="min-w-[2rem] text-center text-sm font-semibold text-white">
+                    {people || "1"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPeople((prev) => {
+                        const current = Number.parseInt(prev || "1", 10);
+                        const next = Math.min(50, current + 1);
+                        return String(next);
+                      })
+                    }
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-sm text-white hover:bg-white/20"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
               <div className="flex items-center justify-between pt-1 text-sm">
                 <span className="text-white/70">Estimated total</span>
