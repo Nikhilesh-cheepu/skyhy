@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Bill = {
   id: string;
@@ -11,19 +12,35 @@ type Bill = {
 };
 
 export default function PendingBillsPage() {
+  const router = useRouter();
   const [phone, setPhone] = useState("");
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem("skyhy_phone");
-    if (stored && /^\d{10}$/.test(stored)) {
-      setPhone(stored);
-      void fetchBills(stored);
+    // Require login via session; if not logged in, redirect to /login
+    async function init() {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (res.status === 401) {
+          router.replace("/login?returnTo=/bills");
+          return;
+        }
+        const data = await res.json();
+        const userPhone: string | undefined = data?.user?.phone;
+        if (!userPhone) {
+          router.replace("/login?returnTo=/bills");
+          return;
+        }
+        setPhone(userPhone);
+        await fetchBills(userPhone);
+      } catch {
+        setError("Failed to verify session.");
+      }
     }
-  }, []);
+    void init();
+  }, [router]);
 
   async function fetchBills(p: string) {
     setLoading(true);
@@ -45,51 +62,13 @@ export default function PendingBillsPage() {
     }
   }
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const clean = phone.replace(/\D/g, "").slice(0, 10);
-    if (clean.length !== 10) {
-      setError("Enter a valid 10-digit phone number.");
-      setBills([]);
-      return;
-    }
-    setPhone(clean);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("skyhy_phone", clean);
-    }
-    await fetchBills(clean);
-  }
-
   return (
     <div className="min-h-screen bg-[#020617] pb-24 text-white">
       <div className="mx-auto max-w-md px-4 pt-24">
         <h1 className="mb-2 text-xl font-semibold">Pending Bills</h1>
         <p className="mb-4 text-xs text-white/70">
-          Enter your phone number used at SKYHY to view and pay pending bills.
+          Pending bills linked to your phone number {phone && `(+91 ${phone})`}.
         </p>
-
-        <form
-          onSubmit={handleSearch}
-          className="mb-4 flex gap-2 rounded-2xl border border-white/10 bg-black/60 p-3"
-        >
-          <input
-            value={phone}
-            onChange={(e) =>
-              setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
-            }
-            maxLength={10}
-            inputMode="numeric"
-            className="flex-1 rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-sm text-white"
-            placeholder="10-digit phone"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-3 py-2 text-xs font-semibold text-white shadow disabled:opacity-60"
-          >
-            {loading ? "Loading…" : "View"}
-          </button>
-        </form>
 
         {error && <p className="mb-3 text-xs text-red-400">{error}</p>}
 
