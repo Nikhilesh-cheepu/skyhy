@@ -131,13 +131,11 @@ export default function PendingBillsPage() {
                 onClick={async () => {
                   if (bill.status !== "PENDING") return;
                   try {
-                    const amountPaise = bill.amount * 100;
                     const orderRes = await fetch("/api/razorpay/create-order", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
                         type: "bill",
-                        amount: amountPaise,
                         currency: "INR",
                         bill: { billId: bill.id },
                       }),
@@ -148,6 +146,8 @@ export default function PendingBillsPage() {
                         orderData.error || "Failed to create payment order",
                       );
                     }
+                    const amountPaise = orderData.amount ?? Math.round((orderData.finalAmountRupees ?? bill.amount) * 100);
+                    const totalPaid = orderData.finalAmountRupees ?? amountPaise / 100;
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const RazorpayConstructor = (window as any).Razorpay;
                     if (!RazorpayConstructor) {
@@ -170,7 +170,7 @@ export default function PendingBillsPage() {
                       ) => {
                         const params = new URLSearchParams({
                           status: "paid",
-                          total: String(bill.amount),
+                          total: String(totalPaid),
                           paymentId: response?.razorpay_payment_id || "",
                         });
                         router.push(
@@ -180,13 +180,8 @@ export default function PendingBillsPage() {
                     };
                     const rzp = new RazorpayConstructor(options);
                     rzp.open();
-                  } catch (err) {
-                    // simple inline error; keep UX minimal
-                    alert(
-                      err instanceof Error
-                        ? err.message
-                        : "Failed to start payment. Please try again.",
-                    );
+                  } catch {
+                    alert("Payment could not be started. Please try again.");
                   }
                 }}
                 className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 text-[11px] font-semibold text-black shadow hover:from-amber-400 hover:to-orange-400 disabled:opacity-60"

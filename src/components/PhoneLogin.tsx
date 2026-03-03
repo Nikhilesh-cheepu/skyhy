@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { getFirebaseAuth } from "@/lib/firebase-client";
+import { auth } from "@/lib/firebase";
 
 declare global {
   interface Window {
@@ -11,28 +11,51 @@ declare global {
   }
 }
 
-export default function LoginClient() {
+const RESEND_COOLDOWN_SEC = 30;
+
+function friendlyAuthMessage(code: string, fallback: string): string {
+  const map: Record<string, string> = {
+    "auth/too-many-requests": "Too many attempts. Please try again later.",
+    "auth/invalid-phone-number": "Please enter a valid 10-digit mobile number.",
+    "auth/captcha-check-failed": "Security check failed. Please refresh and try again.",
+    "auth/network-request-failed": "Network error. Check your connection and try again.",
+    "auth/invalid-verification-code": "Invalid or expired OTP. Please try again or request a new one.",
+    "auth/code-expired": "OTP expired. Please request a new one.",
+  };
+  return map[code] ?? fallback;
+}
+
+export default function PhoneLogin() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [loading, setLoading] = useState(false);
+  const [sendStatus, setSendStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
   const confirmationResultRef =
     useRef<import("firebase/auth").ConfirmationResult | null>(null);
 
   const returnTo = searchParams.get("returnTo") || "/";
 
   useEffect(() => {
-    // Initialise invisible reCAPTCHA once on mount
-    const auth = getFirebaseAuth();
+    if (typeof window === "undefined") return;
     if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-        size: "invisible",
-      });
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        { size: "invisible" }
+      );
     }
   }, []);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setInterval(() => setResendCooldown((c) => (c <= 1 ? 0 : c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [resendCooldown]);
 
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -44,21 +67,24 @@ export default function LoginClient() {
     }
     setPhone(clean);
     setLoading(true);
+    setSendStatus("sending");
     try {
-      const auth = getFirebaseAuth();
       const verifier = window.recaptchaVerifier!;
       const fullPhone = `+91${clean}`;
-      const confirmationResult = await signInWithPhoneNumber(
-        auth,
-        fullPhone,
-        verifier
-      );
+      const confirmationResult = await signInWithPhoneNumber(auth, fullPhone, verifier);
       confirmationResultRef.current = confirmationResult;
       setStep("otp");
+      setSendStatus("sent");
+      setResendCooldown(RESEND_COOLDOWN_SEC);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to send OTP. Please try again."
-      );
+      const message =
+        err && typeof (err as { code?: string }).code === "string"
+          ? friendlyAuthMessage((err as { code: string }).code, "Failed to send OTP. Please try again.")
+          : err instanceof Error
+            ? friendlyAuthMessage("", err.message)
+            : "Failed to send OTP. Please try again.";
+      setError(message);
+      setSendStatus("idle");
     } finally {
       setLoading(false);
     }
@@ -77,22 +103,29 @@ export default function LoginClient() {
     }
     setLoading(true);
     try {
-      const result = await confirmationResultRef.current.confirm(otp.trim());
-      const idToken = await result.user.getIdToken();
-      const res = await fetch("/api/auth/login", {
+      await confirmationResultRef.current.confirm(otp.trim());
+
+      const res = await fetch("/api/auth/sync-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({ phone }),
       });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || "Login failed");
       }
+
       router.push(returnTo);
       router.refresh();
     } catch (err) {
+      const message =
+        err && typeof (err as { code?: string }).code === "string"
+          ? friendlyAuthMessage((err as { code: string }).code, "OTP verification failed. Please try again.")
+          : err instanceof Error
+            ? err.message
+            : "OTP verification failed. Please try again.";
       setError(
-        err instanceof Error ? err.message : "OTP verification failed. Please try again."
+        message.startsWith("auth/") ? "OTP verification failed. Please try again." : message
       );
     } finally {
       setLoading(false);
@@ -167,6 +200,26 @@ export default function LoginClient() {
             >
               {loading ? "Verifying…" : "Verify & Continue"}
             </button>
+            <div className="flex justify-center">
+              {resendCooldown > 0 ? (
+                <span className="text-xs text-white/50">
+                  Resend OTP in {resendCooldown}s
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setError("");
+                    handleSendOtp(e as unknown as React.FormEvent);
+                  }}
+                  disabled={loading}
+                  className="text-xs text-[#60A5FA] hover:underline disabled:opacity-60"
+                >
+                  Resend OTP
+                </button>
+              )}
+            </div>
           </form>
         )}
 

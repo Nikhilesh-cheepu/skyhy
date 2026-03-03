@@ -4,6 +4,7 @@ export const revalidate = 0;
 import { NextResponse } from "next/server";
 import { createHmac } from "crypto";
 import { getPrisma } from "@/lib/prisma";
+import { sendSms } from "@/lib/sms";
 
 export async function POST(request: Request) {
   try {
@@ -48,6 +49,13 @@ export async function POST(request: Request) {
 
     const prisma = getPrisma();
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL
+      ? process.env.NEXT_PUBLIC_APP_URL
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "";
+    const detailsLink = baseUrl ? `${baseUrl}/account` : "your account";
+
     const booking = await prisma.eventBooking.findFirst({
       where: { razorpayOrderId: orderId },
     });
@@ -56,6 +64,10 @@ export async function POST(request: Request) {
         where: { id: booking.id },
         data: { paymentStatus: "PAID" },
       });
+      void sendSms(
+        booking.mobile,
+        `SKYHY: Booking confirmed. View details: ${detailsLink}`
+      ).catch(() => {});
       return NextResponse.json({ received: true, updated: "event_booking" });
     }
 
@@ -67,11 +79,19 @@ export async function POST(request: Request) {
         where: { id: order.id },
         data: { status: "PAID" },
       });
+      const orderPhone = order.customerPhone?.trim();
+      if (orderPhone) {
+        void sendSms(
+          orderPhone,
+          `SKYHY: Order confirmed. View details: ${detailsLink}`
+        ).catch(() => {});
+      }
       return NextResponse.json({ received: true, updated: "order" });
     }
 
     const bill = await prisma.bill.findFirst({
       where: { razorpayOrderId: orderId },
+      include: { user: true },
     });
     if (bill) {
       await prisma.bill.update({
@@ -84,12 +104,19 @@ export async function POST(request: Request) {
           data: { status: "USED" },
         });
       }
+      const billPhone = bill.user?.phone?.trim();
+      if (billPhone) {
+        void sendSms(
+          billPhone,
+          `SKYHY: Bill payment confirmed. View details: ${detailsLink}`
+        ).catch(() => {});
+      }
       return NextResponse.json({ received: true, updated: "bill" });
     }
 
     return NextResponse.json({ received: true });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Webhook error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[razorpay/webhook]", e);
+    return NextResponse.json({ error: "Webhook error" }, { status: 500 });
   }
 }

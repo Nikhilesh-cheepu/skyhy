@@ -33,19 +33,106 @@ export async function POST(request: Request) {
         ? body.currency
         : "INR";
 
-    if (!Number.isFinite(amount) || amount <= 0) {
-      return NextResponse.json(
-        { error: "amount must be a positive number (in paise)" },
-        { status: 400 }
-      );
-    }
-
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     if (!keyId || !keySecret) {
       return NextResponse.json(
         { error: "Razorpay keys are not configured on the server" },
         { status: 500 }
+      );
+    }
+
+    const prisma = getPrisma();
+
+    if (type === "bill") {
+      const billPayload = body?.bill as BillPayload | undefined;
+      const billId =
+        billPayload && typeof billPayload.billId === "string"
+          ? billPayload.billId
+          : "";
+      if (!billId) {
+        return NextResponse.json(
+          { error: "billId is required for bill payments" },
+          { status: 400 }
+        );
+      }
+
+      const bill = await prisma.bill.findUnique({
+        where: { id: billId },
+        include: { user: true, coupon: true },
+      });
+      if (!bill) {
+        return NextResponse.json(
+          { error: "Bill not found" },
+          { status: 404 }
+        );
+      }
+
+      const baseAmount = bill.amount;
+      let discount = 0;
+      let coupon: { id: string; discountAmount: number | null; discountPercent: number | null } | null = null;
+
+      try {
+        const found =
+          bill.userId &&
+          (await prisma.coupon.findFirst({
+            where: { userId: bill.userId, status: "ACTIVE" },
+            orderBy: { createdAt: "asc" },
+          }));
+        if (found) {
+          coupon = found;
+          if (found.discountAmount != null) {
+            discount = found.discountAmount;
+          } else if (found.discountPercent != null) {
+            discount = Math.round((baseAmount * found.discountPercent) / 100);
+          }
+          if (discount < 0) discount = 0;
+          if (discount > baseAmount) discount = baseAmount;
+        }
+      } catch (couponErr) {
+        console.error("[create-order] Coupon lookup failed (bill)", billId, couponErr);
+      }
+
+      const finalAmountRupees = baseAmount - discount;
+      const finalAmountPaise = Math.max(1, Math.round(finalAmountRupees * 100));
+
+      if (!Number.isFinite(finalAmountPaise) || finalAmountPaise <= 0) {
+        return NextResponse.json(
+          { error: "Computed bill amount is invalid" },
+          { status: 400 }
+        );
+      }
+
+      const razorpay = new Razorpay({
+        key_id: keyId,
+        key_secret: keySecret,
+      });
+      const order = await razorpay.orders.create({
+        amount: finalAmountPaise,
+        currency: currency || "INR",
+      });
+
+      await prisma.bill.update({
+        where: { id: billId },
+        data: {
+          razorpayOrderId: order.id,
+          status: "PENDING",
+          couponId: coupon ? coupon.id : bill.couponId ?? undefined,
+        },
+      });
+
+      return NextResponse.json({
+        ...order,
+        amount: finalAmountPaise,
+        finalAmountRupees,
+        discount,
+      });
+    }
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return NextResponse.json(
+        { error: "amount must be a positive number (in paise)" },
+        { status: 400 }
       );
     }
 
@@ -58,8 +145,6 @@ export async function POST(request: Request) {
       amount: Math.round(amount),
       currency,
     });
-
-    const prisma = getPrisma();
 
     if (type === "event") {
       const b = body?.booking as EventBookingPayload | undefined;
@@ -145,91 +230,15 @@ export async function POST(request: Request) {
           },
         },
       });
-    } else if (type === "bill") {
-      const billPayload = body?.bill as BillPayload | undefined;
-      const billId =
-        billPayload && typeof billPayload.billId === "string"
-          ? billPayload.billId
-          : "";
-      if (!billId) {
-        return NextResponse.json(
-          { error: "billId is required for bill payments" },
-          { status: 400 }
-        );
-      }
-
-      const bill = await prisma.bill.findUnique({
-        where: { id: billId },
-        include: { user: true, coupon: true },
-      });
-      if (!bill) {
-        return NextResponse.json(
-          { error: "Bill not found" },
-          { status: 404 }
-        );
-      }
-
-      const userId = bill.userId;
-
-      // Find best ACTIVE coupon for this user, if any
-      const coupon =
-        userId &&
-        (await prisma.coupon.findFirst({
-          where: {
-            userId,
-            status: "ACTIVE",
-          },
-          orderBy: { createdAt: "asc" },
-        }));
-
-      const baseAmount = bill.amount;
-      let discount = 0;
-      if (coupon) {
-        if (coupon.discountAmount != null) {
-          discount = coupon.discountAmount;
-        } else if (coupon.discountPercent != null) {
-          discount = Math.round(
-            (baseAmount * coupon.discountPercent) / 100
-          );
-        }
-        if (discount < 0) discount = 0;
-        if (discount > baseAmount) discount = baseAmount;
-      }
-
-      const finalAmountRupees = baseAmount - discount;
-      const finalAmountPaise = finalAmountRupees * 100;
-
-      // If client passed a different amount, ignore it; always use computed finalAmountPaise
-      if (!Number.isFinite(finalAmountPaise) || finalAmountPaise <= 0) {
-        return NextResponse.json(
-          { error: "Computed bill amount is invalid" },
-          { status: 400 }
-        );
-      }
-
-      // Update Razorpay order with final amount (already created with 'amount', but we want to reflect final in DB and response)
-      await prisma.bill.update({
-        where: { id: billId },
-        data: {
-          razorpayOrderId: order.id,
-          status: "PENDING",
-          couponId: coupon ? coupon.id : bill.couponId,
-        },
-      });
-
-      // Return order info plus final amount and discount so client can display breakdown
-      return NextResponse.json({
-        ...order,
-        amount: finalAmountPaise,
-        finalAmountRupees,
-        discount,
-      });
     }
     // If no type or unknown type, we only create Razorpay order (no DB record for webhook to update)
 
     return NextResponse.json(order);
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Failed to create order";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[create-order]", e);
+    return NextResponse.json(
+      { error: "Payment setup failed. Please try again." },
+      { status: 500 }
+    );
   }
 }

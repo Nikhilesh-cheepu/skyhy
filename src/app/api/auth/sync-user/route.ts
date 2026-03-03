@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from "next/server";
-import { getFirebaseAdminAuth } from "@/lib/firebase-admin";
 import { getPrisma } from "@/lib/prisma";
 import {
   SESSION_COOKIE_NAME,
@@ -12,31 +11,13 @@ import {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const idToken =
-      typeof body?.idToken === "string" ? body.idToken.trim() : "";
-    if (!idToken) {
-      return NextResponse.json(
-        { error: "idToken is required" },
-        { status: 400 }
-      );
-    }
-
-    const auth = getFirebaseAdminAuth();
-    const decoded = await auth.verifyIdToken(idToken);
-    const phoneNumber = decoded.phone_number;
-    if (!phoneNumber) {
-      return NextResponse.json(
-        { error: "Phone number is missing from Firebase token" },
-        { status: 400 }
-      );
-    }
-
-    // Expect Indian numbers like +91XXXXXXXXXX; store last 10 digits
-    const digits = phoneNumber.replace(/\D/g, "");
+    const rawPhone = typeof body?.phone === "string" ? body.phone : "";
+    const digits = rawPhone.replace(/\D/g, "");
     const last10 = digits.slice(-10);
+
     if (last10.length !== 10) {
       return NextResponse.json(
-        { error: "Only Indian (+91) 10-digit phone numbers are supported" },
+        { error: "Enter a valid 10-digit phone number." },
         { status: 400 }
       );
     }
@@ -62,6 +43,7 @@ export async function POST(request: Request) {
         createdAt: user.createdAt,
       },
     });
+
     res.cookies.set(SESSION_COOKIE_NAME, value, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -69,11 +51,12 @@ export async function POST(request: Request) {
       path: "/",
       maxAge: maxAgeSeconds,
     });
+
     return res;
   } catch (e) {
-    console.error("[auth/login]", e);
+    console.error("[auth/sync-user]", e);
     return NextResponse.json(
-      { error: "Login failed. Please try again." },
+      { error: "Something went wrong. Please try again." },
       { status: 500 }
     );
   }

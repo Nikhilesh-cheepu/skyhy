@@ -25,7 +25,7 @@ function sign(data: string): string {
 export function createCustomerSessionValue(
   userId: string,
   phone: string,
-  maxAgeSeconds = 60 * 60 * 24 * 14 // 14 days
+  maxAgeSeconds = 60 * 60 * 24 * 30 // 30 days
 ) {
   const payload: SessionPayload = {
     userId,

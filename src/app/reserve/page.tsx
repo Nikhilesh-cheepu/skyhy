@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -27,6 +28,7 @@ export default function ReservePage() {
   const [nameError, setNameError] = useState('');
   const [mobileError, setMobileError] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const router = useRouter();
 
   const formatDateDisplay = (iso: string) => {
     const d = new Date(iso + 'T12:00:00');
@@ -39,6 +41,19 @@ export default function ReservePage() {
   };
 
   const selectedOffer = OFFERS.find((o) => o.id === selectedOfferId);
+
+  const ensureLoggedIn = async () => {
+    try {
+      const res = await fetch('/api/auth/session');
+      if (res.status === 401) {
+        router.push('/login?returnTo=/reserve');
+        return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   const validate = () => {
     let valid = true;
@@ -58,13 +73,17 @@ export default function ReservePage() {
     return valid;
   };
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
     if (!validate()) return;
+    const ok = await ensureLoggedIn();
+    if (!ok) return;
     setShowConfirmModal(true);
   };
 
-  const handleWhatsApp = () => {
+  const handleWhatsApp = async () => {
     if (!validate()) return;
+    const ok = await ensureLoggedIn();
+    if (!ok) return;
     const dateStr = formatDateDisplay(selectedDate);
     const offerStr = selectedOffer ? selectedOffer.title : 'None';
     const text = [

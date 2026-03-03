@@ -4,6 +4,7 @@ export const revalidate = 0;
 import { NextResponse } from 'next/server';
 import { getPrisma } from '@/lib/prisma';
 import { allocateDailyCouponForPhone } from '@/lib/coupons';
+import { sendSms } from '@/lib/sms';
 
 export async function POST(request: Request) {
   try {
@@ -57,13 +58,24 @@ export async function POST(request: Request) {
     });
     const couponResult = await allocateDailyCouponForPhone(mobile);
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL
+      ? process.env.NEXT_PUBLIC_APP_URL
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "";
+    const link = baseUrl ? `${baseUrl}/account` : "your account";
+    void sendSms(mobile, `SKYHY: Booking confirmed. View details: ${link}`).catch(() => {});
+
     return NextResponse.json({
       ...booking,
       couponAllocated: couponResult.allocated,
     });
   } catch (e) {
-    const message = e instanceof Error ? e.message : 'Failed to create booking';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[events/book]", e);
+    return NextResponse.json(
+      { error: "Could not create booking. Please try again." },
+      { status: 500 }
+    );
   }
 }
 

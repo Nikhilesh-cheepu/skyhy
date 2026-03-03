@@ -40,9 +40,11 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ bills });
   } catch (e) {
-    const message =
-      e instanceof Error ? e.message : "Failed to fetch pending bills";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[bills/pending]", e);
+    return NextResponse.json(
+      { error: "Could not load bills. Please try again." },
+      { status: 500 }
+    );
   }
 }
 

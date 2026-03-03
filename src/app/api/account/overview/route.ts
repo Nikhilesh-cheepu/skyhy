@@ -47,9 +47,11 @@ export async function GET() {
       coupon,
     });
   } catch (e) {
-    const message =
-      e instanceof Error ? e.message : "Failed to load account overview";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[account/overview]", e);
+    return NextResponse.json(
+      { error: "Could not load account. Please try again." },
+      { status: 500 }
+    );
   }
 }
 
