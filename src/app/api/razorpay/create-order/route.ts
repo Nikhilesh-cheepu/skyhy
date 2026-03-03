@@ -16,6 +16,7 @@ type EventBookingPayload = {
 };
 
 type CartItemPayload = { menuItemId: number; quantity: number; price: number };
+type BillPayload = { billId: string };
 
 export async function POST(request: Request) {
   try {
@@ -142,6 +143,32 @@ export async function POST(request: Request) {
               price: it.price,
             })),
           },
+        },
+      });
+    } else if (type === "bill") {
+      const billPayload = body?.bill as BillPayload | undefined;
+      const billId =
+        billPayload && typeof billPayload.billId === "string"
+          ? billPayload.billId
+          : "";
+      if (!billId) {
+        return NextResponse.json(
+          { error: "billId is required for bill payments" },
+          { status: 400 }
+        );
+      }
+      const bill = await prisma.bill.findUnique({ where: { id: billId } });
+      if (!bill) {
+        return NextResponse.json(
+          { error: "Bill not found" },
+          { status: 404 }
+        );
+      }
+      await prisma.bill.update({
+        where: { id: billId },
+        data: {
+          razorpayOrderId: order.id,
+          status: "PENDING",
         },
       });
     }

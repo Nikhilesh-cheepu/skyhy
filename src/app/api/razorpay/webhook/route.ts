@@ -70,6 +70,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true, updated: "order" });
     }
 
+    const bill = await prisma.bill.findFirst({
+      where: { razorpayOrderId: orderId },
+    });
+    if (bill) {
+      await prisma.bill.update({
+        where: { id: bill.id },
+        data: { status: "PAID" },
+      });
+      if (bill.couponId) {
+        await prisma.coupon.update({
+          where: { id: bill.couponId },
+          data: { status: "USED" },
+        });
+      }
+      return NextResponse.json({ received: true, updated: "bill" });
+    }
+
     return NextResponse.json({ received: true });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Webhook error";

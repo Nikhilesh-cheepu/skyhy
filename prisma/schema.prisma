@@ -163,6 +163,22 @@ model MenuGalleryImage {
 }
 
 // ─── Future: orders, payments (placeholders — add when needed) ───────────────
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bills   Bill[]
+  coupons Coupon[]
+}
+
+enum BillStatus {
+  PENDING
+  PAID
+}
+
 model Order {
   id               String      @id @default(cuid())
   customerName     String?
@@ -186,4 +202,46 @@ model OrderItem {
   quantity   Int
   price      Int
 }
+
+enum CouponStatus {
+  ACTIVE
+  USED
+  EXPIRED
+}
+
+model Coupon {
+  id             String        @id @default(cuid())
+  code           String        @unique
+  description    String?
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id])
+  discountAmount Int?          // flat discount in rupees
+  discountPercent Int?         // percentage discount
+  minBillAmount  Int?          // minimum bill amount to apply
+  status         CouponStatus  @default(ACTIVE)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  bills          Bill[]
+}
+
+model Bill {
+  id                String      @id @default(cuid())
+  userId            String
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount            Int
+  notes             String?
+  status            BillStatus  @default(PENDING)
+  couponId          String?
+  coupon            Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([razorpayOrderId])
+}
+
 
