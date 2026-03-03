@@ -91,14 +91,14 @@ export default function HomePage() {
                     type="button"
                     onClick={() => {
                       if (loggedIn) {
-                        window.location.href = "/account";
+                        window.location.href = "/me";
                       } else {
-                        window.location.href = "/login?returnTo=/account";
+                        window.location.href = "/login?returnTo=/me";
                       }
                     }}
                     className="text-[11px] font-[family-name:var(--font-inter)] font-medium text-white/80 hover:text-[#B6FF00] transition-all duration-300"
                   >
-                    Bookings &amp; Payments
+                    My Bookings &amp; Payments
                   </button>
                 </nav>
 
@@ -162,14 +162,14 @@ export default function HomePage() {
                       onClick={() => {
                         setIsMobileMenuOpen(false);
                         if (loggedIn) {
-                          window.location.href = "/account";
+                          window.location.href = "/me";
                         } else {
-                          window.location.href = "/login?returnTo=/account";
+                          window.location.href = "/login?returnTo=/me";
                         }
                       }}
                       className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
                     >
-                      Bookings &amp; Payments
+                      My Bookings &amp; Payments
                     </button>
                 </nav>
               </div>

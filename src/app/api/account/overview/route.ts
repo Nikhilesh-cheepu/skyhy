@@ -8,33 +8,42 @@ import { getCurrentCustomer } from "@/lib/customer-session";
 export async function GET() {
   try {
     const current = getCurrentCustomer();
-    if (!current?.phone) {
+    if (!current?.userId) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     const prisma = getPrisma();
     const user = await prisma.user.findUnique({
-      where: { phone: current.phone },
+      where: { id: current.userId },
     });
     if (!user) {
       return NextResponse.json(
-        { bookings: [], coupon: null },
+        { bookings: [], coupons: { active: [], used: [], expired: [] } },
         { status: 200 },
       );
     }
 
-    const [bookings, coupon] = await Promise.all([
+    const [bookings, coupons] = await Promise.all([
       prisma.eventBooking.findMany({
-        where: { mobile: current.phone },
+        where: {
+          OR: [
+            { userId: user.id },
+            { userId: null, mobile: current.phone },
+          ],
+        },
         include: { event: true },
         orderBy: { createdAt: "desc" },
         take: 20,
       }),
-      prisma.coupon.findFirst({
-        where: { userId: user.id, status: "ACTIVE" },
-        orderBy: { createdAt: "asc" },
+      prisma.coupon.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
       }),
     ]);
+
+    const active = coupons.filter((c) => c.status === "ACTIVE");
+    const used = coupons.filter((c) => c.status === "USED");
+    const expired = coupons.filter((c) => c.status === "EXPIRED");
 
     return NextResponse.json({
       bookings: bookings.map((b) => ({
@@ -44,7 +53,7 @@ export async function GET() {
         people: b.people,
         paymentStatus: b.paymentStatus,
       })),
-      coupon,
+      coupons: { active, used, expired },
     });
   } catch (e) {
     console.error("[account/overview]", e);

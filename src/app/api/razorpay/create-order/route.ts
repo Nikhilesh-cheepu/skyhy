@@ -59,7 +59,7 @@ export async function POST(request: Request) {
 
       const bill = await prisma.bill.findUnique({
         where: { id: billId },
-        include: { user: true, coupon: true },
+        include: { user: true, couponClaims: true },
       });
       if (!bill) {
         return NextResponse.json(
@@ -70,27 +70,19 @@ export async function POST(request: Request) {
 
       const baseAmount = bill.amount;
       let discount = 0;
-      let coupon: { id: string; discountAmount: number | null; discountPercent: number | null } | null = null;
 
-      try {
-        const found =
-          bill.userId &&
-          (await prisma.coupon.findFirst({
-            where: { userId: bill.userId, status: "ACTIVE" },
-            orderBy: { createdAt: "asc" },
-          }));
-        if (found) {
-          coupon = found;
-          if (found.discountAmount != null) {
-            discount = found.discountAmount;
-          } else if (found.discountPercent != null) {
-            discount = Math.round((baseAmount * found.discountPercent) / 100);
-          }
-          if (discount < 0) discount = 0;
-          if (discount > baseAmount) discount = baseAmount;
+      if (bill.billType === "a_la_carte") {
+        const now = new Date();
+        const heldClaim = await prisma.couponClaim.findFirst({
+          where: {
+            billId,
+            status: "HELD",
+            holdExpiresAt: { gt: now },
+          },
+        });
+        if (heldClaim && heldClaim.discountAmount != null) {
+          discount = Math.min(heldClaim.discountAmount, baseAmount);
         }
-      } catch (couponErr) {
-        console.error("[create-order] Coupon lookup failed (bill)", billId, couponErr);
       }
 
       const finalAmountRupees = baseAmount - discount;
@@ -117,7 +109,6 @@ export async function POST(request: Request) {
         data: {
           razorpayOrderId: order.id,
           status: "PENDING",
-          couponId: coupon ? coupon.id : bill.couponId ?? undefined,
         },
       });
 
@@ -184,10 +175,47 @@ export async function POST(request: Request) {
         },
       });
     } else if (type === "cart") {
+      const existingOrderId = typeof body?.orderId === "string" ? body.orderId.trim() || undefined : undefined;
+      if (existingOrderId) {
+        const existingOrder = await prisma.order.findUnique({
+          where: { id: existingOrderId },
+          include: { items: true },
+        });
+        if (!existingOrder) {
+          return NextResponse.json({ error: "Order not found" }, { status: 404 });
+        }
+        const now = new Date();
+        const heldClaim = await prisma.couponClaim.findFirst({
+          where: {
+            orderId: existingOrderId,
+            status: "HELD",
+            holdExpiresAt: { gt: now },
+          },
+        });
+        let finalAmountRupees = existingOrder.totalAmount;
+        if (heldClaim && heldClaim.discountAmount != null) {
+          finalAmountRupees = Math.max(1, existingOrder.totalAmount - heldClaim.discountAmount);
+        }
+        const finalAmountPaise = Math.max(1, Math.round(finalAmountRupees * 100));
+        const rzOrder = await razorpay.orders.create({
+          amount: finalAmountPaise,
+          currency: currency || "INR",
+        });
+        await prisma.order.update({
+          where: { id: existingOrderId },
+          data: { razorpayOrderId: rzOrder.id },
+        });
+        return NextResponse.json({
+          ...rzOrder,
+          amount: finalAmountPaise,
+          finalAmountRupees,
+        });
+      }
+
       const items: CartItemPayload[] = Array.isArray(body?.items) ? body.items : [];
       if (!items.length) {
         return NextResponse.json(
-          { error: "cart order requires items array" },
+          { error: "cart order requires items array or orderId" },
           { status: 400 }
         );
       }
@@ -207,7 +235,6 @@ export async function POST(request: Request) {
         }
         sanitized.push({ menuItemId, quantity, price });
       }
-      // totalAmount = actual amount charged (includes taxes, discount) in rupees
       const totalAmount = Math.round(amount / 100);
       const customerName =
         typeof body?.customerName === "string" ? body.customerName.trim() || null : null;

@@ -75,9 +75,30 @@ export async function POST(request: Request) {
       where: { razorpayOrderId: orderId },
     });
     if (order) {
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { status: "PAID" },
+      await prisma.$transaction(async (tx) => {
+        await tx.order.update({
+          where: { id: order.id },
+          data: { status: "PAID" },
+        });
+        const now = new Date();
+        const heldClaim = await tx.couponClaim.findFirst({
+          where: {
+            orderId: order.id,
+            status: "HELD",
+            holdExpiresAt: { gt: now },
+          },
+        });
+        if (heldClaim) {
+          await tx.couponClaim.update({
+            where: { id: heldClaim.id },
+            data: { status: "USED" },
+          });
+          await tx.couponDay.upsert({
+            where: { dayKey: heldClaim.dayKey },
+            create: { dayKey: heldClaim.dayKey, issuedCount: 1 },
+            update: { issuedCount: { increment: 1 } },
+          });
+        }
       });
       const orderPhone = order.customerPhone?.trim();
       if (orderPhone) {
@@ -94,16 +115,32 @@ export async function POST(request: Request) {
       include: { user: true },
     });
     if (bill) {
-      await prisma.bill.update({
-        where: { id: bill.id },
-        data: { status: "PAID" },
-      });
-      if (bill.couponId) {
-        await prisma.coupon.update({
-          where: { id: bill.couponId },
-          data: { status: "USED" },
+      await prisma.$transaction(async (tx) => {
+        await tx.bill.update({
+          where: { id: bill.id },
+          data: { status: "PAID" },
         });
-      }
+        const now = new Date();
+        const heldClaim = await tx.couponClaim.findFirst({
+          where: {
+            billId: bill.id,
+            status: "HELD",
+            holdExpiresAt: { gt: now },
+          },
+        });
+        if (heldClaim) {
+          await tx.couponClaim.update({
+            where: { id: heldClaim.id },
+            data: { status: "USED" },
+          });
+          await tx.couponDay.upsert({
+            where: { dayKey: heldClaim.dayKey },
+            create: { dayKey: heldClaim.dayKey, issuedCount: 1 },
+            update: { issuedCount: { increment: 1 } },
+          });
+        }
+      });
+
       const billPhone = bill.user?.phone?.trim();
       if (billPhone) {
         void sendSms(

@@ -24,6 +24,7 @@ export default function AdminBillsPage() {
   const [creating, setCreating] = useState(false);
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
+  const [billType, setBillType] = useState<"a_la_carte" | "128">("a_la_carte");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -79,6 +80,7 @@ export default function AdminBillsPage() {
         body: JSON.stringify({
           phone,
           amount: amtNumber,
+          billType,
           notes: notes.trim() || undefined,
         }),
       });
@@ -191,6 +193,21 @@ export default function AdminBillsPage() {
 
           <form onSubmit={handleCreateBill} className="mt-3 space-y-2 rounded-xl bg-black/60 p-3">
             <div className="flex flex-col gap-2 md:flex-row">
+              <div className="flex-1 space-y-1">
+                <label className="block text-xs text-white/70">
+                  Bill type
+                </label>
+                <select
+                  value={billType}
+                  onChange={(e) =>
+                    setBillType(e.target.value as "a_la_carte" | "128")
+                  }
+                  className="w-full rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-sm text-white"
+                >
+                  <option value="a_la_carte">À la carte (25% coupon eligible)</option>
+                  <option value="128">128 (no discount)</option>
+                </select>
+              </div>
               <div className="flex-1 space-y-1">
                 <label className="block text-xs text-white/70">
                   Bill amount (₹)

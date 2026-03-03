@@ -67,6 +67,8 @@ export async function POST(request: Request) {
       typeof body?.notes === "string" && body.notes.trim()
         ? body.notes.trim()
         : undefined;
+    const billType =
+      body?.billType === "128" ? "128" : "a_la_carte";
 
     if (!rawPhone || !/^\d{10}$/.test(rawPhone)) {
       return NextResponse.json(
@@ -98,6 +100,7 @@ export async function POST(request: Request) {
       data: {
         userId: user.id,
         amount: Math.round(amountRaw),
+        billType,
         notes,
       },
     });

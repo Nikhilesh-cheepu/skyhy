@@ -138,6 +138,7 @@ model EventBooking {
   event            Event?   @relation(fields: [eventId], references: [id], onDelete: SetNull)
   fullName         String
   mobile           String
+  userId           String?
   date             DateTime
   time             String
   people           Int
@@ -147,6 +148,7 @@ model EventBooking {
   createdAt        DateTime @default(now())
 
   @@index([razorpayOrderId])
+  @@index([userId, date])
 }
 
 // ─── Menu gallery images ──────────────────────────────────────────────────────
@@ -170,8 +172,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  bills   Bill[]
-  coupons Coupon[]
+  bills        Bill[]
+  coupons      Coupon[]
+  couponClaims CouponClaim[]
 }
 
 enum BillStatus {
@@ -181,16 +184,19 @@ enum BillStatus {
 
 model Order {
   id               String      @id @default(cuid())
+  userId           String?
   customerName     String?
   customerPhone    String?
   totalAmount      Int
   status           String      @default("PENDING") // PENDING → PAID via webhook
   razorpayOrderId  String?
   items            OrderItem[]
+  couponClaims     CouponClaim[]
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
   @@index([razorpayOrderId])
+  @@index([userId])
 }
 
 model OrderItem {
@@ -220,6 +226,10 @@ model Coupon {
   minBillAmount  Int?          // minimum bill amount to apply
   status         CouponStatus  @default(ACTIVE)
   dayKey         String?       // YYYY-MM-DD (IST) for daily quota/uniqueness
+  issuedAt       DateTime?
+  expiresAt      DateTime?
+  reservationId  String?       // optional link to reservation/booking
+  // If you later want a strict relation to EventBooking, you can add a relation here.
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -227,6 +237,13 @@ model Coupon {
 
   @@index([dayKey])
   @@unique([userId, dayKey])
+  @@index([userId, dayKey])
+}
+
+model CouponDay {
+  dayKey      String   @id
+  issuedCount Int      @default(0)
+  updatedAt   DateTime @updatedAt
 }
 
 model Bill {
@@ -234,6 +251,7 @@ model Bill {
   userId            String
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   amount            Int
+  billType          String      @default("a_la_carte") // a_la_carte | 128 (25% only on à la carte, not on 128-only)
   notes             String?
   status            BillStatus  @default(PENDING)
   couponId          String?
@@ -243,9 +261,40 @@ model Bill {
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
+  couponClaims CouponClaim[]
+
   @@index([userId])
   @@index([status])
   @@index([razorpayOrderId])
+}
+
+enum CouponClaimStatus {
+  HELD
+  USED
+  RELEASED
+}
+
+model CouponClaim {
+  id              String            @id @default(cuid())
+  dayKey          String
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billId          String?
+  bill            Bill?             @relation(fields: [billId], references: [id], onDelete: Cascade)
+  orderId         String?
+  order           Order?            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status          CouponClaimStatus @default(HELD)
+  holdExpiresAt   DateTime
+  discountAmount  Int?
+  discountPercent Int?
+  createdAt       DateTime         @default(now())
+
+  @@unique([dayKey, userId])
+  @@unique([dayKey, billId])
+  @@unique([dayKey, orderId])
+  @@index([dayKey])
+  @@index([billId])
+  @@index([orderId])
 }
 
 

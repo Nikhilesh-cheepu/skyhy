@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type Bill = {
   id: string;
@@ -16,6 +16,14 @@ type Coupon = {
   discountAmount: number | null;
   discountPercent: number | null;
   status: "ACTIVE" | "USED" | "EXPIRED";
+  dayKey?: string | null;
+  expiresAt?: string | null;
+};
+
+type CouponsByStatus = {
+  active: Coupon[];
+  used: Coupon[];
+  expired: Coupon[];
 };
 
 type Booking = {
@@ -29,13 +37,18 @@ type Booking = {
 export default function AccountClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const initialTab =
     searchParams.get("tab") === "payments" ? "payments" : "bookings";
 
   const [tab, setTab] = useState<"bookings" | "payments">(initialTab);
   const [phone, setPhone] = useState("");
   const [bills, setBills] = useState<Bill[]>([]);
-  const [coupon, setCoupon] = useState<Coupon | null>(null);
+  const [coupons, setCoupons] = useState<CouponsByStatus>({
+    active: [],
+    used: [],
+    expired: [],
+  });
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -45,19 +58,21 @@ export default function AccountClient() {
       try {
         const sessionRes = await fetch("/api/auth/session");
         if (sessionRes.status === 401) {
-          router.replace("/login?returnTo=/account");
+          const returnTo = pathname || "/account";
+          router.replace(`/login?returnTo=${encodeURIComponent(returnTo)}`);
           return;
         }
         const sessionData = await sessionRes.json();
         const userPhone: string | undefined = sessionData?.user?.phone;
         if (!userPhone) {
-          router.replace("/login?returnTo=/account");
+          const returnTo = pathname || "/account";
+          router.replace(`/login?returnTo=${encodeURIComponent(returnTo)}`);
           return;
         }
         setPhone(userPhone);
 
         const [billsRes, overviewRes] = await Promise.all([
-          fetch(`/api/bills/pending?phone=${userPhone}`),
+          fetch("/api/bills/pending"),
           fetch("/api/account/overview"),
         ]);
 
@@ -69,7 +84,13 @@ export default function AccountClient() {
         if (overviewRes.ok) {
           const overview = await overviewRes.json();
           setBookings(overview.bookings || []);
-          setCoupon(overview.coupon || null);
+          setCoupons(
+            overview.coupons || {
+              active: [],
+              used: [],
+              expired: [],
+            },
+          );
         }
       } catch {
         setError("Unable to load account details. Please try again.");
@@ -289,26 +310,71 @@ export default function AccountClient() {
               <p className="mb-1 text-xs font-semibold text-white/70">
                 My Coupons
               </p>
-              {!coupon && (
-                <p className="text-[11px] text-white/50">No active coupons.</p>
-              )}
-              {coupon && (
-                <div className="rounded-2xl border border-amber-400/40 bg-amber-500/10 px-3 py-3 shadow-[0_18px_40px_rgba(0,0,0,0.8)]">
-                  <p className="text-sm font-semibold text-amber-100">
-                    {coupon.discountPercent
-                      ? `${coupon.discountPercent}% off`
-                      : coupon.discountAmount
-                      ? `₹${coupon.discountAmount} off`
-                      : "Special discount"}
+              {coupons.active.length === 0 &&
+                coupons.used.length === 0 &&
+                coupons.expired.length === 0 && (
+                  <p className="text-[11px] text-white/50">
+                    No coupons yet. Book events to unlock discounts.
                   </p>
-                  <p className="mt-1 text-[11px] text-amber-100/80">
-                    Auto-applies during bill payment.
-                  </p>
-                  <span className="mt-2 inline-flex rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
-                    {coupon.status}
-                  </span>
-                </div>
-              )}
+                )}
+
+              {["ACTIVE", "USED", "EXPIRED"].map((status) => {
+                const list =
+                  status === "ACTIVE"
+                    ? coupons.active
+                    : status === "USED"
+                    ? coupons.used
+                    : coupons.expired;
+                if (!list.length) return null;
+                return (
+                  <div key={status} className="mt-2 space-y-2">
+                    <p className="text-[11px] font-semibold text-white/60">
+                      {status === "ACTIVE"
+                        ? "Active"
+                        : status === "USED"
+                        ? "Used"
+                        : "Expired"}
+                    </p>
+                    {list.map((coupon) => (
+                      <div
+                        key={coupon.id}
+                        className="rounded-2xl border border-amber-400/40 bg-amber-500/10 px-3 py-3 shadow-[0_18px_40px_rgba(0,0,0,0.8)]"
+                      >
+                        <p className="text-sm font-semibold text-amber-100">
+                          {coupon.discountPercent
+                            ? `${coupon.discountPercent}% off`
+                            : coupon.discountAmount
+                            ? `₹${coupon.discountAmount} off`
+                            : "Special discount"}
+                        </p>
+                        {coupon.dayKey && (
+                          <p className="mt-1 text-[11px] text-amber-100/80">
+                            Reservation day: {coupon.dayKey}
+                          </p>
+                        )}
+                        {coupon.expiresAt && (
+                          <p className="mt-1 text-[11px] text-amber-100/80">
+                            Expires on{" "}
+                            {new Date(coupon.expiresAt).toLocaleString(
+                              "en-IN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </p>
+                        )}
+                        <span className="mt-2 inline-flex rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
+                          {coupon.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

@@ -46,7 +46,11 @@ function PackagesMenuPageContent() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
-  const [discountApplied, setDiscountApplied] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [claimInfo, setClaimInfo] = useState<{ discount: number; finalAmountRupees: number; holdExpiresAt: string } | null>(null);
+  const [claiming, setClaiming] = useState(false);
+  const [claimError, setClaimError] = useState('');
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
@@ -68,9 +72,39 @@ function PackagesMenuPageContent() {
     }
   }, [tabParam]);
 
+  const cartKey = JSON.stringify(cart.map((c) => `${c.id}:${c.quantity}`));
   useEffect(() => {
-    if (cart.length === 0) setDiscountApplied(false);
-  }, [cart.length]);
+    setOrderId(null);
+    setClaimInfo(null);
+    setClaimError('');
+    setCountdown(null);
+  }, [cartKey]);
+
+  useEffect(() => {
+    if (!claimInfo || !orderId) return;
+    const expires = new Date(claimInfo.holdExpiresAt).getTime();
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((expires - Date.now()) / 1000));
+      setCountdown(left);
+      if (left <= 0) {
+        fetch('/api/coupons/release', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId }),
+        }).finally(() => {
+          setOrderId(null);
+          setClaimInfo(null);
+          setCountdown(null);
+          setClaimError('Coupon expired. You can try again.');
+        });
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [claimInfo, orderId]);
+
+  const hasNon128Items = cart.some((item) => item.price !== 128);
 
   // Menu functions - optimized with useCallback
   const addToCart = useCallback((item: MenuItem) => {
@@ -114,12 +148,12 @@ function PackagesMenuPageContent() {
 
   // 10% service + 2% platform + 5% GST = 17%
   const TAXES_RATE = 0.17;
-  const DISCOUNT_RATE = 0.25;
 
   const subtotal = getSubtotal();
   const taxesAndCharges = Math.round(subtotal * TAXES_RATE);
-  const discountAmount = discountApplied ? Math.round(subtotal * DISCOUNT_RATE) : 0;
-  const finalTotal = Math.max(0, subtotal + taxesAndCharges - discountAmount);
+  const baseTotal = subtotal + taxesAndCharges;
+  const discountAmount = claimInfo?.discount ?? 0;
+  const finalTotal = claimInfo ? claimInfo.finalAmountRupees : Math.max(0, baseTotal);
 
 
 
@@ -769,23 +803,71 @@ function PackagesMenuPageContent() {
                     <span>Taxes & Charges</span>
                     <span>₹{taxesAndCharges}</span>
                   </div>
-                  {discountApplied ? (
-                    <div className="flex justify-between text-sm text-emerald-400">
-                      <span>25% off applied</span>
-                      <span>-₹{discountAmount}</span>
+                  {claimInfo ? (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between text-sm text-emerald-400">
+                        <span>25% off À la carte applied</span>
+                        <span>-₹{discountAmount}</span>
+                      </div>
+                      {countdown !== null && countdown > 0 && (
+                        <p className="text-xs text-white/60">
+                          Expires in {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
+                        </p>
+                      )}
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-white/80">25% off</span>
-                      <button
-                        type="button"
-                        onClick={() => setDiscountApplied(true)}
-                        className="text-sm font-medium text-amber-300 hover:text-amber-200 underline cursor-pointer"
-                      >
-                        Apply
-                      </button>
+                  ) : hasNon128Items ? (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-white/80">25% off À la carte</span>
+                        <button
+                          type="button"
+                          disabled={claiming}
+                          onClick={async () => {
+                            setClaiming(true);
+                            setClaimError('');
+                            try {
+                              const draftRes = await fetch('/api/orders/create-draft', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  items: cart.map((i) => ({ menuItemId: i.id, quantity: i.quantity, price: i.price })),
+                                }),
+                              });
+                              const draft = await draftRes.json();
+                              if (!draftRes.ok || !draft.orderId) {
+                                setClaimError(draft.error || 'Could not create order');
+                                return;
+                              }
+                              const claimRes = await fetch('/api/coupons/claim', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ orderId: draft.orderId }),
+                              });
+                              const claim = await claimRes.json();
+                              if (!claimRes.ok || !claim.success) {
+                                setClaimError(claim.message || claim.error || 'Could not apply coupon');
+                                return;
+                              }
+                              setOrderId(draft.orderId);
+                              setClaimInfo({
+                                discount: claim.discount,
+                                finalAmountRupees: claim.finalAmountRupees,
+                                holdExpiresAt: claim.holdExpiresAt,
+                              });
+                            } catch {
+                              setClaimError('Failed to apply coupon');
+                            } finally {
+                              setClaiming(false);
+                            }
+                          }}
+                          className="text-sm font-medium text-amber-300 hover:text-amber-200 underline cursor-pointer disabled:opacity-60"
+                        >
+                          {claiming ? 'Applying…' : 'Apply'}
+                        </button>
+                      </div>
+                      {claimError && <p className="text-xs text-red-400">{claimError}</p>}
                     </div>
-                  )}
+                  ) : null}
                   <div className="flex justify-between items-center pt-2">
                     <span className="text-lg font-semibold text-white">Total</span>
                     <span className="text-2xl font-bold text-amber-300">₹{finalTotal}</span>
@@ -810,25 +892,34 @@ function PackagesMenuPageContent() {
                       }
 
                       try {
-                        const amountPaise = Math.round(total * 100);
                         const orderRes = await fetch('/api/razorpay/create-order', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            type: 'cart',
-                            amount: amountPaise,
-                            currency: 'INR',
-                            items: cart.map((item) => ({
-                              menuItemId: item.id,
-                              quantity: item.quantity,
-                              price: item.price,
-                            })),
-                          }),
+                          body: JSON.stringify(
+                            orderId
+                              ? {
+                                  type: 'cart',
+                                  orderId,
+                                  currency: 'INR',
+                                }
+                              : {
+                                  type: 'cart',
+                                  amount: Math.round(total * 100),
+                                  currency: 'INR',
+                                  items: cart.map((item) => ({
+                                    menuItemId: item.id,
+                                    quantity: item.quantity,
+                                    price: item.price,
+                                  })),
+                                }
+                          ),
                         });
                         const orderData = await orderRes.json();
                         if (!orderRes.ok || orderData?.error || !orderData?.id) {
                           throw new Error(orderData.error || 'Failed to create payment order');
                         }
+                        const amountPaise = orderData.amount ?? Math.round(total * 100);
+                        const totalPaid = orderData.finalAmountRupees ?? amountPaise / 100;
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const RazorpayConstructor = (window as any).Razorpay;
                         if (!RazorpayConstructor) {
@@ -846,10 +937,12 @@ function PackagesMenuPageContent() {
                           handler: (response: { razorpay_payment_id?: string } | undefined) => {
                             const params = new URLSearchParams({
                               status: 'paid',
-                              total: String(total),
+                              total: String(totalPaid),
                               paymentId: response?.razorpay_payment_id || '',
                             });
                             setCart([]);
+                            setOrderId(null);
+                            setClaimInfo(null);
                             setShowCart(false);
                             window.location.href = `/orders/success?${params.toString()}`;
                           },

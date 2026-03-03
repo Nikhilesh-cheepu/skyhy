@@ -3,12 +3,13 @@ export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
 import { getPrisma } from '@/lib/prisma';
-import { allocateDailyCouponForPhone } from '@/lib/coupons';
 import { sendSms } from '@/lib/sms';
+import { getCurrentCustomer } from '@/lib/customer-session';
 
 export async function POST(request: Request) {
   try {
     const prisma = getPrisma();
+    const current = getCurrentCustomer();
     const body = await request.json();
     const fullName = typeof body?.fullName === 'string' ? body.fullName.trim() : '';
     const mobile = typeof body?.mobile === 'string' ? body.mobile.trim() : '';
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
       data: {
         fullName,
         mobile,
+        userId: current?.userId,
         date,
         time,
         people,
@@ -56,20 +58,18 @@ export async function POST(request: Request) {
         eventId,
       },
     });
-    const couponResult = await allocateDailyCouponForPhone(mobile);
-
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL
       ? process.env.NEXT_PUBLIC_APP_URL
       : process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
         : "";
-    const link = baseUrl ? `${baseUrl}/account` : "your account";
-    void sendSms(mobile, `SKYHY: Booking confirmed. View details: ${link}`).catch(() => {});
+    const link = baseUrl ? `${baseUrl}/me` : "My Bookings & Payments";
+    void sendSms(
+      mobile,
+      `SKYHY: Booking confirmed. View details: ${link}. Claim 25% off on À la carte when you pay (FCFS, 30/day).`
+    ).catch(() => {});
 
-    return NextResponse.json({
-      ...booking,
-      couponAllocated: couponResult.allocated,
-    });
+    return NextResponse.json(booking);
   } catch (e) {
     console.error("[events/book]", e);
     return NextResponse.json(

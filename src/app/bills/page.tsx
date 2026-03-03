@@ -1,27 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
+import BillPayCard from "@/components/BillPayCard";
 
 type Bill = {
   id: string;
   amount: number;
+  billType?: string;
   notes: string | null;
   status: "PENDING" | "PAID";
   createdAt: string;
 };
 
-export default function PendingBillsPage() {
+function PendingBillsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [phone, setPhone] = useState("");
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
 
   useEffect(() => {
-    // Require login via session; if not logged in, redirect to /login
     async function init() {
       try {
         const res = await fetch("/api/auth/session");
@@ -36,33 +37,26 @@ export default function PendingBillsPage() {
           return;
         }
         setPhone(userPhone);
-        await fetchBills(userPhone);
+        setLoading(true);
+        setError("");
+        const billsRes = await fetch("/api/bills/pending");
+        const billsJson = await billsRes.json();
+        if (!billsRes.ok) {
+          setError(billsJson.error || "Failed to load bills.");
+          setBills([]);
+          return;
+        }
+        setBills(billsJson.bills || []);
       } catch {
         setError("Failed to verify session.");
+      } finally {
+        setLoading(false);
       }
     }
     void init();
   }, [router]);
 
-  async function fetchBills(p: string) {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`/api/bills/pending?phone=${p}`);
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Failed to load bills.");
-        setBills([]);
-        return;
-      }
-      setBills(data.bills || []);
-    } catch {
-      setError("Network error while loading bills.");
-      setBills([]);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const billIdParam = searchParams.get("billId");
 
   return (
     <div className="min-h-screen bg-[#020617] pb-24 text-white">
@@ -71,8 +65,7 @@ export default function PendingBillsPage() {
           <div>
             <h1 className="text-xl font-semibold">Pending Bills</h1>
             <p className="mt-1 text-xs text-white/70">
-              Pending bills linked to your phone number{" "}
-              {phone && `(+91 ${phone})`}.
+              Pending bills for {phone && `+91 ${phone}`}
             </p>
           </div>
           <button
@@ -88,106 +81,22 @@ export default function PendingBillsPage() {
         </div>
 
         {error && <p className="mb-3 text-xs text-red-400">{error}</p>}
-
-        {bills.length === 0 && !loading && !error && phone && (
-          <p className="text-xs text-white/60">
-            No pending bills found for this number.
-          </p>
+        {loading && (
+          <p className="text-xs text-white/60">Loading bills…</p>
         )}
 
-        {info && (
-          <p className="mb-3 text-[11px] text-white/60">
-            {info}
-          </p>
+        {!loading && bills.length === 0 && !error && phone && (
+          <p className="text-xs text-white/60">No pending bills found.</p>
         )}
 
         <div className="space-y-3">
           {bills.map((bill) => (
             <div
               key={bill.id}
-              className="flex items-center justify-between rounded-2xl border border-white/12 bg-black/70 px-3 py-3 shadow-[0_18px_40px_rgba(0,0,0,0.8)]"
+              id={billIdParam === bill.id ? "focused-bill" : undefined}
+              className={billIdParam === bill.id ? "ring-1 ring-amber-400/50 rounded-2xl" : ""}
             >
-              <div className="space-y-1">
-                <p className="text-sm font-semibold">₹{bill.amount}</p>
-                <p className="text-[11px] text-white/60">
-                  {new Date(bill.createdAt).toLocaleString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-                {bill.notes && (
-                  <p className="text-[11px] text-white/60">{bill.notes}</p>
-                )}
-                <p className="text-[11px] font-semibold text-amber-300">
-                  Status: {bill.status}
-                </p>
-              </div>
-              <button
-                type="button"
-                disabled={bill.status !== "PENDING"}
-                onClick={async () => {
-                  if (bill.status !== "PENDING") return;
-                  try {
-                    const orderRes = await fetch("/api/razorpay/create-order", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        type: "bill",
-                        currency: "INR",
-                        bill: { billId: bill.id },
-                      }),
-                    });
-                    const orderData = await orderRes.json();
-                    if (!orderRes.ok || orderData?.error || !orderData?.id) {
-                      throw new Error(
-                        orderData.error || "Failed to create payment order",
-                      );
-                    }
-                    const amountPaise = orderData.amount ?? Math.round((orderData.finalAmountRupees ?? bill.amount) * 100);
-                    const totalPaid = orderData.finalAmountRupees ?? amountPaise / 100;
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const RazorpayConstructor = (window as any).Razorpay;
-                    if (!RazorpayConstructor) {
-                      throw new Error(
-                        "Payment SDK not loaded. Please try again.",
-                      );
-                    }
-                    const options = {
-                      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                      amount: amountPaise,
-                      currency: "INR",
-                      name: "SKYHY Live",
-                      description: "Bill payment",
-                      order_id: orderData.id,
-                      theme: { color: "#eab308" },
-                      handler: (
-                        response:
-                          | { razorpay_payment_id?: string | undefined }
-                          | undefined,
-                      ) => {
-                        const params = new URLSearchParams({
-                          status: "paid",
-                          total: String(totalPaid),
-                          paymentId: response?.razorpay_payment_id || "",
-                        });
-                        router.push(
-                          `/bills/payment-success?${params.toString()}`,
-                        );
-                      },
-                    };
-                    const rzp = new RazorpayConstructor(options);
-                    rzp.open();
-                  } catch {
-                    alert("Payment could not be started. Please try again.");
-                  }
-                }}
-                className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 text-[11px] font-semibold text-black shadow hover:from-amber-400 hover:to-orange-400 disabled:opacity-60"
-              >
-                Pay
-              </button>
+              <BillPayCard bill={bill} />
             </div>
           ))}
         </div>
@@ -200,3 +109,10 @@ export default function PendingBillsPage() {
   );
 }
 
+export default function PendingBillsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#020617] flex items-center justify-center text-white">Loading…</div>}>
+      <PendingBillsContent />
+    </Suspense>
+  );
+}
