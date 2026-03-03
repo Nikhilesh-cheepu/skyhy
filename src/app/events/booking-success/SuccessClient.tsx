@@ -17,6 +17,8 @@ export default function SuccessClient() {
   const people = searchParams.get("people") || "0";
   const total = searchParams.get("total") || "0";
   const paymentId = searchParams.get("paymentId") || "";
+  const couponAllocated =
+    searchParams.get("couponAllocated") === "true" ? true : false;
 
   const isPaid = status === "paid";
 
@@ -31,7 +33,12 @@ export default function SuccessClient() {
       `People: ${people}`,
       isPaid ? `Total Paid: ₹${total}` : `Total: ₹${total} (FREE booking)`,
       isPaid && paymentId ? `Payment ID: ${paymentId}` : "",
-      isPaid ? "Status: PAID via Razorpay" : "Status: CONFIRMED (No payment required)",
+      isPaid
+        ? "Status: PAID via Razorpay"
+        : "Status: CONFIRMED (No payment required)",
+      couponAllocated
+        ? "✅ You are eligible for today’s discount. Check ‘Payments’ page to use it."
+        : "⚠️ Today’s discount slots are full. You can still pay normally.",
     ].filter(Boolean);
     const waText = encodeURIComponent(lines.join("\n"));
     window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`;
@@ -97,6 +104,11 @@ export default function SuccessClient() {
               {isPaid
                 ? "Payment received via Razorpay. Our team will reach out soon."
                 : "Booking saved. No payment required."}
+            </p>
+            <p className="pt-1 text-[11px] text-white/70">
+              {couponAllocated
+                ? "✅ You are eligible for today’s discount. Check the Payments page in your account to use it."
+                : "⚠️ Today’s discount slots are full for today. You can still pay normally."}
             </p>
           </div>
 

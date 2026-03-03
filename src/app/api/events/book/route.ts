@@ -3,6 +3,7 @@ export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
 import { getPrisma } from '@/lib/prisma';
+import { allocateDailyCouponForPhone } from '@/lib/coupons';
 
 export async function POST(request: Request) {
   try {
@@ -54,8 +55,12 @@ export async function POST(request: Request) {
         eventId,
       },
     });
+    const couponResult = await allocateDailyCouponForPhone(mobile);
 
-    return NextResponse.json(booking);
+    return NextResponse.json({
+      ...booking,
+      couponAllocated: couponResult.allocated,
+    });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Failed to create booking';
     return NextResponse.json({ error: message }, { status: 500 });

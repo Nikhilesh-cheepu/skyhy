@@ -156,6 +156,7 @@ export default function EventsPage() {
           mobile: mobile.trim(),
           people: String(peopleNum),
           total: String(amountRupees),
+          couponAllocated: data?.couponAllocated ? "true" : "false",
         });
         router.push(`/events/booking-success?${params.toString()}`);
         return;

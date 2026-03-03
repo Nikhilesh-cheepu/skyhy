@@ -18,6 +18,7 @@ export default function PendingBillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
 
   useEffect(() => {
     // Require login via session; if not logged in, redirect to /login
@@ -91,6 +92,12 @@ export default function PendingBillsPage() {
         {bills.length === 0 && !loading && !error && phone && (
           <p className="text-xs text-white/60">
             No pending bills found for this number.
+          </p>
+        )}
+
+        {info && (
+          <p className="mb-3 text-[11px] text-white/60">
+            {info}
           </p>
         )}
 

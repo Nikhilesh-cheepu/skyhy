@@ -219,10 +219,14 @@ model Coupon {
   discountPercent Int?         // percentage discount
   minBillAmount  Int?          // minimum bill amount to apply
   status         CouponStatus  @default(ACTIVE)
+  dayKey         String?       // YYYY-MM-DD (IST) for daily quota/uniqueness
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
   bills          Bill[]
+
+  @@index([dayKey])
+  @@unique([userId, dayKey])
 }
 
 model Bill {

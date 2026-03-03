@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 import StickyActions from "@/components/StickyActions";
 import OffersCarousel from "@/components/OffersCarousel";
@@ -23,6 +23,19 @@ export default function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [heroVideoError, setHeroVideoError] = useState(false);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/auth/session");
+        setLoggedIn(res.ok);
+      } catch {
+        setLoggedIn(false);
+      }
+    }
+    void checkSession();
+  }, []);
 
   return (
     <div className="min-h-screen bg-black relative scroll-smooth overflow-x-hidden w-full max-w-full pb-24">
@@ -74,6 +87,19 @@ export default function HomePage() {
                   >
                     Reserve
                   </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (loggedIn) {
+                        window.location.href = "/account";
+                      } else {
+                        window.location.href = "/login?returnTo=/account";
+                      }
+                    }}
+                    className="text-[11px] font-[family-name:var(--font-inter)] font-medium text-white/80 hover:text-[#B6FF00] transition-all duration-300"
+                  >
+                    Bookings &amp; Payments
+                  </button>
                 </nav>
 
                 {/* Mobile Hamburger Menu */}
@@ -131,6 +157,20 @@ export default function HomePage() {
                     >
                       Reserve
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        if (loggedIn) {
+                          window.location.href = "/account";
+                        } else {
+                          window.location.href = "/login?returnTo=/account";
+                        }
+                      }}
+                      className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
+                    >
+                      Bookings &amp; Payments
+                    </button>
                 </nav>
               </div>
             </motion.div>
