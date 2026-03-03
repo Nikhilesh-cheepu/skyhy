@@ -29,6 +29,12 @@ export default function EventsPage() {
   const [paused, setPaused] = useState(false);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
+  const peopleNumForTotal = Number.parseInt(people || "0", 10);
+  const estimatedTotal =
+    selectedEvent && !Number.isNaN(peopleNumForTotal) && peopleNumForTotal > 0
+      ? (selectedEvent.ticketPrice ?? 0) * peopleNumForTotal
+      : 0;
+
   useEffect(() => {
     fetch("/api/events")
       .then((r) => r.json())
@@ -57,7 +63,16 @@ export default function EventsPage() {
       });
     }, 1500);
     return () => clearInterval(id);
-  }, [events.length, paused]);
+  }, [events.length, paused, showModal]);
+
+  useEffect(() => {
+    if (!showModal) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [showModal]);
 
   function handleCarouselInteract() {
     if (showModal) return;
@@ -223,7 +238,9 @@ export default function EventsPage() {
         {/* Events carousel - horizontal with peek */}
         <section className="mb-2">
           <div
-            className="no-scrollbar -mx-4 overflow-x-auto pb-4 pl-4 pr-6"
+            className={`no-scrollbar -mx-4 overflow-x-auto pb-4 pl-4 pr-6 ${
+              showModal ? "pointer-events-none" : ""
+            }`}
             onMouseDown={handleCarouselInteract}
             onTouchStart={handleCarouselInteract}
           >
@@ -416,12 +433,7 @@ export default function EventsPage() {
               <div className="flex items-center justify-between pt-1 text-sm">
                 <span className="text-white/70">Estimated total</span>
                 <span className="text-base font-semibold text-[#93C5FD]">
-                  ₹
-                  {(() => {
-                    const num = parseInt(people || "0", 10);
-                    if (!selectedEvent || Number.isNaN(num) || num <= 0) return 0;
-                    return (selectedEvent.ticketPrice ?? 0) * num;
-                  })()}
+                  ₹{estimatedTotal}
                 </span>
               </div>
               <button
@@ -429,7 +441,11 @@ export default function EventsPage() {
                 disabled={submitting}
                 className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white shadow hover:from-[#1D4ED8] hover:to-[#2563EB] disabled:opacity-60"
               >
-                {submitting ? "Processing…" : "Proceed"}
+                {submitting
+                  ? "Processing…"
+                  : estimatedTotal > 0
+                  ? "Proceed to Pay"
+                  : "Confirm on WhatsApp"}
               </button>
             </form>
           </div>
