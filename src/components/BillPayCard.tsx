@@ -81,7 +81,14 @@ export default function BillPayCard({ bill }: { bill: Bill }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setClaimError(data.message || data.error || "Could not apply coupon.");
+        setClaimError(
+          data.message ||
+            (data.error === "already_used_today"
+              ? "Coupon already applied for you for this day. Please try again after 24 hours."
+              : data.error === "quota_full"
+                ? "No coupons left for today. Please try again tomorrow."
+                : "Could not apply coupon. Please try again.")
+        );
         return;
       }
       setClaimInfo({

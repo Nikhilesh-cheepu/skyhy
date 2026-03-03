@@ -845,7 +845,14 @@ function PackagesMenuPageContent() {
                               });
                               const claim = await claimRes.json();
                               if (!claimRes.ok || !claim.success) {
-                                setClaimError(claim.message || claim.error || 'Could not apply coupon');
+                                setClaimError(
+                                  claim.message ||
+                                    (claim.error === 'already_used_today'
+                                      ? 'Coupon already applied for you for this day. Please try again after 24 hours.'
+                                      : claim.error === 'quota_full'
+                                      ? 'No coupons left for today. Please try again tomorrow.'
+                                      : 'Could not apply coupon. Please try again.')
+                                );
                                 return;
                               }
                               setOrderId(draft.orderId);

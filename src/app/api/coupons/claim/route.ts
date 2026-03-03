@@ -124,7 +124,7 @@ export async function POST(request: Request) {
         return {
           success: false,
           error: "already_used_today",
-          message: "You have already claimed a coupon for today.",
+          message: "Coupon already applied for you for this day. Please try again after 24 hours.",
         };
       }
 
@@ -148,7 +148,7 @@ export async function POST(request: Request) {
         return {
           success: false,
           error: "quota_full",
-          message: "No coupons left for today.",
+          message: "No coupons left for today. Please try again tomorrow.",
         };
       }
 
@@ -197,7 +197,7 @@ export async function POST(request: Request) {
   } catch (e) {
     console.error("[coupons/claim]", e);
     return NextResponse.json(
-      { error: "Could not claim coupon. Please try again." },
+      { error: "error", message: "Something went wrong. Please try again." },
       { status: 500 }
     );
   }

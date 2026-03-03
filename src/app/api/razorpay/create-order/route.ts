@@ -120,6 +120,50 @@ export async function POST(request: Request) {
       });
     }
 
+    // Cart with orderId (coupon applied): handle before amount validation
+    if (type === "cart") {
+      const existingOrderId = typeof body?.orderId === "string" ? body.orderId.trim() || undefined : undefined;
+      if (existingOrderId) {
+        const existingOrder = await prisma.order.findUnique({
+          where: { id: existingOrderId },
+          include: { items: true },
+        });
+        if (!existingOrder) {
+          return NextResponse.json({ error: "Order not found" }, { status: 404 });
+        }
+        const now = new Date();
+        const heldClaim = await prisma.couponClaim.findFirst({
+          where: {
+            orderId: existingOrderId,
+            status: "HELD",
+            holdExpiresAt: { gt: now },
+          },
+        });
+        let finalAmountRupees = existingOrder.totalAmount;
+        if (heldClaim && heldClaim.discountAmount != null) {
+          finalAmountRupees = Math.max(1, existingOrder.totalAmount - heldClaim.discountAmount);
+        }
+        const finalAmountPaise = Math.max(1, Math.round(finalAmountRupees * 100));
+        const razorpayForCart = new Razorpay({
+          key_id: keyId,
+          key_secret: keySecret,
+        });
+        const rzOrder = await razorpayForCart.orders.create({
+          amount: finalAmountPaise,
+          currency: currency || "INR",
+        });
+        await prisma.order.update({
+          where: { id: existingOrderId },
+          data: { razorpayOrderId: rzOrder.id },
+        });
+        return NextResponse.json({
+          ...rzOrder,
+          amount: finalAmountPaise,
+          finalAmountRupees,
+        });
+      }
+    }
+
     if (!Number.isFinite(amount) || amount <= 0) {
       return NextResponse.json(
         { error: "amount must be a positive number (in paise)" },
@@ -175,43 +219,6 @@ export async function POST(request: Request) {
         },
       });
     } else if (type === "cart") {
-      const existingOrderId = typeof body?.orderId === "string" ? body.orderId.trim() || undefined : undefined;
-      if (existingOrderId) {
-        const existingOrder = await prisma.order.findUnique({
-          where: { id: existingOrderId },
-          include: { items: true },
-        });
-        if (!existingOrder) {
-          return NextResponse.json({ error: "Order not found" }, { status: 404 });
-        }
-        const now = new Date();
-        const heldClaim = await prisma.couponClaim.findFirst({
-          where: {
-            orderId: existingOrderId,
-            status: "HELD",
-            holdExpiresAt: { gt: now },
-          },
-        });
-        let finalAmountRupees = existingOrder.totalAmount;
-        if (heldClaim && heldClaim.discountAmount != null) {
-          finalAmountRupees = Math.max(1, existingOrder.totalAmount - heldClaim.discountAmount);
-        }
-        const finalAmountPaise = Math.max(1, Math.round(finalAmountRupees * 100));
-        const rzOrder = await razorpay.orders.create({
-          amount: finalAmountPaise,
-          currency: currency || "INR",
-        });
-        await prisma.order.update({
-          where: { id: existingOrderId },
-          data: { razorpayOrderId: rzOrder.id },
-        });
-        return NextResponse.json({
-          ...rzOrder,
-          amount: finalAmountPaise,
-          finalAmountRupees,
-        });
-      }
-
       const items: CartItemPayload[] = Array.isArray(body?.items) ? body.items : [];
       if (!items.length) {
         return NextResponse.json(
