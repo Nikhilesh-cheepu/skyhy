@@ -38,10 +38,19 @@ export async function GET() {
       return sum + (b.paymentStatus === 'PAID' ? value : 0);
     }, 0);
 
-    const [whatsappClicks, callClicks] = await Promise.all([
-      prisma.contactClick.count({ where: { type: 'whatsapp' } }),
-      prisma.contactClick.count({ where: { type: 'call' } }),
-    ]);
+    let whatsappClicks = 0;
+    let callClicks = 0;
+    try {
+      const [w, c] = await Promise.all([
+        prisma.contactClick.count({ where: { type: 'whatsapp' } }),
+        prisma.contactClick.count({ where: { type: 'call' } }),
+      ]);
+      whatsappClicks = w;
+      callClicks = c;
+    } catch (clickErr) {
+      // Older databases may not have the ContactClick table yet.
+      console.error('[admin/stats contactClick]', clickErr);
+    }
 
     return NextResponse.json({
       sections,

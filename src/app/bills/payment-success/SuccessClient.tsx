@@ -1,12 +1,11 @@
-"use client";
+ "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const WHATSAPP_NUMBER = "7013884485";
 
 export default function BillsSuccessClient() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const status = searchParams.get("status") || "paid";
   const total = searchParams.get("total") || "0";

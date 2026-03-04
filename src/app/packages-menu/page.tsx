@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import Footer from '@/components/Footer';
 import PackagesGrid from '@/components/PackagesGrid';
-import PageTopBar from '@/components/PageTopBar';
 
 interface MenuItem {
   id: number;

@@ -52,7 +52,7 @@ interface OfferCardsProps {
   onSelect: (id: string | null) => void;
 }
 
-export default function OfferCards({ meal, selectedTime, selectedOfferId, onSelect }: OfferCardsProps) {
+export default function OfferCards({ selectedTime, selectedOfferId, onSelect }: OfferCardsProps) {
   const showEatDrink128 =
     selectedTime !== null && is128OfferValid(selectedTime);
   const visibleOffers = selectedTime
