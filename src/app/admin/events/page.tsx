@@ -337,12 +337,16 @@ export default function AdminEventsPage() {
 
           <div className="space-y-1.5">
             <label className="block text-[11px] font-medium text-white/70">
-              End date (optional)
+              End date &amp; time (optional)
             </label>
             <input
               type="datetime-local"
               value={newEndDate}
               onChange={(e) => setNewEndDate(e.target.value)}
+              onKeyDown={(e) => {
+                // Prevent manual typing; use the native picker only.
+                e.preventDefault();
+              }}
               className="w-full rounded-xl border border-white/15 bg-black/70 px-3 py-2 text-sm text-white outline-none ring-0 transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
             />
             <p className="text-[11px] text-white/50">
@@ -494,12 +498,16 @@ export default function AdminEventsPage() {
             </div>
             <div className="space-y-1.5">
               <label className="block text-[11px] font-medium text-white/70">
-                End date (optional)
+                End date &amp; time (optional)
               </label>
               <input
                 type="datetime-local"
                 value={editEndDate}
                 onChange={(e) => setEditEndDate(e.target.value)}
+                onKeyDown={(e) => {
+                  // Prevent manual typing; use the native picker only.
+                  e.preventDefault();
+                }}
                 className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-sm text-white outline-none ring-0 transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
               />
             </div>
