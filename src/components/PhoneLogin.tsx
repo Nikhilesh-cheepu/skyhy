@@ -25,7 +25,12 @@ function friendlyAuthMessage(code: string, fallback: string): string {
   return map[code] ?? fallback;
 }
 
-export default function PhoneLogin() {
+type PhoneLoginProps = {
+  variant?: "page" | "modal";
+  onSuccess?: () => void;
+};
+
+export default function PhoneLogin({ variant = "page", onSuccess }: PhoneLoginProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [phone, setPhone] = useState("");
@@ -42,6 +47,9 @@ export default function PhoneLogin() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (variant === "modal") {
+      window.recaptchaVerifier = undefined;
+    }
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(
         auth,
@@ -49,7 +57,7 @@ export default function PhoneLogin() {
         { size: "invisible" }
       );
     }
-  }, []);
+  }, [variant]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -115,8 +123,12 @@ export default function PhoneLogin() {
         throw new Error(data.error || "Login failed");
       }
 
-      router.push(returnTo);
-      router.refresh();
+      if (variant === "modal" && onSuccess) {
+        onSuccess();
+      } else {
+        router.push(returnTo);
+        router.refresh();
+      }
     } catch (err) {
       const message =
         err && typeof (err as { code?: string }).code === "string"
@@ -132,100 +144,115 @@ export default function PhoneLogin() {
     }
   }
 
+  const isModal = variant === "modal";
+
+  const content = (
+    <>
+      <h1 className="mb-2 text-xl font-semibold text-white">
+        {step === "phone" ? "Welcome 👋" : "Almost there"}
+      </h1>
+      <p className="mb-6 text-xs text-white/70">
+        {step === "phone"
+          ? "Enter your mobile number to continue. We'll send a quick OTP."
+          : `Enter the code we sent to +91 ${phone.slice(0, 3)} XXXXX ${phone.slice(-2)}…`}
+      </p>
+
+      {error && (
+        <p className="mb-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+          {error}
+        </p>
+      )}
+
+      {step === "phone" && (
+        <form onSubmit={handleSendOtp} className="space-y-3">
+          <div className="space-y-1">
+            <label className="block text-xs text-white/70">
+              Mobile Number (India)
+            </label>
+            <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/60 px-3 py-2">
+              <span className="text-sm text-white/70">+91</span>
+              <input
+                value={phone}
+                onChange={(e) =>
+                  setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
+                }
+                maxLength={10}
+                inputMode="numeric"
+                className="w-full bg-transparent text-sm text-white outline-none"
+                placeholder="10-digit mobile number"
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white shadow disabled:opacity-60"
+          >
+            {loading ? "Sending OTP…" : "Send OTP"}
+          </button>
+        </form>
+      )}
+
+      {step === "otp" && (
+        <form onSubmit={handleVerifyOtp} className="space-y-3">
+          <div className="space-y-1">
+            <label className="block text-xs text-white/70">OTP</label>
+            <input
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+              inputMode="numeric"
+              maxLength={6}
+              className="w-full rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-sm text-white"
+              placeholder="6-digit code"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white shadow disabled:opacity-60"
+          >
+            {loading ? "Verifying…" : "Verify & Continue"}
+          </button>
+          <div className="flex justify-center">
+            {resendCooldown > 0 ? (
+              <span className="text-xs text-white/50">
+                Resend OTP in {resendCooldown}s
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setError("");
+                  handleSendOtp(e as unknown as React.FormEvent);
+                }}
+                disabled={loading}
+                className="text-xs text-[#60A5FA] hover:underline disabled:opacity-60"
+              >
+                Resend OTP
+              </button>
+            )}
+          </div>
+        </form>
+      )}
+
+      <div id="recaptcha-container" />
+    </>
+  );
+
+  if (isModal) {
+    return (
+      <div className="mx-auto max-w-md px-4 pb-6 pt-2">
+        {content}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#020617] text-white">
       <div className="mx-auto flex min-h-screen max-w-md flex-col px-4 pt-20 pb-10">
-        <h1 className="mb-2 text-xl font-semibold">Login to SKYHY</h1>
-        <p className="mb-6 text-xs text-white/70">
-          Login with your phone number to reserve, checkout, or view pending
-          bills.
-        </p>
-
-        {error && (
-          <p className="mb-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-200">
-            {error}
-          </p>
-        )}
-
-        {step === "phone" && (
-          <form onSubmit={handleSendOtp} className="space-y-3">
-            <div className="space-y-1">
-              <label className="block text-xs text-white/70">
-                Mobile Number (India)
-              </label>
-              <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/60 px-3 py-2">
-                <span className="text-sm text-white/70">+91</span>
-                <input
-                  value={phone}
-                  onChange={(e) =>
-                    setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
-                  }
-                  maxLength={10}
-                  inputMode="numeric"
-                  className="w-full bg-transparent text-sm text-white outline-none"
-                  placeholder="10-digit mobile number"
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white shadow disabled:opacity-60"
-            >
-              {loading ? "Sending OTP…" : "Send OTP"}
-            </button>
-          </form>
-        )}
-
-        {step === "otp" && (
-          <form onSubmit={handleVerifyOtp} className="space-y-3">
-            <p className="text-xs text-white/60">
-              OTP sent to +91 {phone}. Enter it below to continue.
-            </p>
-            <div className="space-y-1">
-              <label className="block text-xs text-white/70">OTP</label>
-              <input
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                inputMode="numeric"
-                maxLength={6}
-                className="w-full rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-sm text-white"
-                placeholder="6-digit OTP"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2.5 text-sm font-semibold text-white shadow disabled:opacity-60"
-            >
-              {loading ? "Verifying…" : "Verify & Continue"}
-            </button>
-            <div className="flex justify-center">
-              {resendCooldown > 0 ? (
-                <span className="text-xs text-white/50">
-                  Resend OTP in {resendCooldown}s
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setError("");
-                    handleSendOtp(e as unknown as React.FormEvent);
-                  }}
-                  disabled={loading}
-                  className="text-xs text-[#60A5FA] hover:underline disabled:opacity-60"
-                >
-                  Resend OTP
-                </button>
-              )}
-            </div>
-          </form>
-        )}
-
-        <div id="recaptcha-container" />
+        {content}
       </div>
     </div>
   );
 }
-
