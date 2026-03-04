@@ -249,8 +249,10 @@ function PackagesMenuPageContent() {
     return () => clearInterval(id);
   }, [OFFER_MESSAGES.length]);
 
+  const cartVisible = activeTab === 'menu' && getCartCount() > 0;
+
   return (
-    <div className="min-h-screen bg-black pb-24">
+    <div className={`min-h-screen bg-black ${cartVisible ? 'pb-[7.5rem]' : 'pb-24'}`}>
       {/* Padding for global header */}
       <div className="pb-4 pt-6 md:pt-8">
         <div className="mx-auto max-w-6xl px-4">
@@ -272,30 +274,34 @@ function PackagesMenuPageContent() {
               </div>
             </div>
 
-            {/* Segmented toggle */}
-            <div className="mt-3 rounded-full bg-black/70 p-1 text-[11px] shadow-[0_10px_32px_rgba(15,23,42,0.9)] border border-white/10">
-              <button
-                type="button"
-                onClick={() => setActiveTab("packages")}
-                className={`flex-1 rounded-full px-3 py-1.5 transition-all ${
-                  activeTab === "packages"
-                    ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow-[0_0_18px_rgba(59,130,246,0.7)]"
-                    : "text-white/60"
-                }`}
-              >
-                Party Packages
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("menu")}
-                className={`flex-1 rounded-full px-3 py-1.5 transition-all ${
-                  activeTab === "menu"
-                    ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow-[0_0_18px_rgba(59,130,246,0.7)]"
-                    : "text-white/60"
-                }`}
-              >
-                Menu
-              </button>
+            {/* Segmented toggle — centered on all screen sizes */}
+            <div className="mt-3 w-full flex justify-center items-center px-0">
+              <div className="w-full max-w-[560px] px-3 sm:px-4">
+                <div className="inline-flex w-full rounded-full bg-black/70 p-1 text-[11px] shadow-[0_10px_32px_rgba(15,23,42,0.9)] border border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("packages")}
+                    className={`flex-1 rounded-full px-3 py-1.5 transition-all ${
+                      activeTab === "packages"
+                        ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow-[0_0_18px_rgba(59,130,246,0.7)]"
+                        : "text-white/60"
+                    }`}
+                  >
+                    Party Packages
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("menu")}
+                    className={`flex-1 rounded-full px-3 py-1.5 transition-all ${
+                      activeTab === "menu"
+                        ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow-[0_0_18px_rgba(59,130,246,0.7)]"
+                        : "text-white/60"
+                    }`}
+                  >
+                    Menu
+                  </button>
+                </div>
+              </div>
             </div>
             <p className="mt-1 text-center text-[10px] text-white/45">
               Tap to switch between party packages and full menu.
@@ -611,21 +617,24 @@ function PackagesMenuPageContent() {
             </motion.div>
           )}
 
-      {/* Cart summary bar */}
-      {activeTab === 'menu' && getCartCount() > 0 && (
+      {/* Cart summary bar — premium sticky bar with safe area */}
+      {cartVisible && (
         <div
-          className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-black/90"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+          className="fixed left-0 right-0 bottom-0 z-40 flex justify-center px-4 pt-3 bg-gradient-to-t from-black/95 via-black/90 to-transparent pointer-events-none"
+          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))' }}
         >
           <button
             type="button"
             onClick={() => setShowCart(true)}
-            className="mx-auto flex w-full max-w-md items-center justify-between px-4 py-2 text-[12px] text-white"
+            className="pointer-events-auto mx-auto flex w-full max-w-md min-h-[64px] sm:min-h-[72px] items-center justify-between gap-4 rounded-2xl border border-white/15 bg-black/80 px-5 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.05)] backdrop-blur-xl transition active:scale-[0.98]"
           >
-            <span>
-              {getCartCount()} items • ₹{finalTotal}
+            <span className="text-left">
+              <span className="block text-sm font-semibold text-white sm:text-base">
+                {getCartCount()} {getCartCount() === 1 ? 'item' : 'items'} · ₹{finalTotal}
+              </span>
+              <span className="mt-0.5 block text-[11px] text-white/60">Tap to view cart</span>
             </span>
-            <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold">
+            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-[#2563EB] to-[#4f46e5] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25">
               View Cart
             </span>
           </button>

@@ -187,6 +187,7 @@ model User {
 
 enum BillStatus {
   PENDING
+  PARTIAL
   PAID
 }
 
@@ -262,6 +263,8 @@ model Bill {
   billType          String      @default("a_la_carte") // a_la_carte | 128 (25% only on à la carte, not on 128-only)
   notes             String?
   status            BillStatus  @default(PENDING)
+  paidAmount        Int         @default(0)  // amount received so far (for PARTIAL)
+  paidAt             DateTime?   // when marked PAID or last partial
   couponId          String?
   coupon            Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
   razorpayOrderId   String?
