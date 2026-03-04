@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '@/components/Footer';
 import DateChips from '@/components/reserve/DateChips';
@@ -57,7 +56,6 @@ function clearDraft() {
 const defaultDate = () => new Date().toISOString().split('T')[0];
 
 export default function ReservePage() {
-  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string>(defaultDate);
   const [meal, setMeal] = useState<MealType>('dinner');
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -297,7 +295,7 @@ export default function ReservePage() {
             {user ? 'Confirm booking' : 'Login to confirm booking'}
           </motion.button>
           <p className="mt-2 text-center text-xs text-white/50">
-            We'll use your logged-in number for confirmation &amp; WhatsApp updates.
+            We&apos;ll use your logged-in number for confirmation &amp; WhatsApp updates.
           </p>
         </div>
       </div>

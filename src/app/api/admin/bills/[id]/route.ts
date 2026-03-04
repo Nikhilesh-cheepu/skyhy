@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import { getPrisma } from "@/lib/prisma";
 
 type Params = Promise<{ id: string }>;
@@ -107,7 +108,7 @@ export async function PATCH(
 
     const bill = await prisma.bill.update({
       where: { id },
-      data: updateData,
+      data: updateData as Prisma.BillUpdateInput,
     });
 
     return NextResponse.json(bill);

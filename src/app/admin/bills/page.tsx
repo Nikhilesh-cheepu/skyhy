@@ -10,7 +10,7 @@ function formatPhoneForWhatsApp(phone: string): string {
   return "91" + digits;
 }
 
-function getWhatsAppUrl(phone: string, amount?: number, billId?: string): string {
+function getWhatsAppUrl(phone: string, amount?: number): string {
   const ph = formatPhoneForWhatsApp(phone);
   if (!ph) return "";
   const message = amount != null
