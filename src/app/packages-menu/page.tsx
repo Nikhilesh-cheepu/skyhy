@@ -2,12 +2,12 @@
 
 import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import Footer from '@/components/Footer';
 import PackagesGrid from '@/components/PackagesGrid';
+import PageTopBar from '@/components/PageTopBar';
 
 interface MenuItem {
   id: number;
@@ -226,154 +226,64 @@ function PackagesMenuPageContent() {
     }
   };
 
+  // Offer ticker messages
+  const OFFER_MESSAGES = [
+    "Eat & Drink Anything @ ₹128 • 12:00 PM – 7:45 PM",
+    "25% OFF on À la carte Menu",
+    "Book a table to reserve your offer",
+  ];
+
+  const [offerIndex, setOfferIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(
+      () => setOfferIndex((i) => (i + 1) % OFFER_MESSAGES.length),
+      3000
+    );
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <div className="min-h-screen bg-black pb-24">
-      {/* Navigation Header - Same as Home Page */}
-      <div className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">
-        <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg px-4 md:px-2 max-w-6xl mx-auto md:mx-auto h-16 md:h-20 flex items-center">
-          <div className="flex items-center justify-between w-full relative">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo/shyhy-logo-white.png" alt="SKYHY" width={200} height={68} className="h-10 md:h-14 w-auto" />
-            </Link>
-            
-            {/* Desktop Navigation - Centered */}
-            <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
-              <Link 
-                href="/"
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
-              >
-                Home
-              </Link>
-              <Link 
-                href="/#about"
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
-              >
-                About
-              </Link>
-              <Link 
-                href="/packages-menu"
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
-              >
-                Packages & Menu
-              </Link>
-              <Link 
-                href="/reserve"
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300"
-              >
-                Reserve
-              </Link>
-            </nav>
-
-            {/* Mobile Hamburger Menu */}
-            <button 
-              className="md:hidden text-white p-2"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Dropdown Menu */}
-      {isMobileMenuOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="fixed top-16 left-0 right-0 z-40 md:hidden md:top-20 md:left-4 md:right-4"
-        >
-          <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-4 max-w-6xl mx-auto">
-            <nav className="flex flex-col items-center space-y-4">
-              <Link 
-                href="/"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
-              >
-                Home
-              </Link>
-              <Link 
-                href="/#about"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
-              >
-                About
-              </Link>
-              <Link 
-                href="/packages-menu"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
-              >
-                Packages & Menu
-              </Link>
-              <Link 
-                href="/reserve"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white font-[family-name:var(--font-inter)] font-semibold text-sm hover:text-[#B6FF00] transition-all duration-300 py-2 text-center"
-              >
-                Reserve
-              </Link>
-            </nav>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Add top padding to account for fixed navbar */}
+      {/* Padding for global header */}
       <div className="pt-20 md:pt-24">
-
-        <div className="max-w-7xl mx-auto p-6">
-        {/* Page Header */}
-        <div className="text-center mb-12">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold text-white mb-4"
-          >
-            Party <span className="text-[#2563EB]">Packages</span> & <span className="text-[#B6FF00]">Menu</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-white/80 max-w-2xl mx-auto mb-8"
-          >
-            Explore our party packages and complete menu in one place
-          </motion.p>
-
-          {/* Tab Switcher */}
-          <div className="flex justify-center gap-4 mb-8">
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setActiveTab('packages');
-              }}
-              className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 cursor-pointer ${
-                activeTab === 'packages'
-                  ? 'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-lg'
-                  : 'bg-white/10 text-white/80 hover:bg-white/20 active:bg-white/30 border border-white/20'
-              }`}
-            >
-              📦 Party Packages
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setActiveTab('menu');
-              }}
-              className={`px-8 py-3 rounded-xl font-semibold transition-all duration-200 cursor-pointer ${
-                activeTab === 'menu'
-                  ? 'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-lg'
-                  : 'bg-white/10 text-white/80 hover:bg-white/20 active:bg-white/30 border border-white/20'
-              }`}
-            >
-              🍽️ View Menu
-            </button>
+        {/* Offer ticker */}
+        <div className="bg-black/90 border-b border-white/10">
+          <div className="mx-auto max-w-6xl px-4 py-1.5">
+            <p className="text-center text-[11px] text-white/70 truncate">
+              {OFFER_MESSAGES[offerIndex]}
+            </p>
           </div>
         </div>
+
+        <div className="mx-auto max-w-6xl px-4 pt-3">
+          <PageTopBar title="Packages & Menu" showBack fallbackHref="/" />
+
+          {/* Segmented toggle */}
+          <div className="mb-3 flex rounded-full bg-white/5 p-1 text-xs">
+            <button
+              type="button"
+              onClick={() => setActiveTab('packages')}
+              className={`flex-1 rounded-full py-1.5 ${
+                activeTab === 'packages'
+                  ? 'bg-white text-black font-semibold'
+                  : 'text-white/70'
+              }`}
+            >
+              Packages
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('menu')}
+              className={`flex-1 rounded-full py-1.5 ${
+                activeTab === 'menu'
+                  ? 'bg-white text-black font-semibold'
+                  : 'text-white/70'
+              }`}
+            >
+              Menu
+            </button>
+          </div>
 
         {/* Content Area */}
         {activeTab === 'packages' ? (
@@ -391,57 +301,6 @@ function PackagesMenuPageContent() {
             key="menu"
             className="w-full"
           >
-            {/* Happy Hours & Timings */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex flex-col items-center gap-6 mb-8"
-            >
-              <div className="w-full max-w-2xl flex flex-col items-center gap-8">
-                <div className="text-center">
-                  <p className="text-sm uppercase tracking-widest text-white/70 mb-3 font-medium">
-                    12PM - 8PM
-                  </p>
-                  <p className="text-2xl md:text-3xl font-black text-white uppercase leading-tight">
-                    EAT &amp; DRINK ANYTHING @128
-                  </p>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <motion.a
-                  href="https://maps.app.goo.gl/8izvX92jtyZyJnUV9?g_st=ic"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 cursor-pointer"
-                >
-                  <span>📍</span>
-                  Locate Us
-                </motion.a>
-                
-                <Link href="/reserve">
-                  <motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20"
-                  >
-                    <span>📅</span>
-                    Book Table Now
-                  </motion.button>
-                </Link>
-              </div>
-            </motion.div>
-
             {menuLoading && (
               <p className="text-white/70 text-center py-12">Loading menu…</p>
             )}
@@ -450,16 +309,17 @@ function PackagesMenuPageContent() {
             )}
             {!menuLoading && !menuError && menuData && (
             <div>
-            {/* Main Sections */}
-            <div className="flex flex-wrap justify-center gap-3 mb-6">
+            {/* Main Sections - compact chips */}
+            <div className="mt-2 overflow-x-auto no-scrollbar">
+              <div className="flex gap-1.5 text-[11px]">
               {Object.keys(menuData).map((section) => (
                 <button
                   key={section}
                   onClick={() => handleSectionChange(section)}
-                  className={`px-4 md:px-6 py-2 md:py-3 rounded-2xl text-xs md:text-sm font-semibold transition-all duration-200 shadow-lg cursor-pointer ${
+                  className={`px-3 py-1 rounded-full border text-[11px] font-medium cursor-pointer ${
                     activeSection === section
-                      ? 'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-[#2563EB]/25'
-                      : 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white border border-white/20'
+                      ? 'bg-[#2563EB] border-[#2563EB] text-white'
+                      : 'bg-white/5 border-white/20 text-white/70'
                   }`}
                 >
                   {section === 'food' ? '🍽️ Food' : 
@@ -471,9 +331,10 @@ function PackagesMenuPageContent() {
               ))}
             </div>
 
-            {/* Search Bar */}
-            <div className="mb-6 relative max-w-2xl mx-auto">
-              <div className="relative">
+            {/* Search + categories row */}
+            <div className="mb-3 relative max-w-2xl mx-auto">
+              <div className="flex gap-2 text-[12px]">
+                <div className="relative flex-[0.7]">
                 <input
                   type="text"
                   value={searchQuery}
@@ -483,10 +344,12 @@ function PackagesMenuPageContent() {
                   }}
                   onFocus={() => setShowSearchSuggestions(searchQuery.length > 0)}
                   onBlur={() => setTimeout(() => setShowSearchSuggestions(false), 200)}
-                  placeholder="Search menu items..."
-                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-4 pl-12 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all duration-300"
+                  placeholder="Search menu..."
+                  className="w-full rounded-lg bg-white/5 border border-white/20 px-3 py-1.5 pl-7 text-[12px] text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                 />
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 text-lg">🔍</span>
+                <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-white/50 text-xs">
+                  🔍
+                </span>
                 
                 {/* Search Suggestions */}
                 {showSearchSuggestions && searchSuggestions.length > 0 && (
@@ -501,7 +364,7 @@ function PackagesMenuPageContent() {
                             setSearchQuery(item.name);
                             setShowSearchSuggestions(false);
                           }}
-                          className="w-full px-6 py-3 text-left hover:bg-white/10 active:bg-white/20 transition-all duration-150 cursor-pointer"
+                          className="w-full px-4 py-2.5 text-left hover:bg-white/10 active:bg-white/20 transition-all duration-150 cursor-pointer text-[12px]"
                         >
                           <p className="text-white font-medium text-sm">{item.name}</p>
                           <p className="text-white/60 text-xs mt-1">{item.description}</p>
@@ -511,33 +374,21 @@ function PackagesMenuPageContent() {
                   </div>
                 )}
               </div>
+
+              {/* Categories dropdown trigger */}
+              <button
+                type="button"
+                onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                className="flex-[0.3] flex items-center justify-between rounded-lg bg-white/5 border border-white/20 px-2 py-1.5 text-[11px] text-white/80"
+              >
+                <span>{selectedCategories.length ? `${selectedCategories.length} filters` : 'All categories'}</span>
+                <span>▾</span>
+              </button>
             </div>
 
-            {/* Category Filters */}
-            <div className="mb-8 relative">
+            {/* Category Filters dropdown */}
+            <div className="mb-4 relative">
               <div className="max-w-4xl mx-auto">
-                <button
-                  onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-4 flex items-center justify-between text-white hover:bg-white/20 active:bg-white/30 transition-all duration-200 shadow-lg cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg">🔽</span>
-                    <span className="font-semibold text-sm md:text-base">
-                      {selectedCategories.length > 0 
-                        ? `${selectedCategories.length} Filter${selectedCategories.length > 1 ? 's' : ''} Selected`
-                        : 'All Categories'}
-                    </span>
-                  </div>
-                  <svg
-                    className={`w-5 h-5 text-white/80 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
                 {isCategoryDropdownOpen && (
                   <>
                     <div className="absolute z-50 w-full mt-2 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
@@ -599,26 +450,31 @@ function PackagesMenuPageContent() {
               </div>
             </div>
 
-            {/* Menu Items */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+            {/* Menu Items - compact cards */}
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-20">
               {currentItems.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-200 border border-white/10 group"
+                  className="space-y-1 rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-white/80"
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="font-bold text-white text-base group-hover:text-[#2563EB] transition-colors duration-200">
+                  {/* Top row: name + price */}
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="truncate text-[13px] font-semibold text-white">
                       {item.name}
                     </h3>
-                    <span className="text-[#2563EB] font-bold text-lg">₹{item.price}</span>
+                    <span className="text-[13px] font-semibold text-[#FACC15]">
+                      ₹{item.price}
+                    </span>
                   </div>
-                  
-                  <p className="text-white/80 text-sm mb-4 leading-relaxed">
+
+                  {/* One-line description */}
+                  <p className="line-clamp-1 text-[11px] text-white/60">
                     {item.description}
                   </p>
-                  
-                  <div className="mb-4">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+
+                  {/* Veg / Non-veg badge */}
+                  <div>
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
                       item.category === 'veg' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
                       item.category === 'non-veg' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
                       'bg-white/10 text-white/70 border border-white/20'
@@ -628,20 +484,21 @@ function PackagesMenuPageContent() {
                        item.category}
                     </span>
                   </div>
-                  
+
+                  {/* Add to cart / quantity controls */}
                   {getItemQuantity(item.id) > 0 ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-end gap-1 pt-1">
                       <button
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           updateQuantity(item.id, getItemQuantity(item.id) - 1);
                         }}
-                        className="flex-1 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white py-3 px-4 rounded-xl text-lg font-semibold transition-all duration-200 border border-white/20 cursor-pointer"
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
                       >
                         -
                       </button>
-                      <div className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-3 px-6 rounded-xl text-sm font-bold min-w-[60px] text-center">
+                      <div className="min-w-[40px] rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-3 py-1 text-center text-[11px] font-bold text-white">
                         {getItemQuantity(item.id)}
                       </div>
                       <button
@@ -650,7 +507,7 @@ function PackagesMenuPageContent() {
                           e.stopPropagation();
                           addToCart(item);
                         }}
-                        className="flex-1 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white py-3 px-4 rounded-xl text-lg font-semibold transition-all duration-200 border border-white/20 cursor-pointer"
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
                       >
                         +
                       </button>
@@ -662,7 +519,7 @@ function PackagesMenuPageContent() {
                         e.stopPropagation();
                         addToCart(item);
                       }}
-                      className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white py-3 px-4 rounded-xl text-sm font-semibold hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+                      className="mt-1 w-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] py-1.5 text-[11px] font-semibold text-white hover:from-[#1D4ED8] hover:to-[#2563EB]"
                     >
                       <span>🛒</span>
                       Add to Cart
@@ -671,52 +528,27 @@ function PackagesMenuPageContent() {
                 </div>
               ))}
             </div>
-
-        {/* Navigation Buttons */}
-        <div className="flex flex-wrap justify-center gap-4 mt-12 mb-8">
-          <Link href="/reserve">
-            <button
-              className="bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] px-6 py-3 rounded-xl font-semibold transition-all duration-200 border border-white/20 flex items-center gap-2 hover:from-[#A5E600] hover:to-[#8AD9A0] active:from-[#95D600] active:to-[#7ACC8C] cursor-pointer"
-            >
-              <span>📅</span>
-              Book Reservation
-            </button>
-          </Link>
-          <Link href="/">
-            <button
-              className="bg-white/10 hover:bg-white/20 active:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 border border-white/20 flex items-center gap-2 cursor-pointer"
-            >
-              <span>🏠</span>
-              Go Home
-            </button>
-          </Link>
-        </div>
-            </div>
             )}
           </motion.div>
         )}
 
-      {/* Floating Cart Button at Bottom - above StickyActions */}
+      {/* Cart summary bar */}
       {activeTab === 'menu' && getCartCount() > 0 && (
-        <div className="fixed bottom-24 left-4 right-4 z-40 md:left-auto md:right-8 md:bottom-8 md:w-auto md:max-w-md">
+        <div
+          className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-black/90"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowCart(true);
-            }}
-            className="w-full md:w-auto bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-bold py-4 px-6 rounded-2xl shadow-2xl flex items-center justify-between hover:from-[#1D4ED8] hover:to-[#2563EB] active:from-[#1E40AF] active:to-[#1D4ED8] transition-all duration-200 cursor-pointer"
+            type="button"
+            onClick={() => setShowCart(true)}
+            className="mx-auto flex w-full max-w-md items-center justify-between px-4 py-2 text-[12px] text-white"
           >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🛒</span>
-              <div className="text-left">
-                <p className="text-sm md:text-base font-medium">View Cart</p>
-                <p className="text-xs md:text-sm opacity-80">{getCartCount()} items • ₹{finalTotal}</p>
-              </div>
-            </div>
-            <div className="bg-white/20 rounded-full px-4 py-2 ml-4">
-              <span className="text-lg md:text-xl font-bold">₹{finalTotal}</span>
-            </div>
+            <span>
+              {getCartCount()} items • ₹{finalTotal}
+            </span>
+            <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold">
+              View Cart
+            </span>
           </button>
         </div>
       )}

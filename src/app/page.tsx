@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 import OffersCarousel from "@/components/OffersCarousel";
 import MenuGalleryCarousel from "@/components/MenuGalleryCarousel";
+import { OFFER_128_TIME_RANGE } from "@/components/reserve/OfferCards";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import BottomActionBar from "@/components/BottomActionBar";
 
@@ -134,7 +135,7 @@ export default function HomePage() {
                   Eat &amp; Drink Anything @₹128
                 </h2>
                 <p className="mb-1 text-xs font-semibold text-[#93C5FD]">
-                  12:00 PM – 8:00 PM
+                  {OFFER_128_TIME_RANGE}
                 </p>
                 <p className="mb-3 text-xs text-white/70">
                   Pick from a special menu and enjoy every item at just ₹128.

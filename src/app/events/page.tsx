@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
+import PageTopBar from "@/components/PageTopBar";
 
 type EventItem = {
   id: string;
@@ -246,12 +247,11 @@ export default function EventsPage() {
   return (
     <div className="min-h-screen bg-[#050608] pb-24 text-white">
       <div className="mx-auto max-w-6xl px-4 pt-20">
-        <header className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-            Live Events
-          </p>
-          <h1 className="mt-1 text-2xl font-bold">Upcoming at SKYHY</h1>
-        </header>
+        <PageTopBar
+          title="Live Events"
+          showBack
+          fallbackHref="/"
+        />
 
         {/* Events carousel - horizontal with peek */}
         <section className="mb-2">

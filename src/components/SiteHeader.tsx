@@ -57,11 +57,51 @@ export default function SiteHeader() {
     router.refresh();
   };
 
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
+
+  const showBack = pathname === "/packages-menu";
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">
       <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg px-4 md:px-2 max-w-6xl mx-auto h-16 md:h-20 flex items-center">
         <div className="flex items-center justify-between w-full relative">
-          <Link href="/" className="flex items-center gap-2">
+          {/* Left: optional back button */}
+          <div className="flex items-center gap-2">
+            {showBack && (
+              <button
+                type="button"
+                onClick={handleBack}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 md:h-10 md:w-10"
+                aria-label="Go back"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Center: logo */}
+          <Link
+            href="/"
+            className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2"
+          >
             <Image
               src="/logo/shyhy-logo-white.png"
               alt="SKYHY"

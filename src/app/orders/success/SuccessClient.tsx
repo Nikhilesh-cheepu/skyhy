@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import PageTopBar from "@/components/PageTopBar";
 
 const WHATSAPP_NUMBER = "7013884485";
 
@@ -28,13 +29,11 @@ export default function OrdersSuccessClient() {
   return (
     <div className="min-h-screen bg-[#020617] pb-24 text-white">
       <div className="mx-auto flex max-w-md flex-col px-4 pt-24">
-        <button
-          type="button"
-          onClick={() => router.push("/packages-menu")}
-          className="mb-6 text-xs text-white/60 hover:text-white/80"
-        >
-          ← Back to Menu
-        </button>
+        <PageTopBar
+          title="Order Confirmation"
+          showBack
+          fallbackHref="/packages-menu"
+        />
 
         <div className="rounded-3xl border border-white/10 bg-black/60 px-4 pb-5 pt-5 shadow-[0_18px_45px_rgba(15,23,42,0.9)] backdrop-blur-xl">
           <div className="mb-4 flex items-center gap-3">

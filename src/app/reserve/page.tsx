@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import Link from 'next/link';
 import Footer from '@/components/Footer';
 import BottomActionBar from '@/components/BottomActionBar';
 import DateChips from '@/components/reserve/DateChips';
@@ -13,6 +12,7 @@ import TimeSlotsGrid from '@/components/reserve/TimeSlotsGrid';
 import OfferCards, { OFFERS, is128OfferValid } from '@/components/reserve/OfferCards';
 import { getSlotsForMeal } from '@/components/reserve/timeSlots';
 import GuestCounter from '@/components/reserve/GuestCounter';
+import PageTopBar from '@/components/PageTopBar';
 
 const WHATSAPP_NUMBER = '7013884485';
 
@@ -103,17 +103,11 @@ export default function ReservePage() {
     <div className="min-h-screen bg-[#0f0f0f] overflow-x-hidden w-full max-w-full">
       <div className="pt-20 md:pt-24 pb-24">
         <div className="max-w-lg mx-auto px-4">
-          {/* Header */}
-          <div className="mb-8">
-            <Link href="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
-            </Link>
-            <h1 className="text-2xl font-bold text-white">Reserve Your Table</h1>
-            <p className="text-white/70 text-sm mt-1">Choose a time, add guests, and confirm your booking</p>
-          </div>
+          <PageTopBar
+            title="Reserve Your Table"
+            showBack
+            fallbackHref="/"
+          />
 
           {/* Date chips */}
           <section className="mb-6">

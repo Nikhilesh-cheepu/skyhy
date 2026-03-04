@@ -14,12 +14,15 @@ export const OFFER_TITLES = {
   DISCOUNT_ALACARTE_25: '25% Discount on À la carte',
 } as const;
 
+/** Shared human‑readable timing label for the ₹128 offer. */
+export const OFFER_128_TIME_RANGE = '12:00 PM – 7:45 PM';
+
 export const OFFERS: Offer[] = [
-  { id: 'eat-drink-128', title: OFFER_TITLES.EAT_DRINK_128, timing: '12 PM – 7:15 PM' },
+  { id: 'eat-drink-128', title: OFFER_TITLES.EAT_DRINK_128, timing: OFFER_128_TIME_RANGE },
   { id: 'alacarte-25', title: OFFER_TITLES.DISCOUNT_ALACARTE_25, timing: 'All day' },
 ];
 
-/** Parse "6:15 PM" to minutes since midnight. 12 PM = 720, 7:15 PM = 1155 */
+/** Parse "6:15 PM" to minutes since midnight. 12 PM = 720, 7:45 PM = 1185 */
 function parseTimeToMinutes(s: string): number | null {
   const m = s.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
   if (!m) return null;
@@ -31,12 +34,12 @@ function parseTimeToMinutes(s: string): number | null {
   return h * 60 + min;
 }
 
-/** ₹128 offer is valid only 12:00 PM – 7:15 PM inclusive. Outside this range, hide the offer entirely. */
+/** ₹128 offer is valid only 12:00 PM – 7:45 PM inclusive. Outside this range, hide the offer entirely. */
 export function is128OfferValid(selectedTime: string): boolean {
   const mins = parseTimeToMinutes(selectedTime);
   if (mins == null) return false;
   const start = 12 * 60; // 12:00 PM
-  const end = 19 * 60 + 15; // 7:15 PM inclusive
+  const end = 19 * 60 + 45; // 7:45 PM inclusive
   return mins >= start && mins <= end;
 }
 
