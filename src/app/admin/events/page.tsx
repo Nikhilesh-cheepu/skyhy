@@ -197,166 +197,123 @@ export default function AdminEventsPage() {
       </div>
       {error && <p className="text-xs text-red-400">{error}</p>}
       {loading && <p className="text-xs text-white/60">Loading…</p>}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {activeEvents.length > 0 && (
           <p className="text-xs font-semibold text-white/70">Active Events</p>
         )}
         {activeEvents.map((ev, index) => (
           <div
             key={ev.id}
-              className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/70 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.9)] md:flex-row"
+            className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/70 px-3 py-2.5 text-xs shadow-[0_18px_40px_rgba(0,0,0,0.9)]"
           >
-            <div className="flex-1 space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-xs text-white/60">
-                  <button
-                    type="button"
-                    onClick={() => move(ev.id, 'up')}
-                    disabled={index === 0}
-                    className="rounded-full border border-white/20 px-2 py-0.5 disabled:opacity-40"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => move(ev.id, 'down')}
-                    disabled={index === events.length - 1}
-                    className="rounded-full border border-white/20 px-2 py-0.5 disabled:opacity-40"
-                  >
-                    ↓
-                  </button>
-                  <span className="text-white/50">#{index + 1}</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-white/60">
-                  <label className="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      checked={ev.isActive}
-                      onChange={(e) =>
-                        updateLocal(ev.id, { isActive: e.target.checked })
-                      }
-                      className="h-3 w-3 rounded border-white/30 bg-black/40"
-                    />
-                    <span>Active</span>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="mb-1 block text-xs text-white/60">Title</label>
+            {/* Ordering + active */}
+            <div className="flex items-center gap-2 text-white/60">
+              <button
+                type="button"
+                onClick={() => move(ev.id, 'up')}
+                disabled={index === 0}
+                className="rounded-full border border-white/25 px-2 py-0.5 disabled:opacity-40"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                onClick={() => move(ev.id, 'down')}
+                disabled={index === events.length - 1}
+                className="rounded-full border border-white/25 px-2 py-0.5 disabled:opacity-40"
+              >
+                ↓
+              </button>
+              <span className="text-white/50">#{index + 1}</span>
+              <label className="ml-2 flex items-center gap-1.5">
                 <input
-                  value={ev.title ?? ''}
+                  type="checkbox"
+                  checked={ev.isActive}
                   onChange={(e) =>
-                    updateLocal(ev.id, { title: e.target.value || null })
+                    updateLocal(ev.id, { isActive: e.target.checked })
                   }
-                  className="w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
+                  className="h-3 w-3 rounded border-white/30 bg-black/40"
+                />
+                <span>Active</span>
+              </label>
+            </div>
+
+            {/* Fields */}
+            <div className="flex flex-1 items-center gap-3">
+              <div className="w-24">
+                <label className="mb-1 block text-[10px] text-white/60">
+                  Ticket Price
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={ev.ticketPrice ?? 0}
+                  onChange={(e) =>
+                    updateLocal(ev.id, {
+                      ticketPrice: Number(e.target.value || 0),
+                    })
+                  }
+                  className="w-full rounded-lg border border-white/20 bg-black/60 px-2 py-1.5 text-xs text-white"
                 />
               </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="mb-1 block text-xs text-white/60">
-                    Event Date (optional)
-                  </label>
-                  <input
-                    type="date"
-                    value={ev.eventDate ? ev.eventDate.slice(0, 10) : ''}
-                    onChange={(e) =>
-                      updateLocal(ev.id, {
-                        eventDate: e.target.value || null,
-                      })
-                    }
-                    className="w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
-                  />
-                </div>
-                <div className="w-28">
-                  <label className="mb-1 block text-xs text-white/60">
-                    Ticket Price
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={ev.ticketPrice ?? 0}
-                    onChange={(e) =>
-                      updateLocal(ev.id, {
-                        ticketPrice: Number(e.target.value || 0),
-                      })
-                    }
-                    className="w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
-                  />
-                </div>
+              <div className="w-32">
+                <label className="mb-1 block text-[10px] text-white/60">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={ev.endDate ? ev.endDate.slice(0, 10) : ''}
+                  onChange={(e) =>
+                    updateLocal(ev.id, {
+                      endDate: e.target.value || null,
+                    })
+                  }
+                  className="w-full rounded-lg border border-white/20 bg-black/60 px-2 py-1.5 text-xs text-white"
+                />
               </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="mb-1 block text-xs text-white/60">
-                    End Date
-                  </label>
-                  <input
-                    type="date"
-                    value={ev.endDate ? ev.endDate.slice(0, 10) : ''}
-                    onChange={(e) =>
-                      updateLocal(ev.id, {
-                        endDate: e.target.value || null,
-                      })
-                    }
-                    className="w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="mb-1 block text-xs text-white/60">
-                    Media (9:16, &lt; 3MB)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleUpload(ev.id, file);
-                    }}
-                    className="w-full text-xs text-white/70 file:mr-2 file:rounded file:border-0 file:bg-[#4A90E2] file:px-3 file:py-1 file:text-white"
-                  />
-                  {ev._uploading && (
-                    <p className="mt-1 text-[11px] text-white/50">Uploading…</p>
-                  )}
-                </div>
-                <div className="w-24">
-                  <label className="mb-1 block text-xs text-white/60">Type</label>
-                  <select
-                    value={ev.mediaType}
-                    onChange={(e) =>
-                      updateLocal(ev.id, { mediaType: e.target.value })
-                    }
-                    className="w-full rounded-lg border border-white/15 bg-black/40 px-2 py-2 text-xs text-white"
-                  >
-                    <option value="image">Image</option>
-                    <option value="video">Video</option>
-                  </select>
-                </div>
+              <div className="flex-1">
+                <label className="mb-1 block text-[10px] text-white/60">
+                  Media (9:16, &lt; 3MB)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleUpload(ev.id, file);
+                  }}
+                  className="w-full text-[11px] text-white/70 file:mr-2 file:rounded-full file:border-0 file:bg-[#4A90E2] file:px-3 file:py-1 file:text-white"
+                />
+                {ev._uploading && (
+                  <p className="mt-1 text-[10px] text-white/50">Uploading…</p>
+                )}
               </div>
             </div>
-            <div className="flex w-full flex-col items-center gap-2 md:w-40">
+
+            {/* Tiny preview + actions */}
+            <div className="flex flex-col items-end gap-1">
               <div
-                className="relative w-full overflow-hidden rounded-xl bg-black/40"
+                className="relative h-16 w-9 overflow-hidden rounded-lg bg-black/60"
                 style={{ aspectRatio: '9 / 16' }}
               >
                 {ev.mediaUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={ev.mediaUrl}
-                    alt={ev.title ?? 'Event media'}
+                    alt="Event media"
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-[11px] text-white/40">
+                  <div className="flex h-full w-full items-center justify-center text-[9px] text-white/40">
                     No media
                   </div>
                 )}
               </div>
-              <div className="flex w-full justify-end gap-2">
+              <div className="flex gap-1.5">
                 <button
                   type="button"
                   onClick={() => deleteEvent(ev.id)}
-                  className="rounded-lg bg-red-500/15 px-3 py-1 text-[11px] font-medium text-red-300 hover:bg-red-500/25"
+                  className="rounded-full bg-red-500/15 px-2.5 py-1 text-[10px] font-medium text-red-300 hover:bg-red-500/25"
                 >
                   Delete
                 </button>
@@ -364,7 +321,7 @@ export default function AdminEventsPage() {
                   type="button"
                   onClick={() => saveEvent(ev)}
                   disabled={ev._saving}
-                  className="rounded-lg bg-[#4A90E2] px-3 py-1 text-[11px] font-medium text-white hover:bg-[#3a7bc8] disabled:opacity-60"
+                  className="rounded-full bg-[#4A90E2] px-2.5 py-1 text-[10px] font-medium text-white hover:bg-[#3a7bc8] disabled:opacity-60"
                 >
                   {ev._saving ? 'Saving…' : 'Save'}
                 </button>

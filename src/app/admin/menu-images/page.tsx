@@ -208,9 +208,9 @@ export default function AdminMenuImagesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-white">Menu Images</h1>
+          <h1 className="text-lg font-semibold text-white">Home Gallery Images</h1>
           <p className="text-xs text-white/60">
-            Manage the 4:5 images that appear in the “Our Menu” gallery.
+            Upload and sort images used in the home page gallery.
           </p>
         </div>
         <button

@@ -15,6 +15,19 @@ export default function BottomActionBar() {
   )}`;
   const callHref = `tel:${WHATSAPP_NUMBER}`;
 
+  async function trackClick(type: 'whatsapp' | 'call') {
+    try {
+      await fetch('/api/analytics/contact-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type }),
+        keepalive: true,
+      });
+    } catch {
+      // ignore
+    }
+  }
+
   return (
     <>
       {openReachUs && (
@@ -58,11 +71,13 @@ export default function BottomActionBar() {
                     Contact SKYHY
                   </p>
                   <div className="flex flex-col gap-1.5">
-                    <a
-                      href={whatsappHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-[12px] font-medium text-white hover:bg-white/10 transition-colors"
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await trackClick('whatsapp');
+                        window.open(whatsappHref, '_blank');
+                      }}
+                      className="flex w-full items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-[12px] font-medium text-white hover:bg-white/10 transition-colors"
                     >
                       <span className="flex items-center gap-2">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#22C55E]/15 text-lg">
@@ -71,10 +86,14 @@ export default function BottomActionBar() {
                         <span>WhatsApp</span>
                       </span>
                       <span className="text-[11px] text-white/60">Chat</span>
-                    </a>
-                    <a
-                      href={callHref}
-                      className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-[12px] font-medium text-white hover:bg-white/10 transition-colors"
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await trackClick('call');
+                        window.location.href = callHref;
+                      }}
+                      className="flex w-full items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-[12px] font-medium text-white hover:bg-white/10 transition-colors"
                     >
                       <span className="flex items-center gap-2">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#38BDF8]/15 text-lg">
@@ -85,7 +104,7 @@ export default function BottomActionBar() {
                       <span className="text-[11px] text-white/60">
                         +91 {WHATSAPP_NUMBER}
                       </span>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>

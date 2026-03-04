@@ -308,29 +308,13 @@ export default function EventsPage() {
                         )}
                       </div>
                       <div className="mt-3 space-y-2 text-sm">
-                        <h2 className="line-clamp-2 font-semibold">
-                          {event.title || "SkyHy Live Event"}
-                        </h2>
-                        <div className="flex items-center justify-between gap-3 text-xs text-white/70">
-                          {event.eventDate ? (
-                            <span>
-                              {new Date(event.eventDate).toLocaleDateString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </span>
-                          ) : (
-                            <span>Upcoming date</span>
-                          )}
-                          <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-300">
-                            Ticket ₹{event.ticketPrice ?? 0} / person
-                          </span>
-                        </div>
+                        <span className="inline-flex w-max items-center gap-1 rounded-full bg-amber-500/15 px-3 py-0.5 text-[11px] font-medium text-amber-200">
+                          Ticket ₹{event.ticketPrice ?? 0} / person
+                        </span>
                         <button
                           type="button"
                           onClick={() => openModal(event)}
-                          className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-black shadow hover:from-amber-400 hover:to-orange-400 active:from-amber-600 active:to-orange-600 transition-colors"
+                          className="inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-black shadow hover:from-amber-400 hover:to-orange-400 active:from-amber-600 active:to-orange-600 transition-colors"
                         >
                           Book Tickets
                         </button>

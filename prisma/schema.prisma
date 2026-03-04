@@ -164,6 +164,14 @@ model MenuGalleryImage {
   @@index([sortOrder])
 }
 
+model ContactClick {
+  id        String   @id @default(cuid())
+  type      String   // whatsapp | call
+  createdAt DateTime @default(now())
+
+  @@index([type])
+}
+
 // ─── Future: orders, payments (placeholders — add when needed) ───────────────
 
 model User {
