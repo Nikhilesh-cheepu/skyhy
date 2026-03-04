@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 
 type Section = { id: string; slug: string; name: string };
@@ -27,6 +27,7 @@ export default function AdminMenuPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState<ToastState>(null);
+  const [addFormOpen, setAddFormOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -36,6 +37,14 @@ export default function AdminMenuPage() {
     categoryId: '',
     category: 'veg',
   });
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterSectionId, setFilterSectionId] = useState('');
+  const [filterCategoryId, setFilterCategoryId] = useState('');
+  const [filterVeg, setFilterVeg] = useState<'all' | 'veg' | 'non-veg'>('all');
+  const [filterHidden, setFilterHidden] = useState<'all' | 'visible' | 'hidden'>('all');
+
+  const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
@@ -76,23 +85,37 @@ export default function AdminMenuPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const categoriesBySection = categories.reduce<Record<string, Category[]>>((acc, c) => {
-    const sid = c.sectionId;
-    if (!acc[sid]) acc[sid] = [];
-    acc[sid].push(c);
-    return acc;
-  }, {});
+  const categoriesBySection = useMemo(
+    () =>
+      categories.reduce<Record<string, Category[]>>((acc, c) => {
+        if (!acc[c.sectionId]) acc[c.sectionId] = [];
+        acc[c.sectionId].push(c);
+        return acc;
+      }, {}),
+    [categories]
+  );
 
-  const itemsBySectionCategory = items.reduce<
-    Record<string, Record<string, MenuItem[]>>
-  >((acc, item) => {
-    const sid = item.sectionId;
-    const cid = item.categoryId;
-    if (!acc[sid]) acc[sid] = {};
-    if (!acc[sid][cid]) acc[sid][cid] = [];
-    acc[sid][cid].push(item);
-    return acc;
-  }, {});
+  const filteredItems = useMemo(() => {
+    let list = items;
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (i) =>
+          i.name.toLowerCase().includes(q) ||
+          (i.description?.toLowerCase().includes(q) ?? false)
+      );
+    }
+    if (filterSectionId) list = list.filter((i) => i.sectionId === filterSectionId);
+    if (filterCategoryId) list = list.filter((i) => i.categoryId === filterCategoryId);
+    if (filterVeg === 'veg') list = list.filter((i) => (i.category ?? 'veg') === 'veg');
+    if (filterVeg === 'non-veg') list = list.filter((i) => (i.category ?? 'veg') === 'non-veg');
+    if (filterHidden === 'visible') list = list.filter((i) => i.isActive);
+    if (filterHidden === 'hidden') list = list.filter((i) => !i.isActive);
+    return list;
+  }, [items, searchQuery, filterSectionId, filterCategoryId, filterVeg, filterHidden]);
+
+  const categoriesForSection = (sectionId: string) =>
+    categoriesBySection[sectionId] ?? [];
 
   async function addItem(e: React.FormEvent) {
     e.preventDefault();
@@ -121,6 +144,7 @@ export default function AdminMenuPage() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setForm({ name: '', description: '', price: '', sectionId: '', categoryId: '', category: 'veg' });
+      setAddFormOpen(false);
       load();
       setToast({ message: 'Item added.', variant: 'success' });
     } catch (err) {
@@ -133,6 +157,7 @@ export default function AdminMenuPage() {
   }
 
   function startEdit(item: MenuItem) {
+    setMenuOpenId(null);
     setEditingId(item.id);
     setEditName(item.name);
     setEditDescription(item.description ?? '');
@@ -164,6 +189,7 @@ export default function AdminMenuPage() {
           name: editName.trim(),
           description: editDescription.trim() || undefined,
           price: priceNum,
+          sectionId: editSectionId || undefined,
           categoryId: editCategoryId || undefined,
           category: editCategory,
           isAvailable: editIsAvailable,
@@ -184,6 +210,7 @@ export default function AdminMenuPage() {
   }
 
   async function toggleAvailable(item: MenuItem) {
+    setMenuOpenId(null);
     const nextActive = !item.isActive;
     setItems((prev) =>
       prev.map((i) => (i.id === item.id ? { ...i, isActive: nextActive } : i))
@@ -209,6 +236,7 @@ export default function AdminMenuPage() {
   async function confirmDelete() {
     if (!deleteTarget) return;
     setDeleteLoading(true);
+    setMenuOpenId(null);
     setError('');
     try {
       const res = await fetch(`/api/admin/items/${deleteTarget.id}`, { method: 'DELETE' });
@@ -235,119 +263,158 @@ export default function AdminMenuPage() {
   }
 
   return (
-    <div className="space-y-5 text-sm text-white/90">
+    <div className="space-y-4 text-sm text-white/90">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
+        <div>
           <h1 className="text-base font-semibold text-white">Manage menu items</h1>
-          <p className="text-xs text-white/60">
-            Add, edit, hide, or delete items. Group by section and category below.
-          </p>
+          <p className="text-xs text-white/60">Compact view with filters and quick actions.</p>
         </div>
-        <Link
-          href="/admin"
-          className="text-xs text-white/70 hover:text-white"
-        >
+        <Link href="/admin" className="text-xs text-white/70 hover:text-white">
           ← Dashboard
         </Link>
       </div>
 
       {error && (
-        <p className="text-xs text-red-400" role="alert">
-          {error}
-        </p>
+        <p className="text-xs text-red-400" role="alert">{error}</p>
       )}
 
-      {/* Add item — same style as Events "Add event" */}
-      <div className="rounded-2xl border border-white/10 bg-black/60 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.9)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-          Add item
-        </p>
-        <form onSubmit={addItem} className="mt-3 space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-medium text-white/70">Name *</label>
+      {/* Toolbar: Add + Search + Filters */}
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-black/50 p-2">
+        <button
+          type="button"
+          onClick={() => setAddFormOpen((o) => !o)}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-sky-400"
+        >
+          {addFormOpen ? '−' : '+'} Add Item
+        </button>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search…"
+          className="min-w-[100px] flex-1 max-w-[180px] rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white placeholder-white/40"
+        />
+        <select
+          value={filterSectionId}
+          onChange={(e) => {
+            setFilterSectionId(e.target.value);
+            setFilterCategoryId('');
+          }}
+          className="rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white"
+        >
+          <option value="">Section</option>
+          {sections.map((s) => (
+            <option key={s.id} value={s.id}>{s.name}</option>
+          ))}
+        </select>
+        <select
+          value={filterCategoryId}
+          onChange={(e) => setFilterCategoryId(e.target.value)}
+          className="rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white"
+        >
+          <option value="">Category</option>
+          {(filterSectionId
+            ? categoriesForSection(filterSectionId)
+            : categories
+          ).map((c) => (
+            <option key={c.id} value={c.id}>{c.slug}</option>
+          ))}
+        </select>
+        <select
+          value={filterVeg}
+          onChange={(e) => setFilterVeg(e.target.value as 'all' | 'veg' | 'non-veg')}
+          className="rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white"
+        >
+          <option value="all">Veg / Non-veg</option>
+          <option value="veg">Veg</option>
+          <option value="non-veg">Non-veg</option>
+        </select>
+        <select
+          value={filterHidden}
+          onChange={(e) => setFilterHidden(e.target.value as 'all' | 'visible' | 'hidden')}
+          className="rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white"
+        >
+          <option value="all">All</option>
+          <option value="visible">Visible</option>
+          <option value="hidden">Hidden</option>
+        </select>
+      </div>
+
+      {/* Collapsible Add Item form */}
+      {addFormOpen && (
+        <div className="rounded-xl border border-white/10 bg-black/60 p-3">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-white/50">
+            Add item
+          </p>
+          <form onSubmit={addItem} className="space-y-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <input
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="e.g. Paneer Tikka"
-                className="w-full rounded-xl border border-white/15 bg-black/70 px-3 py-2 text-sm text-white placeholder-white/40 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
+                placeholder="Name *"
+                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white placeholder-white/40"
                 required
               />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-medium text-white/70">Price (₹) *</label>
               <input
                 type="number"
                 min={0}
                 value={form.price}
                 onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                placeholder="0"
-                className="w-full rounded-xl border border-white/15 bg-black/70 px-3 py-2 text-sm text-white placeholder-white/40 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
+                placeholder="Price (₹) *"
+                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white placeholder-white/40"
                 required
               />
+              <input
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="Description (optional)"
+                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white placeholder-white/40 sm:col-span-2"
+              />
             </div>
-          </div>
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-medium text-white/70">Description (optional)</label>
-            <input
-              value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              placeholder="Short description"
-              className="w-full rounded-xl border border-white/15 bg-black/70 px-3 py-2 text-sm text-white placeholder-white/40 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
-            />
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-medium text-white/70">Section *</label>
+            <div className="flex flex-wrap items-center gap-2">
               <select
                 value={form.sectionId}
                 onChange={(e) => setForm((f) => ({ ...f, sectionId: e.target.value, categoryId: '' }))}
-                className="rounded-xl border border-white/15 bg-black/70 px-3 py-2 text-sm text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
+                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white"
                 required
               >
-                <option value="">Select</option>
+                <option value="">Section *</option>
                 {sections.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-medium text-white/70">Category *</label>
               <select
                 value={form.categoryId}
                 onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
-                className="rounded-xl border border-white/15 bg-black/70 px-3 py-2 text-sm text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
+                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white"
                 required
               >
-                <option value="">Select</option>
-                {(form.sectionId ? (categoriesBySection[form.sectionId] ?? []) : []).map((c) => (
+                <option value="">Category *</option>
+                {(form.sectionId ? categoriesForSection(form.sectionId) : []).map((c) => (
                   <option key={c.id} value={c.id}>{c.slug}</option>
                 ))}
               </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-medium text-white/70">Veg / Non-veg</label>
               <select
                 value={form.category}
                 onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as 'veg' | 'non-veg' }))}
-                className="rounded-xl border border-white/15 bg-black/70 px-3 py-2 text-sm text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
+                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white"
               >
                 <option value="veg">Veg</option>
                 <option value="non-veg">Non-veg</option>
               </select>
+              <button
+                type="submit"
+                disabled={adding}
+                className="rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-sky-400 disabled:opacity-50"
+              >
+                {adding ? 'Adding…' : 'Add item'}
+              </button>
             </div>
-          </div>
-          <button
-            type="submit"
-            disabled={adding}
-            className="inline-flex w-full justify-center rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-black shadow-lg shadow-sky-500/30 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/40 sm:w-auto"
-          >
-            {adding ? 'Adding…' : 'Add item'}
-          </button>
-        </form>
-      </div>
+          </form>
+        </div>
+      )}
 
-      {/* Item list by section / category — card per item like Events */}
+      {/* Compact item list */}
       {sections.length === 0 ? (
         <p className="text-xs text-white/60">
           No sections yet. Add sections and categories from{' '}
@@ -356,164 +423,180 @@ export default function AdminMenuPage() {
           </Link>
           , then add menu items here.
         </p>
+      ) : filteredItems.length === 0 ? (
+        <p className="text-xs text-white/60">No items match the current filters.</p>
       ) : (
-        <div className="space-y-6">
-          {sections.map((sec) => (
-            <div key={sec.id} className="space-y-2">
-              <p className="text-xs font-semibold text-white/70">{sec.name}</p>
-              <div className="space-y-2">
-                {(categoriesBySection[sec.id] ?? []).map((cat) => {
-                  const sectionItems = itemsBySectionCategory[sec.id]?.[cat.id] ?? [];
-                  if (sectionItems.length === 0) return null;
-                  return (
-                    <div key={cat.id} className="space-y-1.5">
-                      <p className="text-[11px] uppercase tracking-wider text-white/50 pl-1">{cat.slug}</p>
-                      <div className="space-y-2">
-                        {sectionItems.map((item) => (
-                          <div
-                            key={item.id}
-                            className={`flex items-center gap-3 rounded-2xl border border-white/10 bg-black/70 p-3 shadow-[0_12px_32px_rgba(0,0,0,0.9)] ${
-                              !item.isActive ? 'opacity-70' : ''
-                            }`}
-                          >
-                            <div className="min-w-0 flex-1 space-y-0.5">
-                              <p className="text-[13px] font-medium text-white truncate">
-                                {item.name}
-                                {!item.isActive && (
-                                  <span className="ml-2 text-[11px] font-normal text-amber-400">(hidden)</span>
-                                )}
-                              </p>
-                              {item.description && (
-                                <p className="text-[11px] text-white/60 line-clamp-2">{item.description}</p>
-                              )}
-                              <p className="text-[11px] text-sky-300 font-semibold">₹{item.price}</p>
-                            </div>
-                            <div className="flex flex-shrink-0 items-center gap-2 relative z-10">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  toggleAvailable(item);
-                                }}
-                                className="flex h-10 w-10 min-w-10 min-h-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-sm text-white hover:bg-white/20 cursor-pointer select-none touch-manipulation"
-                                title={item.isActive ? 'Hide' : 'Show'}
-                                aria-label={item.isActive ? 'Hide item' : 'Show item'}
-                              >
-                                {item.isActive ? '👁' : '👁‍🗨'}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  startEdit(item);
-                                }}
-                                className="flex h-10 w-10 min-w-10 min-h-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-sm text-white hover:bg-white/20 cursor-pointer select-none touch-manipulation"
-                                title="Edit"
-                                aria-label="Edit item"
-                              >
-                                ✎
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setDeleteTarget(item);
-                                }}
-                                className="flex h-10 w-10 min-w-10 min-h-10 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-sm text-red-300 hover:bg-red-500/20 cursor-pointer select-none touch-manipulation"
-                                title="Delete"
-                                aria-label="Delete item"
-                              >
-                                🗑
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+        <div className="space-y-1">
+          {filteredItems.map((item) => (
+            <div
+              key={item.id}
+              className={`relative flex items-center gap-2 rounded-lg border border-white/10 bg-black/60 px-2.5 py-1.5 ${
+                !item.isActive ? 'opacity-60' : ''
+              }`}
+            >
+              <div className="min-w-0 flex-1 flex items-center gap-2">
+                <span className="truncate text-xs font-medium text-white">
+                  {item.name}
+                </span>
+                {!item.isActive && (
+                  <span className="flex-shrink-0 rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">
+                    Hidden
+                  </span>
+                )}
+                <span className="flex-shrink-0 text-[11px] text-sky-300 font-semibold">
+                  ₹{item.price}
+                </span>
+                {item.description && (
+                  <span className="hidden truncate text-[11px] text-white/50 sm:inline">
+                    {item.description}
+                  </span>
+                )}
+                <span className="flex-shrink-0 rounded border border-white/20 px-1.5 py-0.5 text-[10px] text-white/70">
+                  {(item.category ?? 'veg') === 'non-veg' ? 'Non-veg' : 'Veg'}
+                </span>
+                <span className="flex-shrink-0 text-[10px] text-white/40">
+                  {item.section.name} · {item.categoryRef.slug}
+                </span>
+              </div>
+              <div className="relative flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setMenuOpenId(menuOpenId === item.id ? null : item.id)}
+                  className="flex h-7 w-7 items-center justify-center rounded border border-white/20 bg-white/5 text-white/80 hover:bg-white/10"
+                  aria-label="Actions"
+                >
+                  ⋮
+                </button>
+                {menuOpenId === item.id && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-30"
+                      onClick={() => setMenuOpenId(null)}
+                      aria-hidden
+                    />
+                    <div className="absolute right-0 top-8 z-40 min-w-[140px] rounded-lg border border-white/15 bg-slate-900 py-1 shadow-xl">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(item)}
+                        className="w-full px-3 py-1.5 text-left text-[11px] text-white hover:bg-white/10"
+                      >
+                        Edit item
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleAvailable(item)}
+                        className="w-full px-3 py-1.5 text-left text-[11px] text-white hover:bg-white/10"
+                      >
+                        {item.isActive ? 'Hide item' : 'Unhide item'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDeleteTarget(item);
+                          setMenuOpenId(null);
+                        }}
+                        className="w-full px-3 py-1.5 text-left text-[11px] text-red-400 hover:bg-red-500/20"
+                      >
+                        Delete item
+                      </button>
                     </div>
-                  );
-                })}
+                  </>
+                )}
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Edit bottom sheet — same pattern as Events */}
+      {/* Edit modal */}
       {editingId !== null && (
-        <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md rounded-t-3xl border border-white/15 bg-slate-950/95 p-4 shadow-[0_-18px_40px_rgba(0,0,0,1)] backdrop-blur-xl">
-          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/15" />
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/50">
-            Edit item
-          </p>
-          <div className="mt-3 space-y-3">
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-medium text-white/70">Name *</label>
-              <input
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-sm text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-medium text-white/70">Description (optional)</label>
-              <input
-                value={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-                className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-sm text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-medium text-white/70">Price (₹) *</label>
-              <input
-                type="number"
-                min={0}
-                value={editPrice}
-                onChange={(e) => setEditPrice(e.target.value)}
-                className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-sm text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
-              />
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <div className="space-y-1.5">
-                <label className="block text-[11px] font-medium text-white/70">Category</label>
-                <select
-                  value={editCategoryId}
-                  onChange={(e) => setEditCategoryId(e.target.value)}
-                  className="rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-sm text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
-                >
-                  {(editSectionId ? (categoriesBySection[editSectionId] ?? []) : []).map((c) => (
-                    <option key={c.id} value={c.id}>{c.slug}</option>
-                  ))}
-                </select>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-white/15 bg-slate-900 p-4 shadow-xl">
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+              Edit item
+            </p>
+            <div className="mt-3 space-y-2">
+              <div>
+                <label className="block text-[11px] text-white/60">Name *</label>
+                <input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                />
               </div>
-              <div className="space-y-1.5">
-                <label className="block text-[11px] font-medium text-white/70">Veg / Non-veg</label>
+              <div>
+                <label className="block text-[11px] text-white/60">Price (₹) *</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={editPrice}
+                  onChange={(e) => setEditPrice(e.target.value)}
+                  className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] text-white/60">Description</label>
+                <input
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] text-white/60">Section</label>
+                  <select
+                    value={editSectionId}
+                    onChange={(e) => {
+                      setEditSectionId(e.target.value);
+                      setEditCategoryId('');
+                    }}
+                    className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                  >
+                    {sections.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] text-white/60">Category</label>
+                  <select
+                    value={editCategoryId}
+                    onChange={(e) => setEditCategoryId(e.target.value)}
+                    className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                  >
+                    {(editSectionId ? categoriesForSection(editSectionId) : []).map((c) => (
+                      <option key={c.id} value={c.id}>{c.slug}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-[11px] text-white/60">Veg / Non-veg</label>
                 <select
                   value={editCategory}
                   onChange={(e) => setEditCategory(e.target.value as 'veg' | 'non-veg')}
-                  className="rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-sm text-white outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-600/60"
+                  className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
                 >
                   <option value="veg">Veg</option>
                   <option value="non-veg">Non-veg</option>
                 </select>
               </div>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editIsAvailable}
+                  onChange={(e) => setEditIsAvailable(e.target.checked)}
+                  className="rounded border-white/30 bg-black/70 text-sky-500"
+                />
+                <span className="text-[11px] text-white/70">Visible on menu</span>
+              </label>
             </div>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={editIsAvailable}
-                onChange={(e) => setEditIsAvailable(e.target.checked)}
-                className="rounded border-white/30 bg-black/80 text-sky-500 focus:ring-sky-500"
-              />
-              <span className="text-[11px] font-medium text-white/70">Visible on menu</span>
-            </label>
-            <div className="mt-3 flex gap-2">
+            <div className="mt-4 flex gap-2">
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="flex-1 rounded-xl border border-white/20 bg-transparent px-3 py-2 text-sm font-medium text-white hover:bg-white/5"
+                className="flex-1 rounded-lg border border-white/20 py-2 text-xs font-medium text-white"
               >
                 Cancel
               </button>
@@ -521,7 +604,7 @@ export default function AdminMenuPage() {
                 type="button"
                 onClick={saveEdit}
                 disabled={editSaving}
-                className="flex-1 rounded-xl bg-sky-500 px-3 py-2 text-sm font-semibold text-black shadow-lg shadow-sky-500/40 hover:bg-sky-400 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/40"
+                className="flex-1 rounded-lg bg-sky-500 py-2 text-xs font-semibold text-black disabled:opacity-50"
               >
                 {editSaving ? 'Saving…' : 'Save'}
               </button>
@@ -530,19 +613,19 @@ export default function AdminMenuPage() {
         </div>
       )}
 
-      {/* Delete confirmation modal */}
+      {/* Delete confirm */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-2xl border border-white/15 bg-slate-950/95 p-4 shadow-[0_18px_40px_rgba(0,0,0,1)]">
-            <p className="text-sm font-semibold text-white">Delete &quot;{deleteTarget.name}&quot;?</p>
-            <p className="mt-1 text-[12px] text-white/60">
-              This will remove the item from the menu. This action cannot be undone.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-sm rounded-2xl border border-white/15 bg-slate-900 p-4 shadow-xl">
+            <p className="text-sm font-semibold text-white">
+              Delete &quot;{deleteTarget.name}&quot;?
             </p>
+            <p className="mt-1 text-[12px] text-white/60">This cannot be undone.</p>
             <div className="mt-4 flex gap-2">
               <button
                 type="button"
                 onClick={() => setDeleteTarget(null)}
-                className="flex-1 rounded-xl border border-white/20 bg-transparent px-3 py-2 text-sm font-medium text-white hover:bg-white/5"
+                className="flex-1 rounded-lg border border-white/20 py-2 text-xs font-medium text-white"
               >
                 Cancel
               </button>
@@ -550,7 +633,7 @@ export default function AdminMenuPage() {
                 type="button"
                 onClick={confirmDelete}
                 disabled={deleteLoading}
-                className="flex-1 rounded-xl bg-red-500/90 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-red-500/40 hover:bg-red-400 disabled:cursor-not-allowed disabled:bg-red-500/40"
+                className="flex-1 rounded-lg bg-red-500 py-2 text-xs font-semibold text-white disabled:opacity-50"
               >
                 {deleteLoading ? 'Deleting…' : 'Delete'}
               </button>
@@ -559,14 +642,13 @@ export default function AdminMenuPage() {
         </div>
       )}
 
-      {/* Toast */}
       {toast && (
         <div className="pointer-events-none fixed bottom-4 left-1/2 z-50 -translate-x-1/2">
           <div
-            className={`pointer-events-auto rounded-full px-4 py-2 text-xs font-medium shadow-lg ${
+            className={`rounded-full px-4 py-2 text-xs font-medium shadow-lg ${
               toast.variant === 'success'
-                ? 'bg-emerald-500 text-black shadow-emerald-500/40'
-                : 'bg-red-500 text-white shadow-red-500/40'
+                ? 'bg-emerald-500 text-black'
+                : 'bg-red-500 text-white'
             }`}
           >
             {toast.message}

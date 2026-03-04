@@ -47,6 +47,7 @@ export async function PATCH(
     const name = typeof body?.name === 'string' ? body.name.trim() : undefined;
     const description = typeof body?.description === 'string' ? body.description.trim() : undefined;
     const price = typeof body?.price === 'number' ? body.price : body?.price != null ? Number(body.price) : undefined;
+    const sectionId = typeof body?.sectionId === 'string' ? body.sectionId : undefined;
     const categoryId = typeof body?.categoryId === 'string' ? body.categoryId : undefined;
     const category = typeof body?.category === 'string' ? body.category : undefined;
     const imageUrl = body?.imageUrl !== undefined ? (body.imageUrl === null || body.imageUrl === '' ? null : String(body.imageUrl)) : undefined;
@@ -56,6 +57,7 @@ export async function PATCH(
       name === undefined &&
       description === undefined &&
       price === undefined &&
+      sectionId === undefined &&
       categoryId === undefined &&
       category === undefined &&
       imageUrl === undefined &&
@@ -73,6 +75,7 @@ export async function PATCH(
         ...(name != null && { name }),
         ...(description != null && { description }),
         ...(price != null && { price }),
+        ...(sectionId != null && { sectionId }),
         ...(categoryId != null && { categoryId }),
         ...(category != null && { category }),
         ...(imageUrl !== undefined && { imageUrl }),
