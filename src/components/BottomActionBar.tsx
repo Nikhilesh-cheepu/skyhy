@@ -39,27 +39,33 @@ export default function BottomActionBar() {
         />
       )}
       <div
-        className="fixed bottom-0 left-0 right-0 z-40 flex justify-center px-2 pt-2"
+        className="fixed bottom-0 left-0 right-0 z-40 flex justify-center px-3 pt-2"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
       >
-        <div
-          className="w-full max-w-[480px] rounded-3xl border border-white/10 bg-black/80 px-2.5 py-2.5 shadow-[0_-6px_24px_rgba(0,0,0,0.7)] backdrop-blur-xl"
-        >
-          <div className="grid grid-cols-3 gap-2.5">
-            {/* Reach Us */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setOpenReachUs((prev) => !prev)}
-                className="flex h-12 w-full items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-emerald-400 to-lime-400 px-2 text-[11px] font-semibold text-slate-950 shadow-[0_8px_20px_rgba(16,185,129,0.35)] transition-all duration-150 active:scale-95 active:brightness-110"
-              >
-                <span>📞</span>
-                <span>Reach Us</span>
-              </button>
-            </div>
+        <div className="w-full max-w-[520px] rounded-3xl border border-white/10 bg-black/80 px-3 py-2.5 shadow-[0_-6px_24px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+          <div className="flex items-stretch gap-2.5">
+            {/* Reach Us (left) */}
+            <button
+              type="button"
+              onClick={() => setOpenReachUs((prev) => !prev)}
+              className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full border border-sky-500/50 bg-sky-500/5 px-3 text-[14px] font-medium text-sky-100 transition-all duration-150 whitespace-nowrap active:scale-95 hover:bg-sky-500/10"
+            >
+              <span className="text-[16px]">📞</span>
+              <span className="truncate">Reach Us</span>
+            </button>
 
-            {/* Book Table (primary) */}
-            <div className="relative">
+            {/* Pay Bill (middle) */}
+            <Link
+              href="/bills"
+              aria-label="Pay your bill"
+              className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full border border-sky-500/50 bg-sky-500/5 px-3 text-[14px] font-medium text-sky-100 transition-all duration-150 whitespace-nowrap active:scale-95 hover:bg-sky-500/10"
+            >
+              <span className="text-[16px]">💳</span>
+              <span className="truncate">Pay Bill</span>
+            </Link>
+
+            {/* Book Table (primary, right-most) */}
+            <div className="relative flex-[1.2]">
               <span
                 className="pointer-events-none absolute -top-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-[#B6FF00] px-2 py-0.5 text-[9px] font-semibold leading-tight text-[#1E40AF] shadow-md"
                 aria-hidden
@@ -68,23 +74,11 @@ export default function BottomActionBar() {
               </span>
               <Link
                 href="/reserve"
-                className="flex h-12 w-full items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-2 text-[11px] font-semibold text-slate-950 shadow-[0_8px_22px_rgba(245,158,11,0.45)] transition-all duration-150 active:scale-95 active:brightness-110"
                 aria-label="Book a table"
+                className="flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 px-3 text-[14px] font-semibold text-slate-950 shadow-[0_8px_22px_rgba(56,189,248,0.55)] transition-all duration-150 whitespace-nowrap active:scale-95 active:brightness-110"
               >
-                <span>📅</span>
-                <span>Book Table</span>
-              </Link>
-            </div>
-
-            {/* Pay Bill */}
-            <div className="relative">
-              <Link
-                href="/bills"
-                className="flex h-12 w-full items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-500 px-2 text-[11px] font-semibold text-white shadow-[0_8px_20px_rgba(56,189,248,0.45)] transition-all duration-150 active:scale-95 active:brightness-110"
-                aria-label="Pay your bill"
-              >
-                <span>💳</span>
-                <span>Pay Bill</span>
+                <span className="text-[16px]">📅</span>
+                <span className="truncate">Book Table</span>
               </Link>
             </div>
           </div>
