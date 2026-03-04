@@ -91,6 +91,29 @@ export default function BillPayCard({ bill }: { bill: Bill }) {
         );
         return;
       }
+      // #region agent log
+      void fetch("http://127.0.0.1:7429/ingest/5ae8864a-ec9c-43ea-8c05-ee65502b976d", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "58d6f0",
+        },
+        body: JSON.stringify({
+          sessionId: "58d6f0",
+          runId: "discount_initial",
+          hypothesisId: "H_UI_APPLY",
+          location: "src/components/BillPayCard.tsx:77",
+          message: "BillPayCard applied coupon",
+          data: {
+            billId: bill.id,
+            originalAmount: bill.amount,
+            discount: data.discount,
+            finalAmountRupees: data.finalAmountRupees,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion agent log
       setClaimInfo({
         discount: data.discount,
         holdExpiresAt: data.holdExpiresAt,

@@ -121,6 +121,29 @@ export async function POST(request: Request) {
         },
       });
       if (existingUserClaim) {
+        // #region agent log
+        void fetch("http://127.0.0.1:7429/ingest/5ae8864a-ec9c-43ea-8c05-ee65502b976d", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "58d6f0",
+          },
+          body: JSON.stringify({
+            sessionId: "58d6f0",
+            runId: "discount_initial",
+            hypothesisId: "H_ALREADY_USED",
+            location: "src/app/api/coupons/claim/route.ts:123",
+            message: "Coupon claim blocked: already used today",
+            data: {
+              dayKey,
+              userId: current.userId,
+              billId,
+              orderId,
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion agent log
         return {
           success: false,
           error: "already_used_today",
@@ -145,6 +168,30 @@ export async function POST(request: Request) {
       const availability =
         QUOTA_PER_DAY - dayRow.issuedCount - activeHeldCount;
       if (availability <= 0) {
+        // #region agent log
+        void fetch("http://127.0.0.1:7429/ingest/5ae8864a-ec9c-43ea-8c05-ee65502b976d", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "58d6f0",
+          },
+          body: JSON.stringify({
+            sessionId: "58d6f0",
+            runId: "discount_initial",
+            hypothesisId: "H_QUOTA",
+            location: "src/app/api/coupons/claim/route.ts:145",
+            message: "Coupon claim blocked: quota full",
+            data: {
+              dayKey,
+              userId: current.userId,
+              issuedCount: dayRow.issuedCount,
+              activeHeldCount,
+              availability,
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion agent log
         return {
           success: false,
           error: "quota_full",
@@ -168,6 +215,33 @@ export async function POST(request: Request) {
           discountPercent: DISCOUNT_PERCENT,
         },
       });
+
+      // #region agent log
+      void fetch("http://127.0.0.1:7429/ingest/5ae8864a-ec9c-43ea-8c05-ee65502b976d", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "58d6f0",
+        },
+        body: JSON.stringify({
+          sessionId: "58d6f0",
+          runId: "discount_initial",
+          hypothesisId: "H_SUCCESS",
+          location: "src/app/api/coupons/claim/route.ts:160",
+          message: "Coupon claim success",
+          data: {
+            dayKey,
+            userId: current.userId,
+            billId,
+            orderId,
+            issuedCountBefore: dayRow.issuedCount,
+            activeHeldCount,
+            discount,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion agent log
 
       return {
         success: true,

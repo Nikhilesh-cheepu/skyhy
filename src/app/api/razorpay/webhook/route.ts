@@ -93,11 +93,33 @@ export async function POST(request: Request) {
             where: { id: heldClaim.id },
             data: { status: "USED" },
           });
-          await tx.couponDay.upsert({
+          const dayRow = await tx.couponDay.upsert({
             where: { dayKey: heldClaim.dayKey },
             create: { dayKey: heldClaim.dayKey, issuedCount: 1 },
             update: { issuedCount: { increment: 1 } },
           });
+          // #region agent log
+          void fetch("http://127.0.0.1:7429/ingest/5ae8864a-ec9c-43ea-8c05-ee65502b976d", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Debug-Session-Id": "58d6f0",
+            },
+            body: JSON.stringify({
+              sessionId: "58d6f0",
+              runId: "discount_initial",
+              hypothesisId: "H_WEBHOOK_ORDER",
+              location: "src/app/api/razorpay/webhook/route.ts:84",
+              message: "Webhook applied coupon for order",
+              data: {
+                orderId: order.id,
+                dayKey: heldClaim.dayKey,
+                newIssuedCount: dayRow.issuedCount,
+              },
+              timestamp: Date.now(),
+            }),
+          }).catch(() => {});
+          // #endregion agent log
         }
       });
       const orderPhone = order.customerPhone?.trim();
@@ -133,11 +155,33 @@ export async function POST(request: Request) {
             where: { id: heldClaim.id },
             data: { status: "USED" },
           });
-          await tx.couponDay.upsert({
+          const dayRow = await tx.couponDay.upsert({
             where: { dayKey: heldClaim.dayKey },
             create: { dayKey: heldClaim.dayKey, issuedCount: 1 },
             update: { issuedCount: { increment: 1 } },
           });
+          // #region agent log
+          void fetch("http://127.0.0.1:7429/ingest/5ae8864a-ec9c-43ea-8c05-ee65502b976d", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Debug-Session-Id": "58d6f0",
+            },
+            body: JSON.stringify({
+              sessionId: "58d6f0",
+              runId: "discount_initial",
+              hypothesisId: "H_WEBHOOK_BILL",
+              location: "src/app/api/razorpay/webhook/route.ts:123",
+              message: "Webhook applied coupon for bill",
+              data: {
+                billId: bill.id,
+                dayKey: heldClaim.dayKey,
+                newIssuedCount: dayRow.issuedCount,
+              },
+              timestamp: Date.now(),
+            }),
+          }).catch(() => {});
+          // #endregion agent log
         }
       });
 
