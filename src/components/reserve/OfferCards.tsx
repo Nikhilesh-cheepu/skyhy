@@ -54,7 +54,7 @@ interface OfferCardsProps {
 
 export default function OfferCards({ meal, selectedTime, selectedOfferId, onSelect }: OfferCardsProps) {
   const showEatDrink128 =
-    meal === 'lunch' && selectedTime !== null && is128OfferValid(selectedTime);
+    selectedTime !== null && is128OfferValid(selectedTime);
   const visibleOffers = selectedTime
     ? OFFERS.filter((o) => o.id !== 'eat-drink-128' || showEatDrink128)
     : [];

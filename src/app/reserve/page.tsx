@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '@/components/Footer';
-import BottomActionBar from '@/components/BottomActionBar';
 import DateChips from '@/components/reserve/DateChips';
 import MealToggle, { type MealType } from '@/components/reserve/MealToggle';
 import TimeSlotsGrid from '@/components/reserve/TimeSlotsGrid';
@@ -98,21 +97,21 @@ export default function ReservePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-black">
       <div className="pb-24 pt-6 md:pt-8">
-        <div className="max-w-lg mx-auto px-4">
+        <div className="mx-auto max-w-lg px-4">
           <PageTopBar
             title="Reserve Your Table"
             fallbackHref="/"
           />
 
           {/* Date chips */}
-          <section className="mb-6">
+          <section className="mb-5">
             <DateChips selectedDate={selectedDate} onSelect={setSelectedDate} />
           </section>
 
           {/* Meal toggle */}
-          <section className="mb-6">
+          <section className="mb-5">
             <MealToggle
               value={meal}
               onChange={(m) => {
@@ -127,8 +126,8 @@ export default function ReservePage() {
           </section>
 
           {/* Time slots */}
-          <section className="mb-6">
-            <p className="text-white/80 text-sm mb-3">Select time</p>
+          <section className="mb-5">
+            <p className="mb-2 text-sm font-medium text-white/80">Select time</p>
             <TimeSlotsGrid
               meal={meal}
               selectedTime={selectedTime}
@@ -143,14 +142,19 @@ export default function ReservePage() {
 
           {/* Offers - only visible after selecting a time slot */}
           {selectedTime && (
-            <section className="mb-6">
-              <OfferCards meal={meal} selectedTime={selectedTime} selectedOfferId={selectedOfferId} onSelect={setSelectedOfferId} />
+            <section className="mb-5">
+              <OfferCards
+                meal={meal}
+                selectedTime={selectedTime}
+                selectedOfferId={selectedOfferId}
+                onSelect={setSelectedOfferId}
+              />
             </section>
           )}
 
           {/* Guests */}
-          <section className="mb-6">
-            <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700">
+          <section className="mb-5">
+            <div className="rounded-2xl border border-white/10 bg-black/70 p-4 shadow-[0_18px_40px_rgba(15,23,42,0.9)]">
               <GuestCounter value={guests} onChange={setGuests} />
             </div>
           </section>
@@ -158,7 +162,12 @@ export default function ReservePage() {
           {/* Contact */}
           <section className="mb-6 space-y-4">
             <div>
-              <label htmlFor="name" className="block text-white font-medium text-sm mb-2">Full name *</label>
+              <label
+                htmlFor="name"
+                className="mb-2 block text-sm font-medium text-white"
+              >
+                Full name *
+              </label>
               <input
                 id="name"
                 type="text"
@@ -166,15 +175,20 @@ export default function ReservePage() {
                 onChange={(e) => { setName(e.target.value); setNameError(''); }}
                 placeholder="Full name *"
                 className={`
-                  w-full px-4 py-3 rounded-xl bg-gray-800/80 border text-white placeholder-white/50
-                  focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all
-                  ${nameError ? 'border-red-500/70' : 'border-gray-600'}
+                  w-full rounded-2xl border px-4 py-3 bg-black/70 text-white placeholder-white/40
+                  focus:outline-none focus:ring-2 focus:ring-[#2563EB]/60 transition-all
+                  ${nameError ? 'border-red-500/70' : 'border-white/15'}
                 `}
               />
               {nameError && <p className="text-red-400 text-xs mt-1">{nameError}</p>}
             </div>
             <div>
-              <label htmlFor="mobile" className="block text-white font-medium text-sm mb-2">10-digit mobile *</label>
+              <label
+                htmlFor="mobile"
+                className="mb-2 block text-sm font-medium text-white"
+              >
+                10-digit mobile *
+              </label>
               <input
                 id="mobile"
                 type="tel"
@@ -188,9 +202,9 @@ export default function ReservePage() {
                 }}
                 placeholder="10-digit mobile *"
                 className={`
-                  w-full px-4 py-3 rounded-xl bg-gray-800/80 border text-white placeholder-white/50
-                  focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all
-                  ${mobileError ? 'border-red-500/70' : 'border-gray-600'}
+                  w-full rounded-2xl border px-4 py-3 bg-black/70 text-white placeholder-white/40
+                  focus:outline-none focus:ring-2 focus:ring-[#2563EB]/60 transition-all
+                  ${mobileError ? 'border-red-500/70' : 'border-white/15'}
                 `}
               />
               {mobileError && <p className="text-red-400 text-xs mt-1">{mobileError}</p>}
@@ -204,7 +218,7 @@ export default function ReservePage() {
               onClick={handleConfirmBooking}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-4 rounded-xl bg-teal-500 text-white font-bold text-lg shadow-lg hover:bg-teal-400 transition-colors"
+              className="w-full rounded-2xl bg-gradient-to-r from-[#2563EB] to-[#3B82F6] py-3.5 text-base font-semibold text-white shadow-[0_12px_30px_rgba(37,99,235,0.8)] hover:from-[#1D4ED8] hover:to-[#2563EB] transition-colors"
             >
               Confirm Booking
             </motion.button>
@@ -213,7 +227,7 @@ export default function ReservePage() {
               onClick={handleWhatsApp}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-3 rounded-xl bg-gray-700/80 border border-gray-600 text-white font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
@@ -240,7 +254,7 @@ export default function ReservePage() {
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl bg-gray-900 border border-gray-700 p-6 shadow-2xl"
+              className="w-full max-w-md rounded-2xl border border-white/15 bg-black p-6 shadow-[0_24px_60px_rgba(0,0,0,0.9)]"
             >
               <h3 className="text-xl font-bold text-white mb-4">Booking Summary</h3>
               <div className="space-y-2 text-white/90 text-sm">
@@ -272,8 +286,6 @@ export default function ReservePage() {
       </AnimatePresence>
 
       <Footer />
-
-      <BottomActionBar />
     </div>
   );
 }

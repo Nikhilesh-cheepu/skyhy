@@ -261,9 +261,6 @@ export default function HomePage() {
         ))}
       </div>
 
-              {/* Menu gallery from admin */}
-              <MenuGalleryCarousel />
-
               {/* View Menu Button */}
               <div className="text-center mt-4 relative z-10">
                 <Link 
@@ -276,7 +273,22 @@ export default function HomePage() {
                 </Link>
               </div>
             </div>
-        </motion.div>
+          </motion.div>
+
+          {/* Gallery Section */}
+          <section className="px-4 pb-12">
+            <div className="mx-auto max-w-7xl">
+              <div className="mb-4 text-center">
+                <h2 className="text-2xl font-bold text-white md:text-3xl">
+                  Gallery
+                </h2>
+                <p className="mt-1 text-sm text-white/70">
+                  A peek into SKYHY nights and vibes.
+                </p>
+              </div>
+              <MenuGalleryCarousel />
+            </div>
+          </section>
         </div>
       </div>
 
