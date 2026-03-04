@@ -44,12 +44,12 @@ export default function HomePage() {
             <AnnouncementBar />
           </div>
 
-          {/* Hero Section - Edge-to-edge, Below Navbar + Announcement */}
-          <section id="home" className="relative z-10 w-full pt-24 md:pt-28">
+          {/* Hero Section - Edge-to-edge, directly under header */}
+          <section id="home" className="relative z-10 w-full pt-16 md:pt-20">
             <div className="w-screen relative left-1/2 -ml-[50vw] -mr-[50vw] max-w-none overflow-hidden">
               <div
                 className="relative w-full overflow-hidden rounded-none md:rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-900"
-                style={{ minHeight: "calc(100vh - 6rem)" }}
+                style={{ height: "calc(100vh - 4rem)" }}
               >
                 {heroVideoError ? (
                   <div
@@ -58,7 +58,9 @@ export default function HomePage() {
                   />
                 ) : (
                   <video
-                    className={`block w-full h-full object-cover object-center motion-reduce:hidden transition-opacity duration-500 ${heroVideoReady ? "opacity-100" : "opacity-0"}`}
+                    className={`block h-full w-full object-cover object-center motion-reduce:hidden transition-opacity duration-500 [aspect-ratio:9/16] ${
+                      heroVideoReady ? "opacity-100" : "opacity-0"
+                    }`}
                     style={{ filter: "brightness(0.8)" }}
                     autoPlay
                     loop

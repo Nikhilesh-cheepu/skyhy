@@ -248,10 +248,16 @@ function PackagesMenuPageContent() {
         <div className="mx-auto max-w-6xl px-4">
           {/* Sticky header area inside page */}
           <div className="sticky top-16 z-20 bg-black/95 pb-3 backdrop-blur">
-            <PageTopBar title="Party Packages & Menu" />
+            <div className="text-center">
+              <h1 className="text-lg font-semibold tracking-wide text-white md:text-2xl">
+                <span className="bg-gradient-to-r from-[#38bdf8] via-[#4f46e5] to-[#a855f7] bg-clip-text text-transparent">
+                  Party Packages &amp; Menu
+                </span>
+              </h1>
+            </div>
 
             {/* Offer highlight pill */}
-            <div className="mt-1 flex justify-center">
+            <div className="mt-2 flex justify-center">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] text-white/80 shadow-[0_0_20px_rgba(37,99,235,0.35)]">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
                 <span className="truncate">{OFFER_MESSAGES[offerIndex]}</span>
@@ -259,29 +265,29 @@ function PackagesMenuPageContent() {
             </div>
 
             {/* Segmented toggle */}
-            <div className="mt-3 flex rounded-full bg-white/5 p-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setActiveTab("packages")}
-              className={`flex-1 rounded-full py-1.5 ${
-                activeTab === "packages"
-                  ? "bg-white text-black font-semibold"
-                  : "text-white/70"
-              }`}
-            >
-              Party Packages
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("menu")}
-              className={`flex-1 rounded-full py-1.5 ${
-                activeTab === "menu"
-                  ? "bg-white text-black font-semibold"
-                  : "text-white/70"
-              }`}
-            >
-              Menu
-            </button>
+            <div className="mt-3 flex rounded-full bg-black/60 p-1 text-[11px] shadow-[0_6px_30px_rgba(15,23,42,0.7)]">
+              <button
+                type="button"
+                onClick={() => setActiveTab("packages")}
+                className={`flex-1 rounded-full px-3 py-1.5 transition-all ${
+                  activeTab === "packages"
+                    ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow"
+                    : "text-white/60"
+                }`}
+              >
+                Party Packages
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("menu")}
+                className={`flex-1 rounded-full px-3 py-1.5 transition-all ${
+                  activeTab === "menu"
+                    ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow"
+                    : "text-white/60"
+                }`}
+              >
+                Menu
+              </button>
             </div>
           </div>
 
@@ -311,37 +317,52 @@ function PackagesMenuPageContent() {
               )}
               {!menuLoading && !menuError && menuData && (
                 <>
-                  {/* Main Sections - compact chips */}
-                  <div className="mt-2 overflow-x-auto no-scrollbar">
-                    <div className="flex gap-1.5 text-[11px]">
+                  {/* Main Sections - quick select chips */}
+                  <div className="mt-3 overflow-x-auto no-scrollbar">
+                    <div className="flex gap-2 text-[11px]">
                       {Object.keys(menuData).map((section) => (
                         <button
                           key={section}
                           onClick={() => handleSectionChange(section)}
-                          className={`cursor-pointer rounded-full border px-3 py-1 text-[11px] font-medium ${
+                          className={`cursor-pointer rounded-full border px-3 py-1 font-medium flex items-center gap-1.5 ${
                             activeSection === section
-                              ? "bg-[#2563EB] border-[#2563EB] text-white"
-                              : "bg-white/5 border-white/20 text-white/70"
+                              ? "bg-white text-black border-white shadow-sm"
+                              : "bg-white/5 border-white/15 text-white/70"
                           }`}
                         >
-                          {section === "food"
-                            ? "🍽️ Food"
-                            : section === "beverage"
-                            ? "🥤 Beverage"
-                            : section === "liquor"
-                            ? "🍷 Liquor"
-                            : section === "store"
-                            ? "🏪 Store"
-                            : section === "special-128"
-                            ? "🎉 Eat & Drink @ ₹128"
-                            : section}
+                          <span>
+                            {section === "food"
+                              ? "🍽️"
+                              : section === "beverage"
+                              ? "🥤"
+                              : section === "liquor"
+                              ? "🍷"
+                              : section === "store"
+                              ? "🏪"
+                              : section === "special-128"
+                              ? "🎉"
+                              : "•"}
+                          </span>
+                          <span className="whitespace-nowrap">
+                            {section === "food"
+                              ? "Food"
+                              : section === "beverage"
+                              ? "Beverage"
+                              : section === "liquor"
+                              ? "Liquor"
+                              : section === "store"
+                              ? "Store"
+                              : section === "special-128"
+                              ? "Eat & Drink @ ₹128"
+                              : section}
+                          </span>
                         </button>
                       ))}
                     </div>
                   </div>
 
                   {/* Search + categories row */}
-                  <div className="relative mx-auto mb-3 max-w-2xl">
+                  <div className="relative mx-auto mb-3 mt-3 max-w-2xl">
                     <div className="flex gap-2 text-[12px]">
                       <div className="relative flex-[0.7]">
                         <input
@@ -363,7 +384,7 @@ function PackagesMenuPageContent() {
                             )
                           }
                           placeholder="Search menu..."
-                          className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 pl-7 text-[12px] text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+                          className="w-full rounded-full border border-white/15 bg-white/5 px-3 py-1.5 pl-7 text-[12px] text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                         />
                         <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-white/50">
                           🔍
@@ -404,7 +425,7 @@ function PackagesMenuPageContent() {
                         onClick={() =>
                           setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
                         }
-                        className="flex flex-[0.3] items-center justify-between rounded-lg border border-white/20 bg-white/5 px-2 py-1.5 text-[11px] text-white/80"
+                        className="flex flex-[0.34] items-center justify-between rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] text-white/80"
                       >
                         <span>
                           {selectedCategories.length
@@ -489,89 +510,88 @@ function PackagesMenuPageContent() {
                   </div>
 
                   {/* Menu Items - compact cards */}
-                  <div className="mt-4 mb-20 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <div className="mt-2 mb-16 grid grid-cols-1 gap-2.5 md:grid-cols-2">
                     {currentItems.map((item) => (
                       <div
                         key={item.id}
-                        className="space-y-1 rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-white/80"
+                        className="rounded-2xl border border-white/10 bg-black/60 px-3 py-2.5 text-xs text-white/80"
                       >
-                        {/* Top row: name + price */}
-                        <div className="flex items-center justify-between gap-2">
-                          <h3 className="truncate text-[13px] font-semibold text-white">
-                            {item.name}
-                          </h3>
-                          <span className="text-[13px] font-semibold text-[#FACC15]">
-                            ₹{item.price}
-                          </span>
-                        </div>
-
-                        {/* One-line description */}
-                        <p className="text-[11px] text-white/60 line-clamp-1">
-                          {item.description}
-                        </p>
-
-                        {/* Veg / Non-veg badge */}
-                        <div>
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                              item.category === "veg"
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : item.category === "non-veg"
-                                ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                                : "bg-white/10 text-white/70 border border-white/20"
-                            }`}
-                          >
-                            {item.category === "veg"
-                              ? "🌱 Veg"
-                              : item.category === "non-veg"
-                              ? "🍖 Non-Veg"
-                              : item.category}
-                          </span>
-                        </div>
-
-                        {/* Add to cart / quantity controls */}
-                        {getItemQuantity(item.id) > 0 ? (
-                          <div className="flex items-center justify-end gap-1 pt-1">
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                updateQuantity(
-                                  item.id,
-                                  getItemQuantity(item.id) - 1,
-                                );
-                              }}
-                              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                            >
-                              -
-                            </button>
-                            <div className="min-w-[40px] rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-3 py-1 text-center text-[11px] font-bold text-white">
-                              {getItemQuantity(item.id)}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1 space-y-0.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <h3 className="truncate text-[13px] font-semibold text-white">
+                                {item.name}
+                              </h3>
+                              <span className="shrink-0 text-[13px] font-semibold text-[#FACC15]">
+                                ₹{item.price}
+                              </span>
                             </div>
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                addToCart(item);
-                              }}
-                              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                            <p className="text-[11px] text-white/60 line-clamp-1">
+                              {item.description}
+                            </p>
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                item.category === "veg"
+                                  ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                  : item.category === "non-veg"
+                                  ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                                  : "bg-white/10 text-white/70 border border-white/20"
+                              }`}
                             >
-                              +
-                            </button>
+                              {item.category === "veg"
+                                ? "🌱 Veg"
+                                : item.category === "non-veg"
+                                ? "🍖 Non-Veg"
+                                : item.category}
+                            </span>
                           </div>
-                        ) : (
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              addToCart(item);
-                            }}
-                            className="mt-1 w-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] py-1.5 text-[11px] font-semibold text-white hover:from-[#1D4ED8] hover:to-[#2563EB]"
-                          >
-                            <span>🛒</span>
-                            Add to Cart
-                          </button>
-                        )}
+
+                          {/* Add to cart / quantity controls */}
+                          <div className="flex shrink-0 flex-col items-end justify-center gap-1">
+                            {getItemQuantity(item.id) > 0 ? (
+                              <div className="inline-flex items-center gap-1 rounded-full bg-white/5 px-1 py-0.5">
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    updateQuantity(
+                                      item.id,
+                                      getItemQuantity(item.id) - 1,
+                                    );
+                                  }}
+                                  className="flex h-6 w-6 items-center justify-center rounded-full bg-white/5 text-white hover:bg-white/15"
+                                >
+                                  -
+                                </button>
+                                <span className="min-w-[20px] text-center text-[11px] font-semibold text-white">
+                                  {getItemQuantity(item.id)}
+                                </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    addToCart(item);
+                                  }}
+                                  className="flex h-6 w-6 items-center justify-center rounded-full bg-white/5 text-white hover:bg-white/15"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  addToCart(item);
+                                }}
+                                className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-3 py-1 text-[11px] font-semibold text-white hover:from-[#1D4ED8] hover:to-[#2563EB]"
+                              >
+                                <span className="text-[12px]">＋</span>
+                                <span>Add</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
