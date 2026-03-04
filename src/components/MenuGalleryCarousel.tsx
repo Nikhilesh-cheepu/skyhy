@@ -42,14 +42,14 @@ export default function MenuGalleryCarousel() {
         }
         return next;
       });
-    }, 4000);
+    }, 1500);
     return () => clearInterval(id);
   }, [images.length, paused]);
 
   const handleUserInteract = () => {
     if (!images.length) return;
     setPaused(true);
-    window.setTimeout(() => setPaused(false), 6000);
+    window.setTimeout(() => setPaused(false), 4500);
   };
 
   if (loading && !images.length) {
@@ -78,7 +78,13 @@ export default function MenuGalleryCarousel() {
               className="snap-center"
               style={{ scrollSnapAlign: "center" }}
             >
-              <div className="relative mx-auto w-[86vw] max-w-3xl overflow-hidden rounded-3xl border border-white/15 bg-black/70 shadow-[0_18px_40px_rgba(0,0,0,0.9)]">
+              <div
+                className={`relative mx-auto w-[86vw] max-w-3xl overflow-hidden rounded-3xl border bg-black/70 transition-transform duration-300 ${
+                  index === activeIndex
+                    ? "border-white/40 shadow-[0_22px_55px_rgba(0,0,0,1)] scale-[1.01]"
+                    : "border-white/15 shadow-[0_16px_36px_rgba(0,0,0,0.7)] scale-[0.98]"
+                }`}
+              >
                 <div className="aspect-video w-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
