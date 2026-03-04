@@ -30,6 +30,7 @@ function PackagesMenuPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
+  const sectionParam = searchParams.get('section');
   const [activeTab, setActiveTab] = useState<'packages' | 'menu'>(
     tabParam === 'menu' ? 'menu' : 'packages'
   );
@@ -37,8 +38,8 @@ function PackagesMenuPageContent() {
   const [menuLoading, setMenuLoading] = useState(true);
   const [menuError, setMenuError] = useState('');
 
-  // Menu-specific state (only used when menu tab is active)
-  const [activeSection, setActiveSection] = useState('food');
+  // Menu-specific state (only used when menu tab is active). Prefer URL section (e.g. special-128) so "View Menu" from Happy Hours opens with 128 chip selected.
+  const [activeSection, setActiveSection] = useState(sectionParam || 'food');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
@@ -67,6 +68,14 @@ function PackagesMenuPageContent() {
       setActiveTab('menu');
     }
   }, [tabParam]);
+
+  // When menu data loads, if URL had section=special-128 (or another section), select that chip if it exists.
+  useEffect(() => {
+    if (!menuData || !sectionParam) return;
+    if (Object.prototype.hasOwnProperty.call(menuData, sectionParam)) {
+      setActiveSection(sectionParam);
+    }
+  }, [menuData, sectionParam]);
 
   const cartKey = JSON.stringify(cart.map((c) => `${c.id}:${c.quantity}`));
   useEffect(() => {

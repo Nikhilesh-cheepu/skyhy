@@ -142,7 +142,7 @@ export default function HomePage() {
                 <p className="mb-3 text-xs text-white/70">
                   Pick from a special menu and enjoy every item at just ₹128.
                 </p>
-                <Link href="/packages-menu?tab=menu">
+                <Link href="/packages-menu?tab=menu&section=special-128">
                   <button className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 py-2 text-xs font-semibold text-white shadow hover:from-[#1D4ED8] hover:to-[#2563EB]">
                     View Menu
                     <span>→</span>
