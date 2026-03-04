@@ -111,49 +111,59 @@ interface PackageData {
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
       {packages.map((pkg) => (
         <div
           key={pkg.id}
           className={`${
             pkg.isPremium 
-              ? "bg-gradient-to-br from-[#2563EB] to-[#3B82F6] shadow-2xl border-2 border-[#B6FF00] hover:border-[#9AE6B4]" 
+              ? "bg-gradient-to-br from-[#2563EB] to-[#3B82F6] shadow-xl border border-[#B6FF00]/80 hover:border-[#B6FF00]" 
               : "bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20"
-          } rounded-2xl md:rounded-3xl p-6 md:p-8 h-full flex flex-col relative group hover:shadow-xl transition-all duration-300 hover:-translate-y-2`}
+          } rounded-2xl md:rounded-3xl p-4 md:p-5 h-full flex flex-col relative group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5`}
         >
           {pkg.isPremium && (
-            <div className="absolute -top-3 right-4 bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] px-3 py-1 rounded-full text-xs font-bold z-10 shadow-lg">
+            <div className="absolute -top-3 right-3 rounded-full bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] px-2.5 py-0.5 text-[10px] font-bold text-[#1E40AF] shadow-lg">
               ⭐ PREMIUM PICK
             </div>
           )}
-          
-          <div className="text-center mb-6 flex-shrink-0">
-            <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
+
+          <div className="mb-4 flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-2xl text-xl ${
               pkg.isPremium 
-                ? 'bg-white/20 backdrop-blur-sm' 
-                : 'bg-gradient-to-br from-[#2563EB]/20 to-[#3B82F6]/20 border border-[#2563EB]/30'
+                ? "bg-white/20 backdrop-blur-sm" 
+                : "bg-gradient-to-br from-[#2563EB]/20 to-[#3B82F6]/20 border border-[#2563EB]/30"
             }`}>
-              <span className="text-2xl">{pkg.icon}</span>
+              <span>{pkg.icon}</span>
             </div>
-            <div className={`text-3xl font-black mb-2 ${
-              pkg.isPremium ? 'text-[#B6FF00]' : 'text-[#2563EB]'
-            }`}>
-              ₹{pkg.price}
-            </div>
-            <p className={`text-sm ${
-              pkg.isPremium ? 'text-white/80' : 'text-white/70'
-            }`}>
-              per person
-            </p>
-          </div>
-          
-          <div className="space-y-3 mb-6 flex-grow">
-            {pkg.features.map((feature, index) => (
-              <div key={index} className={`flex items-start text-sm ${
-                pkg.isPremium ? 'text-white/90' : 'text-white/80'
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.18em] text-white/50">
+                Party Package
+              </div>
+              <div className={`text-xl font-extrabold ${
+                pkg.isPremium ? "text-[#B6FF00]" : "text-[#2563EB]"
               }`}>
-                <span className="mr-3 text-[#B6FF00] text-lg flex-shrink-0">✅</span>
-                <span className="leading-relaxed">{feature}</span>
+                ₹{pkg.price}{" "}
+                <span className="text-[11px] font-semibold text-white/60">
+                  per person
+                </span>
+              </div>
+              <p className="mt-0.5 line-clamp-1 text-[11px] text-white/60">
+                {pkg.name.replace(/Package \d+ — /, "")}
+              </p>
+            </div>
+          </div>
+
+          <div className="mb-4 space-y-1.5 flex-grow">
+            {pkg.features.map((feature, index) => (
+              <div
+                key={index}
+                className={`flex items-start text-[11px] ${
+                  pkg.isPremium ? "text-white/90" : "text-white/80"
+              }`}>
+                <span className="mr-2 mt-0.5 flex-shrink-0 text-[13px] text-[#B6FF00]">
+                  ✓
+                </span>
+                <span className="leading-snug">{feature}</span>
               </div>
             ))}
           </div>
@@ -165,10 +175,10 @@ interface PackageData {
               e.stopPropagation();
               handleBookPackage(pkg);
             }}
-            className={`w-full font-bold py-4 px-6 rounded-xl hover:shadow-lg transition-all duration-300 text-sm cursor-pointer hover:scale-105 mt-auto ${
+            className={`mt-auto w-full cursor-pointer rounded-xl px-4 py-2.5 text-[12px] font-semibold hover:shadow-lg transition-all duration-300 hover:scale-[1.02] ${
               pkg.isPremium 
-                ? 'bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] hover:from-[#9AE6B4] hover:to-[#B6FF00]' 
-                : 'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white hover:from-[#1D4ED8] hover:to-[#2563EB]'
+                ? "bg-gradient-to-r from-[#B6FF00] to-[#9AE6B4] text-[#1E40AF] hover:from-[#9AE6B4] hover:to-[#B6FF00]" 
+                : "bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white hover:from-[#1D4ED8] hover:to-[#2563EB]"
             }`}
             style={{ zIndex: 20 }}
           >

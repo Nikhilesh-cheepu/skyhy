@@ -264,13 +264,13 @@ function PackagesMenuPageContent() {
             </div>
 
             {/* Segmented toggle */}
-            <div className="mt-3 flex rounded-full bg-black/60 p-1 text-[11px] shadow-[0_6px_30px_rgba(15,23,42,0.7)]">
+            <div className="mt-3 rounded-full bg-black/70 p-1 text-[11px] shadow-[0_10px_32px_rgba(15,23,42,0.9)] border border-white/10">
               <button
                 type="button"
                 onClick={() => setActiveTab("packages")}
                 className={`flex-1 rounded-full px-3 py-1.5 transition-all ${
                   activeTab === "packages"
-                    ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow"
+                    ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow-[0_0_18px_rgba(59,130,246,0.7)]"
                     : "text-white/60"
                 }`}
               >
@@ -281,13 +281,16 @@ function PackagesMenuPageContent() {
                 onClick={() => setActiveTab("menu")}
                 className={`flex-1 rounded-full px-3 py-1.5 transition-all ${
                   activeTab === "menu"
-                    ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow"
+                    ? "bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-black font-semibold shadow-[0_0_18px_rgba(59,130,246,0.7)]"
                     : "text-white/60"
                 }`}
               >
                 Menu
               </button>
             </div>
+            <p className="mt-1 text-center text-[10px] text-white/45">
+              Tap to switch between party packages and full menu.
+            </p>
           </div>
 
           {/* Content Area */}

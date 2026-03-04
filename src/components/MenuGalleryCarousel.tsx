@@ -13,7 +13,6 @@ export default function MenuGalleryCarousel() {
   const [images, setImages] = useState<MenuImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const stripRef = useRef<HTMLDivElement | null>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -48,39 +47,6 @@ export default function MenuGalleryCarousel() {
       observer.disconnect();
     };
   }, [images.length]);
-
-  // Gentle auto-advance when visible; disabled when only a single image
-  useEffect(() => {
-    if (images.length <= 1 || paused || !isVisible) return;
-    const id = window.setInterval(() => {
-      setActiveIndex((prev) => {
-        const next = (prev + 1) % images.length;
-        const el = cardsRef.current[next];
-        const strip = stripRef.current;
-        if (el && strip) {
-          const cardRect = el.getBoundingClientRect();
-          const stripRect = strip.getBoundingClientRect();
-          const targetCenter =
-            cardRect.left -
-            stripRect.left -
-            (stripRect.width - cardRect.width) / 2;
-
-          strip.scrollTo({
-            left: strip.scrollLeft + targetCenter,
-            behavior: "smooth",
-          });
-        }
-        return next;
-      });
-    }, 4000);
-    return () => window.clearInterval(id);
-  }, [images.length, paused, isVisible]);
-
-  const handleUserInteract = () => {
-    if (!images.length) return;
-    setPaused(true);
-    window.setTimeout(() => setPaused(false), 6000);
-  };
 
   if (loading && !images.length) {
     return (
@@ -157,8 +123,6 @@ export default function MenuGalleryCarousel() {
           <div
             ref={stripRef}
             className="no-scrollbar -mx-4 overflow-x-auto scroll-smooth pb-1"
-            onMouseDown={handleUserInteract}
-            onTouchStart={handleUserInteract}
           >
             <div className="flex snap-x snap-mandatory gap-4 px-[10vw]">
               {images.map((img, index) => (
