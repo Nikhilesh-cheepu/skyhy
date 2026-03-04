@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import BillPayCard from "@/components/BillPayCard";
+import PageTopBar from "@/components/PageTopBar";
 
 type Bill = {
   id: string;
@@ -61,13 +62,11 @@ function PendingBillsContent() {
   return (
     <div className="min-h-screen bg-[#020617] pb-24 text-white">
       <div className="mx-auto max-w-md px-4 pt-24">
+        <PageTopBar title="Pending Bills" showBack fallbackHref="/" />
         <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold">Pending Bills</h1>
-            <p className="mt-1 text-xs text-white/70">
-              Pending bills for {phone && `+91 ${phone}`}
-            </p>
-          </div>
+          <p className="mt-1 text-xs text-white/70">
+            Pending bills for {phone && `+91 ${phone}`}
+          </p>
           <button
             type="button"
             onClick={async () => {

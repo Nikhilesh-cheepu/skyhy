@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { playfair, manrope, inter } from '@/styles/fonts';
+import { playfair, manrope, inter } from "@/styles/fonts";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import SiteHeader from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://skyhy.vercel.app'),
@@ -43,7 +44,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${manrope.variable} ${inter.variable}`}>
       <body className={`${manrope.className} antialiased`}>
-        {children}
+        <SiteHeader />
+        <div className="pt-16 md:pt-24">
+          {children}
+        </div>
         <Analytics />
       </body>
     </html>

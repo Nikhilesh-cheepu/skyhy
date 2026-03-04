@@ -8,7 +8,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import Footer from '@/components/Footer';
 import PackagesGrid from '@/components/PackagesGrid';
-import StickyActions from '@/components/StickyActions';
 
 interface MenuItem {
   id: number;
@@ -982,8 +981,6 @@ function PackagesMenuPageContent() {
 
         {/* Footer Section */}
         <Footer />
-
-        <StickyActions />
       </div>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
     </div>

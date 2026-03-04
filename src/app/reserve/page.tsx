@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
-import StickyActions from '@/components/StickyActions';
+import BottomActionBar from '@/components/BottomActionBar';
 import DateChips from '@/components/reserve/DateChips';
 import MealToggle, { type MealType } from '@/components/reserve/MealToggle';
 import TimeSlotsGrid from '@/components/reserve/TimeSlotsGrid';
@@ -101,50 +101,6 @@ export default function ReservePage() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] overflow-x-hidden w-full max-w-full">
-      {/* Navbar */}
-      <div className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">
-        <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-none md:rounded-xl shadow-lg px-4 md:px-2 max-w-6xl mx-auto h-16 md:h-20 flex items-center">
-          <div className="flex items-center justify-between w-full relative">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo/shyhy-logo-white.png" alt="SKYHY" width={200} height={68} className="h-10 md:h-14 w-auto" />
-            </Link>
-            <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
-              <Link href="/" className="text-white font-semibold text-sm hover:text-[#B6FF00] transition-all">Home</Link>
-              <Link href="/#about" className="text-white font-semibold text-sm hover:text-[#B6FF00] transition-all">About</Link>
-              <Link href="/packages-menu" className="text-white font-semibold text-sm hover:text-[#B6FF00] transition-all">Packages & Menu</Link>
-              <Link href="/reserve" className="text-white font-semibold text-sm hover:text-[#B6FF00] transition-all">Reserve</Link>
-            </nav>
-            <button
-              className="md:hidden text-white p-2"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Menu"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {isMobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="fixed top-16 left-0 right-0 z-40 md:hidden md:top-20 md:left-4 md:right-4"
-        >
-          <div className="bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] rounded-xl shadow-lg p-4 max-w-6xl mx-auto">
-            <nav className="flex flex-col items-center space-y-4">
-              <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="text-white font-semibold text-sm hover:text-[#B6FF00] transition-all py-2">Home</Link>
-              <Link href="/#about" onClick={() => setIsMobileMenuOpen(false)} className="text-white font-semibold text-sm hover:text-[#B6FF00] transition-all py-2">About</Link>
-              <Link href="/packages-menu" onClick={() => setIsMobileMenuOpen(false)} className="text-white font-semibold text-sm hover:text-[#B6FF00] transition-all py-2">Packages & Menu</Link>
-              <Link href="/reserve" onClick={() => setIsMobileMenuOpen(false)} className="text-white font-semibold text-sm hover:text-[#B6FF00] transition-all py-2">Reserve</Link>
-            </nav>
-          </div>
-        </motion.div>
-      )}
-
       <div className="pt-20 md:pt-24 pb-24">
         <div className="max-w-lg mx-auto px-4">
           {/* Header */}
@@ -326,7 +282,7 @@ export default function ReservePage() {
 
       <Footer />
 
-      <StickyActions />
+      <BottomActionBar />
     </div>
   );
 }
