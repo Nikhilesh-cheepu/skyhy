@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import Footer from '@/components/Footer';
@@ -35,7 +34,6 @@ function PackagesMenuPageContent() {
   const [activeTab, setActiveTab] = useState<'packages' | 'menu'>(
     tabParam === 'menu' ? 'menu' : 'packages'
   );
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [menuData, setMenuData] = useState<MenuDataFromApi | null>(null);
   const [menuLoading, setMenuLoading] = useState(true);
   const [menuError, setMenuError] = useState('');
@@ -238,10 +236,10 @@ function PackagesMenuPageContent() {
   useEffect(() => {
     const id = setInterval(
       () => setOfferIndex((i) => (i + 1) % OFFER_MESSAGES.length),
-      3000
+      3000,
     );
     return () => clearInterval(id);
-  }, []);
+  }, [OFFER_MESSAGES.length]);
 
   return (
     <div className="min-h-screen bg-black pb-24">
@@ -263,274 +261,322 @@ function PackagesMenuPageContent() {
           <div className="mb-3 flex rounded-full bg-white/5 p-1 text-xs">
             <button
               type="button"
-              onClick={() => setActiveTab('packages')}
+              onClick={() => setActiveTab("packages")}
               className={`flex-1 rounded-full py-1.5 ${
-                activeTab === 'packages'
-                  ? 'bg-white text-black font-semibold'
-                  : 'text-white/70'
+                activeTab === "packages"
+                  ? "bg-white text-black font-semibold"
+                  : "text-white/70"
               }`}
             >
               Packages
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('menu')}
+              onClick={() => setActiveTab("menu")}
               className={`flex-1 rounded-full py-1.5 ${
-                activeTab === 'menu'
-                  ? 'bg-white text-black font-semibold'
-                  : 'text-white/70'
+                activeTab === "menu"
+                  ? "bg-white text-black font-semibold"
+                  : "text-white/70"
               }`}
             >
               Menu
             </button>
           </div>
 
-        {/* Content Area */}
-        {activeTab === 'packages' ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            key="packages"
-          >
-            <PackagesGrid />
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            key="menu"
-            className="w-full"
-          >
-            {menuLoading && (
-              <p className="text-white/70 text-center py-12">Loading menu…</p>
-            )}
-            {menuError && (
-              <p className="text-red-400 text-center py-12">{menuError}</p>
-            )}
-            {!menuLoading && !menuError && menuData && (
-            <div>
-            {/* Main Sections - compact chips */}
-            <div className="mt-2 overflow-x-auto no-scrollbar">
-              <div className="flex gap-1.5 text-[11px]">
-              {Object.keys(menuData).map((section) => (
-                <button
-                  key={section}
-                  onClick={() => handleSectionChange(section)}
-                  className={`px-3 py-1 rounded-full border text-[11px] font-medium cursor-pointer ${
-                    activeSection === section
-                      ? 'bg-[#2563EB] border-[#2563EB] text-white'
-                      : 'bg-white/5 border-white/20 text-white/70'
-                  }`}
-                >
-                  {section === 'food' ? '🍽️ Food' : 
-                   section === 'beverage' ? '🥤 Beverage' :
-                   section === 'liquor' ? '🍷 Liquor' : 
-                   section === 'store' ? '🏪 Store' :
-                   section === 'special-128' ? '🎉 Eat & Drink @ ₹128' : section}
-                </button>
-              ))}
-            </div>
-
-            {/* Search + categories row */}
-            <div className="mb-3 relative max-w-2xl mx-auto">
-              <div className="flex gap-2 text-[12px]">
-                <div className="relative flex-[0.7]">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSearchSuggestions(e.target.value.length > 0);
-                  }}
-                  onFocus={() => setShowSearchSuggestions(searchQuery.length > 0)}
-                  onBlur={() => setTimeout(() => setShowSearchSuggestions(false), 200)}
-                  placeholder="Search menu..."
-                  className="w-full rounded-lg bg-white/5 border border-white/20 px-3 py-1.5 pl-7 text-[12px] text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
-                />
-                <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-white/50 text-xs">
-                  🔍
-                </span>
-                
-                {/* Search Suggestions */}
-                {showSearchSuggestions && searchSuggestions.length > 0 && (
-                  <div className="absolute z-50 w-full mt-2 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
-                    <div className="max-h-64 overflow-y-auto">
-                      {searchSuggestions.map((item) => (
+          {/* Content Area */}
+          {activeTab === "packages" ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              key="packages"
+            >
+              <PackagesGrid />
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              key="menu"
+              className="w-full"
+            >
+              {menuLoading && (
+                <p className="py-12 text-center text-white/70">
+                  Loading menu…
+                </p>
+              )}
+              {menuError && (
+                <p className="py-12 text-center text-red-400">{menuError}</p>
+              )}
+              {!menuLoading && !menuError && menuData && (
+                <>
+                  {/* Main Sections - compact chips */}
+                  <div className="mt-2 overflow-x-auto no-scrollbar">
+                    <div className="flex gap-1.5 text-[11px]">
+                      {Object.keys(menuData).map((section) => (
                         <button
-                          key={item.id}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setSearchQuery(item.name);
-                            setShowSearchSuggestions(false);
-                          }}
-                          className="w-full px-4 py-2.5 text-left hover:bg-white/10 active:bg-white/20 transition-all duration-150 cursor-pointer text-[12px]"
+                          key={section}
+                          onClick={() => handleSectionChange(section)}
+                          className={`cursor-pointer rounded-full border px-3 py-1 text-[11px] font-medium ${
+                            activeSection === section
+                              ? "bg-[#2563EB] border-[#2563EB] text-white"
+                              : "bg-white/5 border-white/20 text-white/70"
+                          }`}
                         >
-                          <p className="text-white font-medium text-sm">{item.name}</p>
-                          <p className="text-white/60 text-xs mt-1">{item.description}</p>
+                          {section === "food"
+                            ? "🍽️ Food"
+                            : section === "beverage"
+                            ? "🥤 Beverage"
+                            : section === "liquor"
+                            ? "🍷 Liquor"
+                            : section === "store"
+                            ? "🏪 Store"
+                            : section === "special-128"
+                            ? "🎉 Eat & Drink @ ₹128"
+                            : section}
                         </button>
                       ))}
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* Categories dropdown trigger */}
-              <button
-                type="button"
-                onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                className="flex-[0.3] flex items-center justify-between rounded-lg bg-white/5 border border-white/20 px-2 py-1.5 text-[11px] text-white/80"
-              >
-                <span>{selectedCategories.length ? `${selectedCategories.length} filters` : 'All categories'}</span>
-                <span>▾</span>
-              </button>
-            </div>
-
-            {/* Category Filters dropdown */}
-            <div className="mb-4 relative">
-              <div className="max-w-4xl mx-auto">
-                {isCategoryDropdownOpen && (
-                  <>
-                    <div className="absolute z-50 w-full mt-2 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
-                      <div className="max-h-96 overflow-y-auto p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                          {categories.map((category) => {
-                            const isSelected = selectedCategories.includes(category);
-                            return (
-                              <label
-                                key={category}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-150 ${
-                                  isSelected
-                                    ? 'bg-gradient-to-r from-[#2563EB]/30 to-[#3B82F6]/30 border border-[#2563EB]'
-                                    : 'bg-white/5 hover:bg-white/10 active:bg-white/15 border border-white/10'
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    if (e.target.checked) {
-                                      setSelectedCategories([...selectedCategories, category]);
-                                    } else {
-                                      setSelectedCategories(selectedCategories.filter(c => c !== category));
-                                    }
-                                  }}
-                                  className="w-5 h-5 rounded border-white/30 bg-white/10 text-[#2563EB] focus:ring-[#2563EB] focus:ring-2"
-                                />
-                                <span className="text-white font-medium text-sm flex-1">
-                                  {formatCategoryName(category)}
-                                </span>
-                              </label>
+                  {/* Search + categories row */}
+                  <div className="relative mx-auto mb-3 max-w-2xl">
+                    <div className="flex gap-2 text-[12px]">
+                      <div className="relative flex-[0.7]">
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setShowSearchSuggestions(
+                              e.target.value.length > 0,
                             );
-                          })}
+                          }}
+                          onFocus={() =>
+                            setShowSearchSuggestions(searchQuery.length > 0)
+                          }
+                          onBlur={() =>
+                            setTimeout(
+                              () => setShowSearchSuggestions(false),
+                              200,
+                            )
+                          }
+                          placeholder="Search menu..."
+                          className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 pl-7 text-[12px] text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+                        />
+                        <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-white/50">
+                          🔍
+                        </span>
+
+                        {/* Search Suggestions */}
+                        {showSearchSuggestions &&
+                          searchSuggestions.length > 0 && (
+                            <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-white/20 bg-black/95 shadow-2xl backdrop-blur-xl">
+                              <div className="max-height-64 overflow-y-auto">
+                                {searchSuggestions.map((item) => (
+                                  <button
+                                    key={item.id}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setSearchQuery(item.name);
+                                      setShowSearchSuggestions(false);
+                                    }}
+                                    className="w-full cursor-pointer px-4 py-2.5 text-left text-[12px] transition-all duration-150 hover:bg-white/10 active:bg-white/20"
+                                  >
+                                    <p className="text-sm font-medium text-white">
+                                      {item.name}
+                                    </p>
+                                    <p className="mt-1 text-xs text-white/60">
+                                      {item.description}
+                                    </p>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                      </div>
+
+                      {/* Categories dropdown trigger */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
+                        }
+                        className="flex flex-[0.3] items-center justify-between rounded-lg border border-white/20 bg-white/5 px-2 py-1.5 text-[11px] text-white/80"
+                      >
+                        <span>
+                          {selectedCategories.length
+                            ? `${selectedCategories.length} filters`
+                            : "All categories"}
+                        </span>
+                        <span>▾</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Category Filters dropdown */}
+                  <div className="relative mb-4">
+                    <div className="mx-auto max-w-4xl">
+                      {isCategoryDropdownOpen && (
+                        <>
+                          <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-white/20 bg-black/95 shadow-2xl backdrop-blur-xl">
+                            <div className="max-h-96 overflow-y-auto p-4">
+                              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                                {categories.map((category) => {
+                                  const isSelected =
+                                    selectedCategories.includes(category);
+                                  return (
+                                    <label
+                                      key={category}
+                                      className={`flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 transition-all duration-150 ${
+                                        isSelected
+                                          ? "bg-gradient-to-r from-[#2563EB]/30 to-[#3B82F6]/30 border border-[#2563EB]"
+                                          : "bg-white/5 hover:bg-white/10 active:bg-white/15 border border-white/10"
+                                      }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          if (e.target.checked) {
+                                            setSelectedCategories([
+                                              ...selectedCategories,
+                                              category,
+                                            ]);
+                                          } else {
+                                            setSelectedCategories(
+                                              selectedCategories.filter(
+                                                (c) => c !== category,
+                                              ),
+                                            );
+                                          }
+                                        }}
+                                        className="h-5 w-5 rounded border-white/30 bg-white/10 text-[#2563EB] focus:ring-2 focus:ring-[#2563EB]"
+                                      />
+                                      <span className="flex-1 text-sm font-medium text-white">
+                                        {formatCategoryName(category)}
+                                      </span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {selectedCategories.length > 0 && (
+                                <div className="mt-4 border-t border-white/20 pt-4">
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setSelectedCategories([]);
+                                    }}
+                                    className="w-full cursor-pointer rounded-xl bg-white/10 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-white/20 active:bg-white/30"
+                                  >
+                                    Clear All Filters
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div
+                            className="fixed inset-0 z-40"
+                            onClick={() => setIsCategoryDropdownOpen(false)}
+                          />
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Menu Items - compact cards */}
+                  <div className="mt-4 mb-20 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {currentItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="space-y-1 rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-white/80"
+                      >
+                        {/* Top row: name + price */}
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="truncate text-[13px] font-semibold text-white">
+                            {item.name}
+                          </h3>
+                          <span className="text-[13px] font-semibold text-[#FACC15]">
+                            ₹{item.price}
+                          </span>
                         </div>
-                        {selectedCategories.length > 0 && (
-                          <div className="mt-4 pt-4 border-t border-white/20">
+
+                        {/* One-line description */}
+                        <p className="text-[11px] text-white/60 line-clamp-1">
+                          {item.description}
+                        </p>
+
+                        {/* Veg / Non-veg badge */}
+                        <div>
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                              item.category === "veg"
+                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                : item.category === "non-veg"
+                                ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                                : "bg-white/10 text-white/70 border border-white/20"
+                            }`}
+                          >
+                            {item.category === "veg"
+                              ? "🌱 Veg"
+                              : item.category === "non-veg"
+                              ? "🍖 Non-Veg"
+                              : item.category}
+                          </span>
+                        </div>
+
+                        {/* Add to cart / quantity controls */}
+                        {getItemQuantity(item.id) > 0 ? (
+                          <div className="flex items-center justify-end gap-1 pt-1">
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                setSelectedCategories([]);
+                                updateQuantity(
+                                  item.id,
+                                  getItemQuantity(item.id) - 1,
+                                );
                               }}
-                              className="w-full px-4 py-2 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer"
+                              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
                             >
-                              Clear All Filters
+                              -
+                            </button>
+                            <div className="min-w-[40px] rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-3 py-1 text-center text-[11px] font-bold text-white">
+                              {getItemQuantity(item.id)}
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                addToCart(item);
+                              }}
+                              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                            >
+                              +
                             </button>
                           </div>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              addToCart(item);
+                            }}
+                            className="mt-1 w-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] py-1.5 text-[11px] font-semibold text-white hover:from-[#1D4ED8] hover:to-[#2563EB]"
+                          >
+                            <span>🛒</span>
+                            Add to Cart
+                          </button>
                         )}
                       </div>
-                    </div>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setIsCategoryDropdownOpen(false)}
-                    />
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Menu Items - compact cards */}
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-20">
-              {currentItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="space-y-1 rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-white/80"
-                >
-                  {/* Top row: name + price */}
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="truncate text-[13px] font-semibold text-white">
-                      {item.name}
-                    </h3>
-                    <span className="text-[13px] font-semibold text-[#FACC15]">
-                      ₹{item.price}
-                    </span>
+                    ))}
                   </div>
-
-                  {/* One-line description */}
-                  <p className="line-clamp-1 text-[11px] text-white/60">
-                    {item.description}
-                  </p>
-
-                  {/* Veg / Non-veg badge */}
-                  <div>
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                      item.category === 'veg' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                      item.category === 'non-veg' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                      'bg-white/10 text-white/70 border border-white/20'
-                    }`}>
-                      {item.category === 'veg' ? '🌱 Veg' :
-                       item.category === 'non-veg' ? '🍖 Non-Veg' :
-                       item.category}
-                    </span>
-                  </div>
-
-                  {/* Add to cart / quantity controls */}
-                  {getItemQuantity(item.id) > 0 ? (
-                    <div className="flex items-center justify-end gap-1 pt-1">
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          updateQuantity(item.id, getItemQuantity(item.id) - 1);
-                        }}
-                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                      >
-                        -
-                      </button>
-                      <div className="min-w-[40px] rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-3 py-1 text-center text-[11px] font-bold text-white">
-                        {getItemQuantity(item.id)}
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          addToCart(item);
-                        }}
-                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-                      >
-                        +
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        addToCart(item);
-                      }}
-                      className="mt-1 w-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] py-1.5 text-[11px] font-semibold text-white hover:from-[#1D4ED8] hover:to-[#2563EB]"
-                    >
-                      <span>🛒</span>
-                      Add to Cart
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-            )}
-          </motion.div>
-        )}
+                </>
+              )}
+            </motion.div>
+          )}
 
       {/* Cart summary bar */}
       {activeTab === 'menu' && getCartCount() > 0 && (

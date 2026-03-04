@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
 import { getCurrentCustomer } from "@/lib/customer-session";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const prisma = getPrisma();
     const current = getCurrentCustomer();

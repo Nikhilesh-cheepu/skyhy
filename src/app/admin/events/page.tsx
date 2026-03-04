@@ -376,7 +376,7 @@ export default function AdminEventsPage() {
       {expiredEvents.length > 0 && (
         <div className="space-y-3">
           <p className="text-xs font-semibold text-white/70">Expired Events</p>
-          {expiredEvents.map((ev, index) => (
+          {expiredEvents.map((ev) => (
             <div
               key={ev.id}
               className="flex flex-col gap-3 rounded-2xl border border-white/5 bg-black/50 p-3 shadow-[0_12px_30px_rgba(0,0,0,0.7)] md:flex-row"

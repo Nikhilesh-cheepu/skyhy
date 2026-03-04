@@ -32,7 +32,7 @@ export default function PhoneLogin() {
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [loading, setLoading] = useState(false);
-  const [sendStatus, setSendStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [, setSendStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
   const confirmationResultRef =

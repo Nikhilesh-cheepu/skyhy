@@ -1,13 +1,12 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import PageTopBar from "@/components/PageTopBar";
 
 const WHATSAPP_NUMBER = "7013884485";
 
 export default function OrdersSuccessClient() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const status = searchParams.get("status") || "paid";
   const total = searchParams.get("total") || "0";

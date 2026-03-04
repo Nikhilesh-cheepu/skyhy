@@ -99,7 +99,7 @@ export default function AccountClient() {
       }
     }
     void init();
-  }, [router]);
+  }, [pathname, router]);
 
   const pendingBills = bills.filter((b) => b.status === "PENDING");
   const paidBills = bills.filter((b) => b.status === "PAID");

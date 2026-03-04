@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Footer from "@/components/Footer";
 import OffersCarousel from "@/components/OffersCarousel";
 import MenuGalleryCarousel from "@/components/MenuGalleryCarousel";

@@ -1,13 +1,12 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import PageTopBar from "@/components/PageTopBar";
 
 const WHATSAPP_NUMBER = "7013884485";
 
 export default function SuccessClient() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const status = searchParams.get("status") || "free";
   const eventTitle = searchParams.get("eventTitle") || "SkyHy Live Event";

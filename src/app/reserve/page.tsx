@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import Footer from '@/components/Footer';
 import BottomActionBar from '@/components/BottomActionBar';
 import DateChips from '@/components/reserve/DateChips';
@@ -17,7 +16,6 @@ import PageTopBar from '@/components/PageTopBar';
 const WHATSAPP_NUMBER = '7013884485';
 
 export default function ReservePage() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [meal, setMeal] = useState<MealType>('dinner');
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
