@@ -32,10 +32,14 @@ function isFutureSlot(slot: string, selectedDate: string): boolean {
 
 export default function TimeSlotsGrid({ meal, selectedTime, selectedDate, onSelect }: TimeSlotsGridProps) {
   const allSlots = getSlotsForMeal(meal);
-  const slots = allSlots.filter((slot) => isFutureSlot(slot, selectedDate));
+  const futureSlots = allSlots.filter((slot) => isFutureSlot(slot, selectedDate));
+  const slots = futureSlots.length > 0 ? futureSlots : allSlots;
 
   return (
     <div className="grid grid-cols-4 gap-2">
+      {futureSlots.length === 0 && (
+        <p className="col-span-full text-xs text-white/60 mb-1">No slots left today — all times shown for reference. Pick another date for available slots.</p>
+      )}
       {slots.map((slot) => {
         const isSelected = selectedTime === slot;
         return (
