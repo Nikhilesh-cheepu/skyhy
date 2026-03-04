@@ -52,6 +52,9 @@ export default function AccountClient() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [couponStatusToday, setCouponStatusToday] = useState<
+    "available" | "used_today" | "sold_out" | "unknown"
+  >("unknown");
 
   useEffect(() => {
     async function init() {
@@ -91,6 +94,9 @@ export default function AccountClient() {
               expired: [],
             },
           );
+          if (overview.couponStatusToday) {
+            setCouponStatusToday(overview.couponStatusToday);
+          }
         }
       } catch {
         setError("Unable to load account details. Please try again.");
@@ -111,6 +117,28 @@ export default function AccountClient() {
         <p className="mb-3 text-[11px] text-white/50">
           Logged in as <span className="font-semibold">+91 {phone}</span>
         </p>
+
+        {/* Coupon availability status */}
+        <div className="mb-4">
+          {couponStatusToday === "available" && (
+            <div className="rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-100">
+              25% OFF on À la carte is <span className="font-semibold">available</span>{' '}
+              for you today (FCFS, 30 coupons/day).
+            </div>
+          )}
+          {couponStatusToday === "used_today" && (
+            <div className="rounded-2xl border border-sky-400/40 bg-sky-500/10 px-3 py-2 text-[11px] text-sky-100">
+              You have already used today&apos;s 25% OFF coupon. Try again tomorrow.
+            </div>
+          )}
+          {couponStatusToday === "sold_out" && (
+            <div className="rounded-2xl border border-red-400/40 bg-red-500/10 px-3 py-2 text-[11px] text-red-100">
+              Today&apos;s 25% OFF coupons are{' '}
+              <span className="font-semibold">sold out</span>. Please try again
+              tomorrow.
+            </div>
+          )}
+        </div>
 
         {/* Tabs */}
         <div className="mb-4 flex rounded-full bg-black/60 p-1 text-xs">
@@ -174,10 +202,16 @@ export default function AccountClient() {
                   className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                     b.paymentStatus === "PAID"
                       ? "bg-emerald-500/20 text-emerald-300"
-                      : "bg-amber-500/20 text-amber-200"
+                      : b.paymentStatus === "BOOKING_CREATED"
+                        ? "bg-sky-500/20 text-sky-200"
+                        : "bg-amber-500/20 text-amber-200"
                   }`}
                 >
-                  {b.paymentStatus === "PAID" ? "PAID" : "PENDING"}
+                  {b.paymentStatus === "PAID"
+                    ? "PAID"
+                    : b.paymentStatus === "BOOKING_CREATED"
+                      ? "BOOKING CREATED"
+                      : "PENDING"}
                 </span>
               </div>
             ))}

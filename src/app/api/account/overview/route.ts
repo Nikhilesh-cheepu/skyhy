@@ -45,6 +45,47 @@ export async function GET() {
     const used = coupons.filter((c) => c.status === "USED");
     const expired = coupons.filter((c) => c.status === "EXPIRED");
 
+    // Coupon availability status for today's FCFS discount (per dayKey, 30/day)
+    let couponStatusToday: "available" | "used_today" | "sold_out" | "unknown" =
+      "unknown";
+    try {
+      const now = new Date();
+      const istOffsetMs = 5.5 * 60 * 60 * 1000;
+      const istNow = new Date(now.getTime() + istOffsetMs);
+      const dayKey = istNow.toISOString().slice(0, 10); // YYYY-MM-DD in IST
+
+      const [existingUserClaim, dayRow, activeHeldCount] = await Promise.all([
+        prisma.couponClaim.findFirst({
+          where: {
+            dayKey,
+            userId: user.id,
+            status: { in: ["HELD", "USED"] },
+          },
+        }),
+        prisma.couponDay.findUnique({
+          where: { dayKey },
+        }),
+        prisma.couponClaim.count({
+          where: {
+            dayKey,
+            status: "HELD",
+            holdExpiresAt: { gte: now },
+          },
+        }),
+      ]);
+
+      if (existingUserClaim) {
+        couponStatusToday = "used_today";
+      } else {
+        const issuedCount = dayRow?.issuedCount ?? 0;
+        const QUOTA_PER_DAY = 30;
+        const availability = QUOTA_PER_DAY - issuedCount - activeHeldCount;
+        couponStatusToday = availability > 0 ? "available" : "sold_out";
+      }
+    } catch {
+      couponStatusToday = "unknown";
+    }
+
     return NextResponse.json({
       bookings: bookings.map((b) => ({
         id: b.id,
@@ -54,6 +95,7 @@ export async function GET() {
         paymentStatus: b.paymentStatus,
       })),
       coupons: { active, used, expired },
+      couponStatusToday,
     });
   } catch (e) {
     console.error("[account/overview]", e);
