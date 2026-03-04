@@ -9,6 +9,8 @@ onlyBuiltDependencies:
   - '@tailwindcss/oxide'
   - 'sharp'
   - 'unrs-resolver'
+  - '@firebase/util'
+  - 'protobufjs'
 
 ignoredBuiltDependencies: []
 
