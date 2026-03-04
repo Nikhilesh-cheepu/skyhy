@@ -5,7 +5,9 @@ import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
 import {
   SESSION_COOKIE_NAME,
+  SESSION_MAX_AGE_SECONDS,
   createCustomerSessionValue,
+  getSessionCookieOptions,
 } from "@/lib/customer-session";
 
 export async function POST(request: Request) {
@@ -29,11 +31,10 @@ export async function POST(request: Request) {
       create: { phone: last10 },
     });
 
-    const maxAgeSeconds = 60 * 60 * 24 * 30; // 30 days
     const value = createCustomerSessionValue(
       user.id,
       user.phone,
-      maxAgeSeconds
+      SESSION_MAX_AGE_SECONDS
     );
 
     const res = NextResponse.json({
@@ -44,13 +45,7 @@ export async function POST(request: Request) {
       },
     });
 
-    res.cookies.set(SESSION_COOKIE_NAME, value, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: maxAgeSeconds,
-    });
+    res.cookies.set(SESSION_COOKIE_NAME, value, getSessionCookieOptions());
 
     return res;
   } catch (e) {

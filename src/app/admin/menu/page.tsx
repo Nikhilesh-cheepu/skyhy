@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Section = { id: string; slug: string; name: string };
 type Category = { id: string; slug: string; name: string; sectionId: string };
@@ -27,7 +28,8 @@ export default function AdminMenuPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState<ToastState>(null);
-  const [addFormOpen, setAddFormOpen] = useState(false);
+
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -44,6 +46,7 @@ export default function AdminMenuPage() {
   const [filterVeg, setFilterVeg] = useState<'all' | 'veg' | 'non-veg'>('all');
   const [filterHidden, setFilterHidden] = useState<'all' | 'visible' | 'hidden'>('all');
 
+  const [openSectionIds, setOpenSectionIds] = useState<Set<string>>(new Set());
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
 
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -117,6 +120,36 @@ export default function AdminMenuPage() {
   const categoriesForSection = (sectionId: string) =>
     categoriesBySection[sectionId] ?? [];
 
+  const { sectionOrder, itemsBySectionCategory } = useMemo(() => {
+    const sectionOrder: Section[] = [];
+    const seen = new Set<string>();
+    for (const s of sections) {
+      const hasItems = filteredItems.some((i) => i.sectionId === s.id);
+      if (hasItems && !seen.has(s.id)) {
+        seen.add(s.id);
+        sectionOrder.push(s);
+      }
+    }
+    const itemsBySectionCategory: Record<string, Record<string, MenuItem[]>> = {};
+    for (const item of filteredItems) {
+      const sid = item.sectionId;
+      const cid = item.categoryId;
+      if (!itemsBySectionCategory[sid]) itemsBySectionCategory[sid] = {};
+      if (!itemsBySectionCategory[sid][cid]) itemsBySectionCategory[sid][cid] = [];
+      itemsBySectionCategory[sid][cid].push(item);
+    }
+    return { sectionOrder, itemsBySectionCategory };
+  }, [sections, filteredItems]);
+
+  const toggleSection = (sectionId: string) => {
+    setOpenSectionIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(sectionId)) next.delete(sectionId);
+      else next.add(sectionId);
+      return next;
+    });
+  };
+
   async function addItem(e: React.FormEvent) {
     e.preventDefault();
     const name = form.name.trim();
@@ -144,7 +177,7 @@ export default function AdminMenuPage() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setForm({ name: '', description: '', price: '', sectionId: '', categoryId: '', category: 'veg' });
-      setAddFormOpen(false);
+      setAddModalOpen(false);
       load();
       setToast({ message: 'Item added.', variant: 'success' });
     } catch (err) {
@@ -263,36 +296,41 @@ export default function AdminMenuPage() {
   }
 
   return (
-    <div className="space-y-4 text-sm text-white/90">
+    <div
+      className="relative min-h-[60vh] rounded-2xl bg-gradient-to-b from-slate-900/95 via-[#0f172a] to-slate-950/95 p-4 text-sm text-white/90 shadow-xl"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
+      }}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-base font-semibold text-white">Manage menu items</h1>
-          <p className="text-xs text-white/60">Compact view with filters and quick actions.</p>
+          <p className="text-xs text-white/50">Grouped by section and category.</p>
         </div>
-        <Link href="/admin" className="text-xs text-white/70 hover:text-white">
+        <Link href="/admin" className="text-xs text-white/60 hover:text-white">
           ← Dashboard
         </Link>
       </div>
 
       {error && (
-        <p className="text-xs text-red-400" role="alert">{error}</p>
+        <p className="mt-2 text-xs text-red-400" role="alert">{error}</p>
       )}
 
-      {/* Toolbar: Add + Search + Filters */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-black/50 p-2">
+      {/* Toolbar: browsing only */}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
-          onClick={() => setAddFormOpen((o) => !o)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-sky-400"
+          onClick={() => setAddModalOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-xl border border-sky-500/40 bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-500/30"
         >
-          {addFormOpen ? '−' : '+'} Add Item
+          + Add Item
         </button>
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search…"
-          className="min-w-[100px] flex-1 max-w-[180px] rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white placeholder-white/40"
+          placeholder="Search items…"
+          className="min-w-[120px] max-w-[200px] rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white placeholder-white/40 focus:border-white/20 focus:outline-none"
         />
         <select
           value={filterSectionId}
@@ -300,9 +338,9 @@ export default function AdminMenuPage() {
             setFilterSectionId(e.target.value);
             setFilterCategoryId('');
           }}
-          className="rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white"
+          className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white focus:border-white/20 focus:outline-none"
         >
-          <option value="">Section</option>
+          <option value="">All sections</option>
           {sections.map((s) => (
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
@@ -310,20 +348,17 @@ export default function AdminMenuPage() {
         <select
           value={filterCategoryId}
           onChange={(e) => setFilterCategoryId(e.target.value)}
-          className="rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white"
+          className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white focus:border-white/20 focus:outline-none"
         >
-          <option value="">Category</option>
-          {(filterSectionId
-            ? categoriesForSection(filterSectionId)
-            : categories
-          ).map((c) => (
+          <option value="">All categories</option>
+          {(filterSectionId ? categoriesForSection(filterSectionId) : categories).map((c) => (
             <option key={c.id} value={c.id}>{c.slug}</option>
           ))}
         </select>
         <select
           value={filterVeg}
           onChange={(e) => setFilterVeg(e.target.value as 'all' | 'veg' | 'non-veg')}
-          className="rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white"
+          className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white focus:border-white/20 focus:outline-none"
         >
           <option value="all">Veg / Non-veg</option>
           <option value="veg">Veg</option>
@@ -332,7 +367,7 @@ export default function AdminMenuPage() {
         <select
           value={filterHidden}
           onChange={(e) => setFilterHidden(e.target.value as 'all' | 'visible' | 'hidden')}
-          className="rounded-lg border border-white/15 bg-black/60 px-2.5 py-1.5 text-xs text-white"
+          className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white focus:border-white/20 focus:outline-none"
         >
           <option value="all">All</option>
           <option value="visible">Visible</option>
@@ -340,218 +375,306 @@ export default function AdminMenuPage() {
         </select>
       </div>
 
-      {/* Collapsible Add Item form */}
-      {addFormOpen && (
-        <div className="rounded-xl border border-white/10 bg-black/60 p-3">
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-white/50">
-            Add item
+      {/* Hierarchy: Section accordions → Category headings → Item rows */}
+      <div className="mt-6 space-y-2">
+        {sections.length === 0 ? (
+          <p className="text-xs text-white/50">
+            No sections yet. <Link href="/admin/categories" className="text-sky-400 underline">Category Management</Link>, then add items here.
           </p>
-          <form onSubmit={addItem} className="space-y-2">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <input
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="Name *"
-                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white placeholder-white/40"
-                required
-              />
-              <input
-                type="number"
-                min={0}
-                value={form.price}
-                onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                placeholder="Price (₹) *"
-                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white placeholder-white/40"
-                required
-              />
-              <input
-                value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                placeholder="Description (optional)"
-                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white placeholder-white/40 sm:col-span-2"
-              />
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <select
-                value={form.sectionId}
-                onChange={(e) => setForm((f) => ({ ...f, sectionId: e.target.value, categoryId: '' }))}
-                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white"
-                required
-              >
-                <option value="">Section *</option>
-                {sections.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
-              <select
-                value={form.categoryId}
-                onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
-                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white"
-                required
-              >
-                <option value="">Category *</option>
-                {(form.sectionId ? categoriesForSection(form.sectionId) : []).map((c) => (
-                  <option key={c.id} value={c.id}>{c.slug}</option>
-                ))}
-              </select>
-              <select
-                value={form.category}
-                onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as 'veg' | 'non-veg' }))}
-                className="rounded-lg border border-white/15 bg-black/70 px-2.5 py-1.5 text-xs text-white"
-              >
-                <option value="veg">Veg</option>
-                <option value="non-veg">Non-veg</option>
-              </select>
-              <button
-                type="submit"
-                disabled={adding}
-                className="rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-sky-400 disabled:opacity-50"
-              >
-                {adding ? 'Adding…' : 'Add item'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+        ) : filteredItems.length === 0 ? (
+          <p className="text-xs text-white/50">No items match the current filters.</p>
+        ) : (
+          sectionOrder.map((sec) => {
+            const isOpen = openSectionIds.has(sec.id);
+            const sectionItems = Object.values(itemsBySectionCategory[sec.id] ?? {}).flat();
+            const count = sectionItems.length;
 
-      {/* Compact item list */}
-      {sections.length === 0 ? (
-        <p className="text-xs text-white/60">
-          No sections yet. Add sections and categories from{' '}
-          <Link href="/admin/categories" className="text-sky-400 underline">
-            Category Management
-          </Link>
-          , then add menu items here.
-        </p>
-      ) : filteredItems.length === 0 ? (
-        <p className="text-xs text-white/60">No items match the current filters.</p>
-      ) : (
-        <div className="space-y-1">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className={`relative flex items-center gap-2 rounded-lg border border-white/10 bg-black/60 px-2.5 py-1.5 ${
-                !item.isActive ? 'opacity-60' : ''
-              }`}
-            >
-              <div className="min-w-0 flex-1 flex items-center gap-2">
-                <span className="truncate text-xs font-medium text-white">
-                  {item.name}
-                </span>
-                {!item.isActive && (
-                  <span className="flex-shrink-0 rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">
-                    Hidden
-                  </span>
-                )}
-                <span className="flex-shrink-0 text-[11px] text-sky-300 font-semibold">
-                  ₹{item.price}
-                </span>
-                {item.description && (
-                  <span className="hidden truncate text-[11px] text-white/50 sm:inline">
-                    {item.description}
-                  </span>
-                )}
-                <span className="flex-shrink-0 rounded border border-white/20 px-1.5 py-0.5 text-[10px] text-white/70">
-                  {(item.category ?? 'veg') === 'non-veg' ? 'Non-veg' : 'Veg'}
-                </span>
-                <span className="flex-shrink-0 text-[10px] text-white/40">
-                  {item.section.name} · {item.categoryRef.slug}
-                </span>
-              </div>
-              <div className="relative flex-shrink-0">
+            return (
+              <div
+                key={sec.id}
+                className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] shadow-lg backdrop-blur-sm"
+              >
                 <button
                   type="button"
-                  onClick={() => setMenuOpenId(menuOpenId === item.id ? null : item.id)}
-                  className="flex h-7 w-7 items-center justify-center rounded border border-white/20 bg-white/5 text-white/80 hover:bg-white/10"
-                  aria-label="Actions"
+                  onClick={() => toggleSection(sec.id)}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left transition hover:bg-white/5"
                 >
-                  ⋮
+                  <span className="font-medium text-white/95">{sec.name}</span>
+                  <span className="text-xs text-white/50">({count} items)</span>
+                  <span className="text-white/60">{isOpen ? '▼' : '▶'}</span>
                 </button>
-                {menuOpenId === item.id && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-30"
-                      onClick={() => setMenuOpenId(null)}
-                      aria-hidden
-                    />
-                    <div className="absolute right-0 top-8 z-40 min-w-[140px] rounded-lg border border-white/15 bg-slate-900 py-1 shadow-xl">
-                      <button
-                        type="button"
-                        onClick={() => startEdit(item)}
-                        className="w-full px-3 py-1.5 text-left text-[11px] text-white hover:bg-white/10"
-                      >
-                        Edit item
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleAvailable(item)}
-                        className="w-full px-3 py-1.5 text-left text-[11px] text-white hover:bg-white/10"
-                      >
-                        {item.isActive ? 'Hide item' : 'Unhide item'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDeleteTarget(item);
-                          setMenuOpenId(null);
-                        }}
-                        className="w-full px-3 py-1.5 text-left text-[11px] text-red-400 hover:bg-red-500/20"
-                      >
-                        Delete item
-                      </button>
-                    </div>
-                  </>
-                )}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="border-t border-white/10 px-3 pb-3 pt-2">
+                        {(categoriesBySection[sec.id] ?? []).map((cat) => {
+                          const catItems = itemsBySectionCategory[sec.id]?.[cat.id] ?? [];
+                          if (catItems.length === 0) return null;
+                          return (
+                            <div key={cat.id} className="mb-4 last:mb-0">
+                              <p className="mb-1.5 text-[10px] font-medium uppercase tracking-widest text-white/40">
+                                {cat.slug.replace(/-/g, ' ')}
+                              </p>
+                              <div className="space-y-0.5">
+                                {catItems.map((item) => (
+                                  <div
+                                    key={item.id}
+                                    className={`relative flex items-center gap-2 rounded-lg px-2 py-1.5 ${
+                                      !item.isActive ? 'opacity-55' : ''
+                                    }`}
+                                  >
+                                    <div className="min-w-0 flex-1">
+                                      <p className="truncate text-xs font-semibold text-white">
+                                        {item.name}
+                                        {!item.isActive && (
+                                          <span className="ml-1.5 rounded bg-amber-500/20 px-1 py-0.5 text-[10px] font-normal text-amber-300">
+                                            Hidden
+                                          </span>
+                                        )}
+                                      </p>
+                                      {item.description && (
+                                        <p className="truncate text-[11px] text-white/45">
+                                          {item.description}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-shrink-0 items-center gap-2">
+                                      <span className="text-[11px] font-semibold text-sky-300/90">
+                                        ₹{item.price}
+                                      </span>
+                                      <span className="rounded px-1.5 py-0.5 text-[10px] text-white/60 ring-1 ring-white/20">
+                                        {(item.category ?? 'veg') === 'non-veg' ? 'Non-veg' : 'Veg'}
+                                      </span>
+                                      <div className="relative">
+                                        <button
+                                          type="button"
+                                          onClick={() => setMenuOpenId(menuOpenId === item.id ? null : item.id)}
+                                          className="flex h-6 w-6 items-center justify-center rounded text-white/50 hover:bg-white/10 hover:text-white/80"
+                                          aria-label="Actions"
+                                        >
+                                          ⋮
+                                        </button>
+                                        {menuOpenId === item.id && (
+                                          <>
+                                            <div
+                                              className="fixed inset-0 z-30"
+                                              onClick={() => setMenuOpenId(null)}
+                                              aria-hidden
+                                            />
+                                            <div className="absolute right-0 top-7 z-40 min-w-[130px] rounded-lg border border-white/10 bg-slate-900/95 py-1 shadow-xl backdrop-blur">
+                                              <button
+                                                type="button"
+                                                onClick={() => startEdit(item)}
+                                                className="w-full px-3 py-1.5 text-left text-[11px] text-white hover:bg-white/10"
+                                              >
+                                                Edit
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() => toggleAvailable(item)}
+                                                className="w-full px-3 py-1.5 text-left text-[11px] text-white hover:bg-white/10"
+                                              >
+                                                {item.isActive ? 'Hide' : 'Unhide'}
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  setDeleteTarget(item);
+                                                  setMenuOpenId(null);
+                                                }}
+                                                className="w-full px-3 py-1.5 text-left text-[11px] text-red-400 hover:bg-red-500/20"
+                                              >
+                                                Delete
+                                              </button>
+                                            </div>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            );
+          })
+        )}
+      </div>
 
-      {/* Edit modal */}
+      {/* Add Item modal */}
+      <AnimatePresence>
+        {addModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+            onClick={() => setAddModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.96, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.96, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900/98 p-4 shadow-2xl backdrop-blur"
+            >
+              <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Add item</p>
+              <form onSubmit={addItem} className="mt-3 space-y-3">
+                <div>
+                  <label className="block text-[11px] text-white/50">Name *</label>
+                  <input
+                    value={form.name}
+                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="e.g. Paneer Tikka"
+                    className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white placeholder-white/30"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-white/50">Price (₹) *</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={form.price}
+                    onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+                    placeholder="0"
+                    className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white placeholder-white/30"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-white/50">Description (optional)</label>
+                  <input
+                    value={form.description}
+                    onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                    placeholder="Short description"
+                    className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white placeholder-white/30"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] text-white/50">Section *</label>
+                    <select
+                      value={form.sectionId}
+                      onChange={(e) => setForm((f) => ({ ...f, sectionId: e.target.value, categoryId: '' }))}
+                      className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white"
+                      required
+                    >
+                      <option value="">Select</option>
+                      {sections.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-white/50">Category *</label>
+                    <select
+                      value={form.categoryId}
+                      onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
+                      className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white"
+                      required
+                    >
+                      <option value="">Select</option>
+                      {(form.sectionId ? categoriesForSection(form.sectionId) : []).map((c) => (
+                        <option key={c.id} value={c.id}>{c.slug}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[11px] text-white/50">Veg / Non-veg</label>
+                  <select
+                    value={form.category}
+                    onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as 'veg' | 'non-veg' }))}
+                    className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white"
+                  >
+                    <option value="veg">Veg</option>
+                    <option value="non-veg">Non-veg</option>
+                  </select>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setAddModalOpen(false)}
+                    className="flex-1 rounded-lg border border-white/15 py-2 text-xs font-medium text-white/80"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={adding}
+                    className="flex-1 rounded-lg bg-sky-500/90 py-2 text-xs font-semibold text-white hover:bg-sky-500 disabled:opacity-50"
+                  >
+                    {adding ? 'Adding…' : 'Save'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit modal (same fields as Add) */}
       {editingId !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-white/15 bg-slate-900 p-4 shadow-xl">
-            <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
-              Edit item
-            </p>
-            <div className="mt-3 space-y-2">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={cancelEdit}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900/98 p-4 shadow-2xl backdrop-blur"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Edit item</p>
+            <div className="mt-3 space-y-3">
               <div>
-                <label className="block text-[11px] text-white/60">Name *</label>
+                <label className="block text-[11px] text-white/50">Name *</label>
                 <input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                  className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white"
                 />
               </div>
               <div>
-                <label className="block text-[11px] text-white/60">Price (₹) *</label>
+                <label className="block text-[11px] text-white/50">Price (₹) *</label>
                 <input
                   type="number"
                   min={0}
                   value={editPrice}
                   onChange={(e) => setEditPrice(e.target.value)}
-                  className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                  className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white"
                 />
               </div>
               <div>
-                <label className="block text-[11px] text-white/60">Description</label>
+                <label className="block text-[11px] text-white/50">Description</label>
                 <input
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
-                  className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                  className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] text-white/60">Section</label>
+                  <label className="block text-[11px] text-white/50">Section</label>
                   <select
                     value={editSectionId}
                     onChange={(e) => {
                       setEditSectionId(e.target.value);
                       setEditCategoryId('');
                     }}
-                    className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                    className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white"
                   >
                     {sections.map((s) => (
                       <option key={s.id} value={s.id}>{s.name}</option>
@@ -559,11 +682,11 @@ export default function AdminMenuPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] text-white/60">Category</label>
+                  <label className="block text-[11px] text-white/50">Category</label>
                   <select
                     value={editCategoryId}
                     onChange={(e) => setEditCategoryId(e.target.value)}
-                    className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                    className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white"
                   >
                     {(editSectionId ? categoriesForSection(editSectionId) : []).map((c) => (
                       <option key={c.id} value={c.id}>{c.slug}</option>
@@ -572,11 +695,11 @@ export default function AdminMenuPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] text-white/60">Veg / Non-veg</label>
+                <label className="block text-[11px] text-white/50">Veg / Non-veg</label>
                 <select
                   value={editCategory}
                   onChange={(e) => setEditCategory(e.target.value as 'veg' | 'non-veg')}
-                  className="mt-0.5 w-full rounded-lg border border-white/15 bg-black/70 px-3 py-2 text-sm text-white"
+                  className="mt-0.5 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white"
                 >
                   <option value="veg">Veg</option>
                   <option value="non-veg">Non-veg</option>
@@ -587,16 +710,16 @@ export default function AdminMenuPage() {
                   type="checkbox"
                   checked={editIsAvailable}
                   onChange={(e) => setEditIsAvailable(e.target.checked)}
-                  className="rounded border-white/30 bg-black/70 text-sky-500"
+                  className="rounded border-white/30 bg-black/50 text-sky-500"
                 />
-                <span className="text-[11px] text-white/70">Visible on menu</span>
+                <span className="text-[11px] text-white/60">Visible on menu</span>
               </label>
             </div>
             <div className="mt-4 flex gap-2">
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="flex-1 rounded-lg border border-white/20 py-2 text-xs font-medium text-white"
+                className="flex-1 rounded-lg border border-white/15 py-2 text-xs font-medium text-white/80"
               >
                 Cancel
               </button>
@@ -604,7 +727,7 @@ export default function AdminMenuPage() {
                 type="button"
                 onClick={saveEdit}
                 disabled={editSaving}
-                className="flex-1 rounded-lg bg-sky-500 py-2 text-xs font-semibold text-black disabled:opacity-50"
+                className="flex-1 rounded-lg bg-sky-500/90 py-2 text-xs font-semibold text-white hover:bg-sky-500 disabled:opacity-50"
               >
                 {editSaving ? 'Saving…' : 'Save'}
               </button>
@@ -616,16 +739,14 @@ export default function AdminMenuPage() {
       {/* Delete confirm */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-sm rounded-2xl border border-white/15 bg-slate-900 p-4 shadow-xl">
-            <p className="text-sm font-semibold text-white">
-              Delete &quot;{deleteTarget.name}&quot;?
-            </p>
-            <p className="mt-1 text-[12px] text-white/60">This cannot be undone.</p>
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-slate-900/98 p-4 shadow-2xl backdrop-blur">
+            <p className="text-sm font-semibold text-white">Delete &quot;{deleteTarget.name}&quot;?</p>
+            <p className="mt-1 text-[12px] text-white/50">This cannot be undone.</p>
             <div className="mt-4 flex gap-2">
               <button
                 type="button"
                 onClick={() => setDeleteTarget(null)}
-                className="flex-1 rounded-lg border border-white/20 py-2 text-xs font-medium text-white"
+                className="flex-1 rounded-lg border border-white/15 py-2 text-xs font-medium text-white/80"
               >
                 Cancel
               </button>
@@ -633,7 +754,7 @@ export default function AdminMenuPage() {
                 type="button"
                 onClick={confirmDelete}
                 disabled={deleteLoading}
-                className="flex-1 rounded-lg bg-red-500 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                className="flex-1 rounded-lg bg-red-500/90 py-2 text-xs font-semibold text-white disabled:opacity-50"
               >
                 {deleteLoading ? 'Deleting…' : 'Delete'}
               </button>
