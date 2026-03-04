@@ -22,7 +22,7 @@ export default function BottomActionBar() {
           type="button"
           aria-label="Close reach us menu"
           onClick={() => setOpenReachUs(false)}
-          className="fixed inset-0 z-40 bg-transparent"
+          className="fixed inset-0 z-40 bg-black/20"
         />
       )}
       <div
@@ -49,35 +49,44 @@ export default function BottomActionBar() {
               <span>Reach Us</span>
             </button>
             {openReachUs && (
-              <div className="absolute bottom-12 left-0 right-0 z-50 rounded-2xl border border-white/20 bg-black/90 px-3 py-2 shadow-xl">
-                <p className="mb-1 text-[11px] font-semibold text-white/60">
-                  Contact options
-                </p>
-                <div className="flex flex-col gap-1.5">
-                  <a
-                    href={whatsappHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-[12px] font-medium text-white hover:bg-white/10"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-[#25D366]">🟢</span>
-                      <span>WhatsApp</span>
-                    </span>
-                    <span className="text-white/60 text-[11px]">Chat</span>
-                  </a>
-                  <a
-                    href={callHref}
-                    className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-[12px] font-medium text-white hover:bg-white/10"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-[#60A5FA]">📞</span>
-                      <span>Call</span>
-                    </span>
-                    <span className="text-white/60 text-[11px]">
-                      +91 {WHATSAPP_NUMBER}
-                    </span>
-                  </a>
+              <div className="absolute bottom-12 left-1/2 z-50 w-[230px] -translate-x-1/2">
+                {/* Arrow */}
+                <div className="mx-auto h-3 w-3 rotate-45 border-l border-t border-white/15 bg-black/90" />
+                {/* Card */}
+                <div className="mt-1 rounded-2xl border border-white/15 bg-black/90 px-3.5 py-3 shadow-[0_18px_40px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+                  <p className="mb-2 text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white/50">
+                    Contact SKYHY
+                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-[12px] font-medium text-white hover:bg-white/10 transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#22C55E]/15 text-lg">
+                          💬
+                        </span>
+                        <span>WhatsApp</span>
+                      </span>
+                      <span className="text-[11px] text-white/60">Chat</span>
+                    </a>
+                    <a
+                      href={callHref}
+                      className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-[12px] font-medium text-white hover:bg-white/10 transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#38BDF8]/15 text-lg">
+                          📞
+                        </span>
+                        <span>Call</span>
+                      </span>
+                      <span className="text-[11px] text-white/60">
+                        +91 {WHATSAPP_NUMBER}
+                      </span>
+                    </a>
+                  </div>
                 </div>
               </div>
             )}
