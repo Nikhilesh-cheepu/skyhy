@@ -47,13 +47,15 @@ export async function POST(request: Request) {
       eventDate = d;
     }
 
-    if (!endDateStr) {
-      return NextResponse.json({ error: 'endDate is required' }, { status: 400 });
-    }
-
-    const endDate = new Date(endDateStr);
-    if (Number.isNaN(endDate.getTime())) {
-      return NextResponse.json({ error: 'Invalid endDate' }, { status: 400 });
+    let endDate: Date | null | undefined;
+    if (endDateStr === '') {
+      endDate = null;
+    } else if (endDateStr) {
+      const d = new Date(endDateStr);
+      if (Number.isNaN(d.getTime())) {
+        return NextResponse.json({ error: 'Invalid endDate' }, { status: 400 });
+      }
+      endDate = d;
     }
 
     const count = await prisma.event.count();
