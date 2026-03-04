@@ -65,7 +65,10 @@ export default function SiteHeader() {
     }
   };
 
-  const showBack = pathname === "/packages-menu";
+  const showBack =
+    pathname !== "/" &&
+    pathname != null &&
+    !pathname.startsWith("/admin");
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 md:top-4 md:left-4 md:right-4">

@@ -45,11 +45,11 @@ export default function HomePage() {
           </div>
 
           {/* Hero Section - Edge-to-edge, Below Navbar + Announcement */}
-          <section id="home" className="relative z-10 w-full pt-[7rem] md:pt-[8.5rem]">
+          <section id="home" className="relative z-10 w-full pt-24 md:pt-28">
             <div className="w-screen relative left-1/2 -ml-[50vw] -mr-[50vw] max-w-none overflow-hidden">
               <div
-                className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl h-[70vh] min-h-[520px] sm:h-[80vh] md:h-[75vh] bg-gradient-to-br from-gray-900 via-black to-gray-900"
-                style={{ minHeight: 520 }}
+                className="relative w-full overflow-hidden rounded-none md:rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-900"
+                style={{ minHeight: "calc(100vh - 6rem)" }}
               >
                 {heroVideoError ? (
                   <div

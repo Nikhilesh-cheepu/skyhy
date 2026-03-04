@@ -244,21 +244,22 @@ function PackagesMenuPageContent() {
   return (
     <div className="min-h-screen bg-black pb-24">
       {/* Padding for global header */}
-      <div className="pt-20 md:pt-24">
-        {/* Offer ticker */}
-        <div className="bg-black/90 border-b border-white/10">
-          <div className="mx-auto max-w-6xl px-4 py-1.5">
-            <p className="text-center text-[11px] text-white/70 truncate">
-              {OFFER_MESSAGES[offerIndex]}
-            </p>
-          </div>
-        </div>
+      <div className="pb-4 pt-6 md:pt-8">
+        <div className="mx-auto max-w-6xl px-4">
+          {/* Sticky header area inside page */}
+          <div className="sticky top-16 z-20 bg-black/95 pb-3 backdrop-blur">
+            <PageTopBar title="Party Packages & Menu" />
 
-        <div className="mx-auto max-w-6xl px-4 pt-3">
-          <PageTopBar title="Packages & Menu" showBack fallbackHref="/" />
+            {/* Offer highlight pill */}
+            <div className="mt-1 flex justify-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] text-white/80 shadow-[0_0_20px_rgba(37,99,235,0.35)]">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                <span className="truncate">{OFFER_MESSAGES[offerIndex]}</span>
+              </div>
+            </div>
 
-          {/* Segmented toggle */}
-          <div className="mb-3 flex rounded-full bg-white/5 p-1 text-xs">
+            {/* Segmented toggle */}
+            <div className="mt-3 flex rounded-full bg-white/5 p-1 text-xs">
             <button
               type="button"
               onClick={() => setActiveTab("packages")}
@@ -268,7 +269,7 @@ function PackagesMenuPageContent() {
                   : "text-white/70"
               }`}
             >
-              Packages
+              Party Packages
             </button>
             <button
               type="button"
@@ -281,6 +282,7 @@ function PackagesMenuPageContent() {
             >
               Menu
             </button>
+            </div>
           </div>
 
           {/* Content Area */}

@@ -246,10 +246,9 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-[#050608] pb-24 text-white">
-      <div className="mx-auto max-w-6xl px-4 pt-20">
+      <div className="mx-auto max-w-6xl px-4 pt-6 md:pt-8">
         <PageTopBar
           title="Live Events"
-          showBack
           fallbackHref="/"
         />
 

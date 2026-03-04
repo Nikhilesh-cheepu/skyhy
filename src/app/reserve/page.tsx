@@ -99,11 +99,10 @@ export default function ReservePage() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] overflow-x-hidden w-full max-w-full">
-      <div className="pt-20 md:pt-24 pb-24">
+      <div className="pb-24 pt-6 md:pt-8">
         <div className="max-w-lg mx-auto px-4">
           <PageTopBar
             title="Reserve Your Table"
-            showBack
             fallbackHref="/"
           />
 

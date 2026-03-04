@@ -106,33 +106,9 @@ export default function AccountClient() {
 
   return (
     <div className="min-h-screen bg-[#020617] pb-24 text-white">
-      <div className="mx-auto max-w-md px-4 pt-24">
-        {/* Top bar */}
-        <div className="mb-4 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="text-xs text-white/70"
-          >
-            ← Back
-          </button>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-            My Account
-          </p>
-          <button
-            type="button"
-            onClick={async () => {
-              await fetch("/api/auth/logout", { method: "POST" });
-              router.replace("/");
-            }}
-            className="text-xs text-white/70"
-          >
-            Logout
-          </button>
-        </div>
-
-        <h1 className="mb-2 text-xl font-semibold">My Bookings & Payments</h1>
-        <p className="mb-3 text-xs text-white/70">
+      <div className="mx-auto max-w-md px-4 pt-6 md:pt-8">
+        <h1 className="mb-1 text-xl font-semibold">My Bookings & Payments</h1>
+        <p className="mb-3 text-[11px] text-white/50">
           Logged in as <span className="font-semibold">+91 {phone}</span>
         </p>
 

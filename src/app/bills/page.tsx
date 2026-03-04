@@ -61,8 +61,8 @@ function PendingBillsContent() {
 
   return (
     <div className="min-h-screen bg-[#020617] pb-24 text-white">
-      <div className="mx-auto max-w-md px-4 pt-24">
-        <PageTopBar title="Pending Bills" showBack fallbackHref="/" />
+      <div className="mx-auto max-w-md px-4 pt-6 md:pt-8">
+        <PageTopBar title="Pending Bills" />
         <div className="mb-4 flex items-center justify-between">
           <p className="mt-1 text-xs text-white/70">
             Pending bills for {phone && `+91 ${phone}`}

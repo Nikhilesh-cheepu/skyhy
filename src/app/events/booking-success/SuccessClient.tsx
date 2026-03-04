@@ -46,10 +46,9 @@ export default function SuccessClient() {
 
   return (
     <div className="min-h-screen bg-[#020617] pb-24 text-white">
-      <div className="mx-auto flex max-w-md flex-col px-4 pt-24">
+      <div className="mx-auto flex max-w-md flex-col px-4 pt-6 md:pt-8">
         <PageTopBar
           title="Event Booking"
-          showBack
           fallbackHref="/events"
         />
 
