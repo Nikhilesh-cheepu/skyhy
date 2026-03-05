@@ -172,15 +172,15 @@ export default function HomePage() {
                 <p className="mb-3 text-xs font-medium text-[#BBF7D0]">
                   Unlimited Buffet
                 </p>
-                <a
-                  href={CORPORATE_WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#22C55E] to-[#16A34A] px-4 py-2 text-xs font-semibold text-[#022C22] shadow hover:from-[#16A34A] hover:to-[#16A34A]"
-                >
-                  Enquire Now
-                  <span>↗</span>
-                </a>
+                <Link href="/packages-menu?tab=packages">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#22C55E] to-[#16A34A] px-4 py-2 text-xs font-semibold text-[#022C22] shadow hover:from-[#16A34A] hover:to-[#16A34A]"
+                  >
+                    Enquire Now
+                    <span>→</span>
+                  </button>
+                </Link>
               </div>
             </div>
           </motion.section>

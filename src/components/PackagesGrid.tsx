@@ -1,5 +1,7 @@
 "use client";
 
+const CALL_NUMBER = "7013884485";
+
 export default function PackagesGrid() {
   const packages = [
     {
@@ -111,8 +113,20 @@ interface PackageData {
   };
 
   return (
-    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
-      {packages.map((pkg) => (
+    <div className="mt-4 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-[11px] text-white/60">
+          Choose a party package or call to know more.
+        </p>
+        <a
+          href={`tel:${CALL_NUMBER}`}
+          className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-white/10"
+        >
+          Call to know more
+        </a>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
+        {packages.map((pkg) => (
         <div
           key={pkg.id}
           className={`${
@@ -186,6 +200,7 @@ interface PackageData {
           </button>
         </div>
       ))}
+      </div>
     </div>
   );
 }
