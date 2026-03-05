@@ -3,10 +3,12 @@ export const revalidate = 0;
 
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
+import { ensureBillSchema } from "@/lib/ensure-bill-schema";
 
 export async function GET(request: Request) {
   try {
     const prisma = getPrisma();
+    await ensureBillSchema(prisma);
     const { searchParams } = new URL(request.url);
     const rawPhone = searchParams.get("phone");
 
@@ -53,6 +55,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const prisma = getPrisma();
+    await ensureBillSchema(prisma);
     const body = await request.json();
 
     const rawPhone =

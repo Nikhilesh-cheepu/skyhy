@@ -4,6 +4,7 @@ export const revalidate = 0;
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
 import { getCurrentCustomer } from "@/lib/customer-session";
+import { ensureBillSchema } from "@/lib/ensure-bill-schema";
 
 const HOLD_MINUTES = 5;
 const DISCOUNT_PERCENT = 25;
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
     }
 
     const prisma = getPrisma();
+    await ensureBillSchema(prisma);
     const dayKey = getTodayDayKeyIST();
     const now = new Date();
 

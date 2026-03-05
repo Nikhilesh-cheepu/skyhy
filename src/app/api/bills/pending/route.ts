@@ -4,10 +4,12 @@ export const revalidate = 0;
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
 import { getCurrentCustomer } from "@/lib/customer-session";
+import { ensureBillSchema } from "@/lib/ensure-bill-schema";
 
 export async function GET() {
   try {
     const prisma = getPrisma();
+    await ensureBillSchema(prisma);
     const current = getCurrentCustomer();
     if (!current?.userId) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });

@@ -4,6 +4,7 @@ export const revalidate = 0;
 import Razorpay from "razorpay";
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
+import { ensureBillSchema } from "@/lib/ensure-bill-schema";
 
 type EventBookingPayload = {
   fullName: string;
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
     }
 
     const prisma = getPrisma();
+    await ensureBillSchema(prisma);
 
     if (type === "bill") {
       const billPayload = body?.bill as BillPayload | undefined;

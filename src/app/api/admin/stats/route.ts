@@ -3,10 +3,12 @@ export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
 import { getPrisma } from '@/lib/prisma';
+import { ensureBillSchema } from '@/lib/ensure-bill-schema';
 
 export async function GET() {
   try {
     const prisma = getPrisma();
+    await ensureBillSchema(prisma);
 
     const [sections, categories, menuItems, galleryImages] = await Promise.all([
       prisma.section.count(),

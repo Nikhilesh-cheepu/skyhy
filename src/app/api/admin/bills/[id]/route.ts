@@ -4,6 +4,7 @@ export const revalidate = 0;
 import { NextResponse } from "next/server";
 import type { Prisma } from "@prisma/client";
 import { getPrisma } from "@/lib/prisma";
+import { ensureBillSchema } from "@/lib/ensure-bill-schema";
 
 type Params = Promise<{ id: string }>;
 
@@ -13,6 +14,7 @@ export async function PATCH(
 ) {
   try {
     const prisma = getPrisma();
+    await ensureBillSchema(prisma);
     const { id } = await params;
     const body = await request.json();
 
@@ -125,6 +127,7 @@ export async function DELETE(
 ) {
   try {
     const prisma = getPrisma();
+    await ensureBillSchema(prisma);
     const { id } = await params;
 
     const existing = await prisma.bill.findUnique({ where: { id } });

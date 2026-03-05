@@ -99,7 +99,11 @@ export default function AdminBillsPage() {
       const res = await fetch(`/api/admin/bills?phone=${clean}`);
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Failed to search user.");
+        // Hide low-level Prisma/DB errors from UI, just show a friendly message.
+        // Detailed error is still visible in server logs.
+        // eslint-disable-next-line no-console
+        console.error("Admin bills search error", data.error);
+        setError("Something went wrong while searching. Please try again.");
         setUser(null);
         setBills([]);
         return;
@@ -426,7 +430,7 @@ export default function AdminBillsPage() {
         </div>
       )}
 
-      {phone && !loadingSearch && !user && (
+      {phone && !loadingSearch && !user && !error && (
         <div className="space-y-2 rounded-2xl border border-amber-400/30 bg-amber-500/10 p-3 text-xs text-amber-100">
           <p className="font-semibold">Can&apos;t find user for {phone}.</p>
           <p>
