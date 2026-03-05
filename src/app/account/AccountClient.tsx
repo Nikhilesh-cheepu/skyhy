@@ -30,6 +30,7 @@ type Booking = {
   id: string;
   eventTitle: string | null;
   date: string;
+  time: string;
   people: number;
   paymentStatus: string;
 };
@@ -187,13 +188,15 @@ export default function AccountClient() {
                   {b.eventTitle || "SkyHy Live Event"}
                 </p>
                 <p className="text-[11px] text-white/60">
-                  {new Date(b.date).toLocaleString("en-IN", {
+                  {new Intl.DateTimeFormat("en-IN", {
+                    timeZone: "Asia/Kolkata",
                     day: "2-digit",
                     month: "short",
                     year: "numeric",
-                    hour: "2-digit",
+                    hour: "numeric",
                     minute: "2-digit",
-                  })}
+                  }).format(new Date(b.date.slice(0, 10) + "T00:00:00"))}{" "}
+                  at {b.time}
                 </p>
                 <p className="mt-1 text-[11px] text-white/60">
                   People: {b.people}
@@ -239,13 +242,14 @@ export default function AccountClient() {
                     <div className="space-y-1">
                       <p className="text-sm font-semibold">₹{bill.amount}</p>
                       <p className="text-[11px] text-white/60">
-                        {new Date(bill.createdAt).toLocaleString("en-IN", {
+                        {new Intl.DateTimeFormat("en-IN", {
+                          timeZone: "Asia/Kolkata",
                           day: "2-digit",
                           month: "short",
                           year: "numeric",
-                          hour: "2-digit",
+                          hour: "numeric",
                           minute: "2-digit",
-                        })}
+                        }).format(new Date(bill.createdAt))}
                       </p>
                       {bill.notes && (
                         <p className="text-[11px] text-white/60">

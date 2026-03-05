@@ -10,9 +10,21 @@ interface TimeSlotsGridProps {
   onSelect: (time: string) => void;
 }
 
+const IST_TIME_ZONE = 'Asia/Kolkata';
+
+function getTodayIstIso(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: IST_TIME_ZONE });
+}
+
+function getIstNow(): Date {
+  const now = new Date();
+  const istString = now.toLocaleString('en-US', { timeZone: IST_TIME_ZONE });
+  return new Date(istString);
+}
+
 function isFutureSlot(slot: string, selectedDate: string): boolean {
-  // If not today, always show
-  const todayIso = new Date().toISOString().split('T')[0];
+  const todayIso = getTodayIstIso();
+  // If not today (IST), always show
   if (selectedDate !== todayIso) return true;
 
   const match = slot.match(/^(\d+):(\d{2}) (AM|PM)$/);
@@ -24,10 +36,11 @@ function isFutureSlot(slot: string, selectedDate: string): boolean {
   if (ampm === 'PM' && hours !== 12) hours += 12;
   if (ampm === 'AM' && hours === 12) hours = 0;
 
-  const slotDate = new Date(`${selectedDate}T00:00:00`);
-  slotDate.setHours(hours, minutes, 0, 0);
+  const istNow = getIstNow();
+  const currentMinutes = istNow.getHours() * 60 + istNow.getMinutes();
+  const slotMinutes = hours * 60 + minutes;
 
-  return slotDate.getTime() > Date.now();
+  return slotMinutes > currentMinutes;
 }
 
 export default function TimeSlotsGrid({ meal, selectedTime, selectedDate, onSelect }: TimeSlotsGridProps) {

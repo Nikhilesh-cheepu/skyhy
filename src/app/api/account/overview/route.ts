@@ -91,6 +91,7 @@ export async function GET() {
         id: b.id,
         eventTitle: b.event?.title ?? null,
         date: b.date,
+        time: b.time,
         people: b.people,
         paymentStatus: b.paymentStatus,
       })),

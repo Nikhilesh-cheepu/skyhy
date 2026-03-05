@@ -10,20 +10,31 @@ export interface DateOption {
 }
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const IST_TIME_ZONE = 'Asia/Kolkata';
+
+function getTodayIstDate(): Date {
+  const todayIso = new Date().toLocaleDateString('en-CA', { timeZone: IST_TIME_ZONE });
+  return new Date(todayIso + 'T00:00:00');
+}
 
 function buildDateOptions(): DateOption[] {
   const options: DateOption[] = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = getTodayIstDate();
   for (let i = 0; i < 14; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const isToday = i === 0;
+    const iso = new Intl.DateTimeFormat('en-CA', {
+      timeZone: IST_TIME_ZONE,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(d);
     options.push({
       date: d,
       label: isToday ? 'Today' : DAYS[d.getDay()],
       dayNum: d.getDate().toString(),
-      iso: d.toISOString().split('T')[0],
+      iso,
     });
   }
   return options;

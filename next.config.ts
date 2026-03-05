@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+// Ensure all Node.js date operations on the server default to IST.
+if (!process.env.TZ) {
+  process.env.TZ = "Asia/Kolkata";
+}
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [

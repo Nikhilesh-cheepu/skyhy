@@ -12,8 +12,14 @@ import GuestCounter from '@/components/reserve/GuestCounter';
 import PageTopBar from '@/components/PageTopBar';
 import PhoneLogin from '@/components/PhoneLogin';
 
-const WHATSAPP_NUMBER = '7013884485';
+const WHATSAPP_NUMBER = '9274696969';
 const RESERVE_DRAFT_KEY = 'reserveDraft';
+
+const IST_TIME_ZONE = 'Asia/Kolkata';
+
+function getTodayIstIso(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: IST_TIME_ZONE });
+}
 
 type ReserveDraft = {
   date: string;
@@ -53,7 +59,7 @@ function clearDraft() {
   }
 }
 
-const defaultDate = () => new Date().toISOString().split('T')[0];
+const defaultDate = () => getTodayIstIso();
 
 export default function ReservePage() {
   const [selectedDate, setSelectedDate] = useState<string>(defaultDate);
@@ -108,13 +114,14 @@ export default function ReservePage() {
   }, [toast]);
 
   const formatDateDisplay = (iso: string) => {
-    const d = new Date(iso + 'T12:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const t = new Date(d);
-    t.setHours(0, 0, 0, 0);
-    if (t.getTime() === today.getTime()) return 'Today';
-    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    if (iso === getTodayIstIso()) return 'Today';
+    const d = new Date(iso + 'T00:00:00');
+    return new Intl.DateTimeFormat('en-IN', {
+      timeZone: IST_TIME_ZONE,
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+    }).format(d);
   };
 
   const validate = useCallback(() => {
@@ -142,7 +149,7 @@ export default function ReservePage() {
       if (!selectedTime || !name.trim()) return;
       setFormError('');
       try {
-        await fetch('/api/events/book', {
+        const res = await fetch('/api/events/book', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -155,22 +162,26 @@ export default function ReservePage() {
             paymentStatus: 'BOOKING_CREATED',
           }),
         });
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          setFormError(data?.error || 'Could not create booking. Please try again.');
+          return;
+        }
       } catch {
-        // continue to WhatsApp even if API fails
+        setFormError('Could not create booking. Please try again.');
+        return;
       }
-      const dateStr = formatDateDisplay(selectedDate);
-      const offerStr = selectedOffer ? selectedOffer.title : 'None';
-      const text = [
-        'Hi SKYHY Live, I want to reserve a table.',
-        `Date: ${dateStr}`,
-        `Time: ${selectedTime}`,
-        `Meal: ${meal.charAt(0).toUpperCase() + meal.slice(1)}`,
-        `Guests: ${guests}`,
-        `Offer: ${offerStr}`,
-        `Name: ${name.trim()}`,
-        `Mobile: ${phone}`,
-      ].join('%0A');
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, '_blank');
+      const istDisplay = new Intl.DateTimeFormat('en-IN', {
+        timeZone: IST_TIME_ZONE,
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(new Date(selectedDate + 'T00:00:00'));
+      const message = `Hi, I just booked a table at SkyHy.\n\nName: ${name.trim()}\nGuests: ${guests}\nDate: ${istDisplay}\nTime: ${selectedTime}\n\nPlease confirm my reservation.`;
+      const whatsappUrl = `https://wa.me/91${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+        message
+      )}`;
+      window.location.href = whatsappUrl;
       clearDraft();
       setShowConfirmModal(false);
     },

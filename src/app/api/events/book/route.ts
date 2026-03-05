@@ -6,6 +6,8 @@ import { getPrisma } from '@/lib/prisma';
 import { sendSms } from '@/lib/sms';
 import { getCurrentCustomer } from '@/lib/customer-session';
 
+const SLOT_CAPACITY = 10;
+
 export async function POST(request: Request) {
   try {
     const prisma = getPrisma();
@@ -43,6 +45,28 @@ export async function POST(request: Request) {
     const date = new Date(dateStr);
     if (Number.isNaN(date.getTime())) {
       return NextResponse.json({ error: 'Invalid date' }, { status: 400 });
+    }
+
+    // Capacity check per date + time slot
+    const dayStart = new Date(dateStr);
+    const dayEnd = new Date(dateStr);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    const existingCount = await prisma.eventBooking.count({
+      where: {
+        date: {
+          gte: dayStart,
+          lt: dayEnd,
+        },
+        time,
+      },
+    });
+
+    if (existingCount >= SLOT_CAPACITY) {
+      return NextResponse.json(
+        { error: 'This time slot is fully booked. Please choose another time.' },
+        { status: 400 },
+      );
     }
 
     const booking = await prisma.eventBooking.create({

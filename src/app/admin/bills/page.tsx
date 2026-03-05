@@ -41,6 +41,8 @@ export default function AdminBillsPage() {
   const [user, setUser] = useState<UserSummary | null>(null);
   const [bills, setBills] = useState<Bill[]>([]);
   const [loadingSearch, setLoadingSearch] = useState(false);
+  const [suggestions, setSuggestions] = useState<UserSummary[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [creating, setCreating] = useState(false);
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
@@ -67,6 +69,7 @@ export default function AdminBillsPage() {
   const [deleteBill, setDeleteBill] = useState<Bill | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const suggestionTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");
@@ -88,18 +91,9 @@ export default function AdminBillsPage() {
     return () => clearTimeout(t);
   }, [highlightBillId]);
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
+  async function runSearch(clean: string) {
     setError("");
     setToast(null);
-    const clean = phone.replace(/\D/g, "").slice(0, 10);
-    if (clean.length !== 10) {
-      setError("Enter a valid 10-digit phone number.");
-      setUser(null);
-      setBills([]);
-      return;
-    }
-    setPhone(clean);
     setLoadingSearch(true);
     try {
       const res = await fetch(`/api/admin/bills?phone=${clean}`);
@@ -118,7 +112,77 @@ export default function AdminBillsPage() {
       setBills([]);
     } finally {
       setLoadingSearch(false);
+      setSuggestions([]);
+      setShowSuggestions(false);
     }
+  }
+
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const clean = phone.replace(/\D/g, "").slice(0, 10);
+    if (clean.length !== 10) {
+      setError("Enter a valid 10-digit phone number.");
+      setUser(null);
+      setBills([]);
+      return;
+    }
+    setPhone(clean);
+    await runSearch(clean);
+  }
+
+  async function fetchSuggestionsFor(value: string) {
+    const clean = value.replace(/\D/g, "").slice(0, 10);
+    setPhone(clean);
+    setError("");
+    setToast(null);
+    setUser(null);
+    setBills([]);
+
+    if (clean.length < 4) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/users/search?q=${clean}`);
+      const data = await res.json();
+      if (!res.ok) return;
+      const list = (data.users ?? []) as UserSummary[];
+      setSuggestions(list);
+      setShowSuggestions(list.length > 0);
+    } catch {
+      // ignore suggestions errors
+    }
+  }
+
+  function handlePhoneChange(value: string) {
+    const clean = value.replace(/\D/g, "").slice(0, 10);
+    setPhone(clean);
+    setError("");
+    setToast(null);
+
+    if (suggestionTimeoutRef.current != null) {
+      window.clearTimeout(suggestionTimeoutRef.current);
+    }
+
+    if (!clean) {
+      setUser(null);
+      setBills([]);
+      setSuggestions([]);
+      setShowSuggestions(false);
+      suggestionTimeoutRef.current = null;
+      return;
+    }
+
+    suggestionTimeoutRef.current = window.setTimeout(() => {
+      fetchSuggestionsFor(clean);
+    }, 200);
+  }
+
+  async function handleSelectSuggestion(selectedPhone: string) {
+    setPhone(selectedPhone);
+    await runSearch(selectedPhone);
   }
 
   async function handleCreateBill(e: React.FormEvent) {
@@ -313,18 +377,38 @@ export default function AdminBillsPage() {
         onSubmit={handleSearch}
         className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/70 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.9)] md:flex-row md:items-end"
       >
-        <div className="flex-1 space-y-1">
+        <div className="relative flex-1 space-y-1">
           <label className="block text-xs text-white/70">Customer phone</label>
           <input
             value={phone}
-            onChange={(e) =>
-              setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
-            }
+            onChange={(e) => handlePhoneChange(e.target.value)}
             maxLength={10}
             inputMode="numeric"
             className="w-full rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-sm text-white"
             placeholder="10-digit phone"
           />
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-white/10 bg-black/90 text-xs text-white shadow-2xl">
+              {suggestions.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => handleSelectSuggestion(s.phone)}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-white/10"
+                >
+                  <span className="font-medium">{s.phone}</span>
+                  <span className="text-[10px] text-white/50">
+                    Created{" "}
+                    {new Date(s.createdAt).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <button
           type="submit"
