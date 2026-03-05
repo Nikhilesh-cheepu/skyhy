@@ -428,19 +428,27 @@ export default function AdminBillsPage() {
 
       {phone && !loadingSearch && !user && (
         <div className="space-y-2 rounded-2xl border border-amber-400/30 bg-amber-500/10 p-3 text-xs text-amber-100">
-          <p className="font-semibold">User not found for {phone}.</p>
+          <p className="font-semibold">Can&apos;t find user for {phone}.</p>
           <p>
-            Ask the customer to log in once on the website with this phone number, then try again.
+            Ask the customer to log in once on the website with this phone number, or send them an invite via WhatsApp now.
           </p>
           <button
             type="button"
             onClick={() => {
-              navigator.clipboard.writeText(typeof window !== "undefined" ? window.location.origin + "/reserve" : "");
-              setToast("Login link copied.");
+              const loginUrl =
+                typeof window !== "undefined"
+                  ? `${window.location.origin}/reserve`
+                  : "https://www.skyhy.live/reserve";
+              const message = encodeURIComponent(
+                `Hi, tap this link to log in to SKYHY and view your bills: ${loginUrl}`,
+              );
+              const waUrl = `https://wa.me/91${phone}?text=${message}`;
+              window.open(waUrl, "_blank", "noopener,noreferrer");
+              setToast("Opening WhatsApp…");
             }}
             className="mt-2 inline-flex rounded-full border border-amber-300/40 px-3 py-1 text-[11px] font-semibold text-amber-100 hover:bg-amber-400/20"
           >
-            Copy login link
+            Invite via WhatsApp
           </button>
         </div>
       )}

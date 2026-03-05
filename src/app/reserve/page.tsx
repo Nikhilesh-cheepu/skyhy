@@ -12,7 +12,7 @@ import GuestCounter from '@/components/reserve/GuestCounter';
 import PageTopBar from '@/components/PageTopBar';
 import PhoneLogin from '@/components/PhoneLogin';
 
-const WHATSAPP_NUMBER = '9274696969';
+const WHATSAPP_NUMBER = '7013884485';
 const RESERVE_DRAFT_KEY = 'reserveDraft';
 
 const IST_TIME_ZONE = 'Asia/Kolkata';
