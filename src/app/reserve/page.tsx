@@ -177,7 +177,8 @@ export default function ReservePage() {
         month: 'short',
         year: 'numeric',
       }).format(new Date(selectedDate + 'T00:00:00'));
-      const message = `🌃 SkyHy Reservations\n\n👤 Name: ${name.trim()}\n📱 Mobile number: +91 ${phone}\n📅 Date: ${istDisplay}\n⏰ Time: ${selectedTime}\n👥 Total pax: ${guests} guests\n\nBooking status:\n✅ CONFIRMED`;
+      const offerLine = selectedOffer ? selectedOffer.title : 'None';
+      const message = `🌃 SkyHy Reservations\n\n👤 Name: ${name.trim()}\n📱 Mobile number: +91 ${phone}\n📅 Date: ${istDisplay}\n⏰ Time: ${selectedTime}\n👥 Total pax: ${guests} guests\n🎁 Offer / Discount: ${offerLine}\n\nBooking status:\n✅ CONFIRMED`;
       const whatsappUrl = `https://wa.me/91${WHATSAPP_NUMBER}?text=${encodeURIComponent(
         message
       )}`;
