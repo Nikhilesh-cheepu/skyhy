@@ -63,7 +63,7 @@ async function allocateDailyCouponForUserAndDay(opts: {
           userId,
           status: "ACTIVE",
           dayKey,
-          discountPercent: 25,
+          discountPercent: 15,
           issuedAt: new Date(),
           expiresAt,
           reservationId,

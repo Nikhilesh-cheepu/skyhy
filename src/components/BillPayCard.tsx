@@ -227,7 +227,7 @@ export default function BillPayCard({ bill }: { bill: Bill }) {
           )}
           {claimInfo && (
             <p className="text-xs font-semibold text-emerald-400">
-              25% off applied! Pay ₹{finalAmount}
+              15% off applied! Pay ₹{finalAmount}
               {countdown !== null && countdown > 0 && (
                 <span className="ml-2 text-white/60">
                   (expires in {Math.floor(countdown / 60)}:
@@ -249,7 +249,7 @@ export default function BillPayCard({ bill }: { bill: Bill }) {
             onClick={handleApplyCoupon}
             className="rounded-full border border-amber-400/60 px-3 py-1 text-[11px] font-semibold text-amber-300 hover:bg-amber-500/20 disabled:opacity-60"
           >
-            {claiming ? "Applying…" : "25% off À la carte"}
+            {claiming ? "Applying…" : "15% off À la carte"}
           </button>
         )}
         {claimInfo && (

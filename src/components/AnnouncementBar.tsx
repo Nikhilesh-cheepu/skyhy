@@ -11,7 +11,7 @@ const ITEMS = [
   },
   {
     id: "ala-carte",
-    text: "25% OFF on À la carte — Limited slots daily",
+    text: "15% OFF on À la carte — Limited slots daily",
     href: "/packages-menu",
     icon: "🔥",
   },

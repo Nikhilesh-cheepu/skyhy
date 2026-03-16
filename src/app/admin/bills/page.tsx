@@ -485,7 +485,7 @@ export default function AdminBillsPage() {
                   }
                   className="w-full rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-sm text-white"
                 >
-                  <option value="a_la_carte">À la carte (25% coupon eligible)</option>
+                  <option value="a_la_carte">À la carte (15% coupon eligible)</option>
                   <option value="128">128 (no discount)</option>
                 </select>
               </div>

@@ -260,7 +260,7 @@ model Bill {
   userId            String
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   amount            Int
-  billType          String      @default("a_la_carte") // a_la_carte | 128 (25% only on à la carte, not on 128-only)
+  billType          String      @default("a_la_carte") // a_la_carte | 128 (15% only on à la carte, not on 128-only)
   notes             String?
   status            BillStatus  @default(PENDING)
   paidAmount        Int         @default(0)  // amount received so far (for PARTIAL)

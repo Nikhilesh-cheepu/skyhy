@@ -123,18 +123,18 @@ export default function AccountClient() {
         <div className="mb-4">
           {couponStatusToday === "available" && (
             <div className="rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-100">
-              25% OFF on À la carte is <span className="font-semibold">available</span>{' '}
+              15% OFF on À la carte is <span className="font-semibold">available</span>{' '}
               for you today (FCFS, 30 coupons/day).
             </div>
           )}
           {couponStatusToday === "used_today" && (
             <div className="rounded-2xl border border-sky-400/40 bg-sky-500/10 px-3 py-2 text-[11px] text-sky-100">
-              You have already used today&apos;s 25% OFF coupon. Try again tomorrow.
+              You have already used today&apos;s 15% OFF coupon. Try again tomorrow.
             </div>
           )}
           {couponStatusToday === "sold_out" && (
             <div className="rounded-2xl border border-red-400/40 bg-red-500/10 px-3 py-2 text-[11px] text-red-100">
-              Today&apos;s 25% OFF coupons are{' '}
+              Today&apos;s 15% OFF coupons are{' '}
               <span className="font-semibold">sold out</span>. Please try again
               tomorrow.
             </div>

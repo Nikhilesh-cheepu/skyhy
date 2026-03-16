@@ -7,7 +7,7 @@ import { getCurrentCustomer } from "@/lib/customer-session";
 import { ensureBillSchema } from "@/lib/ensure-bill-schema";
 
 const HOLD_MINUTES = 5;
-const DISCOUNT_PERCENT = 25;
+const DISCOUNT_PERCENT = 15;
 const QUOTA_PER_DAY = 30;
 
 function getTodayDayKeyIST(): string {
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
       }
       if (bill.billType !== "a_la_carte") {
         return NextResponse.json(
-          { error: "25% discount only applies to À la carte bills (not 128-only)" },
+          { error: "15% discount only applies to À la carte bills (not 128-only)" },
           { status: 400 }
         );
       }
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
       const hasNon128Items = order.items.some((i) => i.price !== 128);
       if (!hasNon128Items) {
         return NextResponse.json(
-          { error: "25% discount only when order has À la carte items (not 128-only)" },
+          { error: "15% discount only when order has À la carte items (not 128-only)" },
           { status: 400 }
         );
       }

@@ -235,7 +235,7 @@ function PackagesMenuPageContent() {
   // Offer ticker messages
   const OFFER_MESSAGES = [
     "Eat & Drink Anything @ ₹128 • 12:00 PM – 7:45 PM",
-    "25% OFF on À la carte Menu",
+    "15% OFF on À la carte Menu",
     "Book a table to reserve your offer",
   ];
 
@@ -725,7 +725,7 @@ function PackagesMenuPageContent() {
                   {claimInfo ? (
                     <div className="flex flex-col gap-1">
                       <div className="flex justify-between text-sm text-emerald-400">
-                        <span>25% off À la carte applied</span>
+                        <span>15% off À la carte applied</span>
                         <span>-₹{discountAmount}</span>
                       </div>
                       {countdown !== null && countdown > 0 && (
@@ -737,7 +737,7 @@ function PackagesMenuPageContent() {
                   ) : hasNon128Items ? (
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-white/80">25% off À la carte</span>
+                        <span className="text-sm text-white/80">15% off À la carte</span>
                         <button
                           type="button"
                           disabled={claiming}

@@ -11,7 +11,7 @@ export interface Offer {
 /** Single source of truth for offer display names (used in UI + WhatsApp). */
 export const OFFER_TITLES = {
   EAT_DRINK_128: 'Eat & Drink Anything @ ₹128',
-  DISCOUNT_ALACARTE_25: '25% Discount on À la carte',
+  DISCOUNT_ALACARTE_25: '15% Discount on À la carte',
 } as const;
 
 /** Shared human‑readable timing label for the ₹128 offer. */

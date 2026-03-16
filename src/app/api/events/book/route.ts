@@ -90,7 +90,7 @@ export async function POST(request: Request) {
     const link = baseUrl ? `${baseUrl}/me` : "My Bookings & Payments";
     void sendSms(
       mobile,
-      `SKYHY: Booking confirmed. View details: ${link}. Claim 25% off on À la carte when you pay (FCFS, 30/day).`
+      `SKYHY: Booking confirmed. View details: ${link}. Claim 15% off on À la carte when you pay (FCFS, 30/day).`
     ).catch(() => {});
 
     return NextResponse.json(booking);
